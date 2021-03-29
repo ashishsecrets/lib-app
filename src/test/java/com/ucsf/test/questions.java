@@ -2,9 +2,8 @@ package com.ucsf.test;
 
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -15,10 +14,6 @@ import com.ucsf.model.Question.QuestionType;
 @SpringBootTest
 public class questions {
 	
-	
-	  // @Autowired 
-	  //QuestionRepository  questionRepository;
-
 	    @Test
 	    public void addQuestions() throws Exception {
 		 
