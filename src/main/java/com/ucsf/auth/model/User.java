@@ -1,6 +1,7 @@
 package com.ucsf.auth.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -55,9 +56,6 @@ public class User {
 	@Column(name = "user_status")
 	private UserStatus userStatus;
 
-	@Column
-	private String role;
-
 	@Column(name = "auth_token", columnDefinition = "TEXT")
 	private String authToken;
 
@@ -77,4 +75,8 @@ public class User {
 	@JoinTable(name = "qualified_users", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "criteria_id"))
 	Set<QualificationCriteria> criterias;
 
+	@JsonIgnore
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
 }

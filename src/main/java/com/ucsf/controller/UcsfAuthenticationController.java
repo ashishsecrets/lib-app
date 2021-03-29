@@ -19,7 +19,7 @@ import com.ucsf.payload.AuthRequest;
 import com.ucsf.payload.AuthResponse;
 import com.ucsf.payload.UserDto;
 import com.ucsf.repository.UserRepository;
-import com.ucsf.service.JwtUserDetailsService;
+import com.ucsf.service.CustomUserDetailsService;
 
 @RestController
 @CrossOrigin
@@ -33,24 +33,25 @@ public class UcsfAuthenticationController {
 	private JwtTokenUtil jwtTokenUtil;
 
 	@Autowired
-	private JwtUserDetailsService userDetailsService;
-	
-	@Autowired 
+	private CustomUserDetailsService userDetailsService;
+
+	@Autowired
 	UserRepository userRepository;
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authenticationRequest) throws Exception {
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authenticationRequest)
+			throws Exception {
 
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		
+
 		User user = userRepository.findByUsername(userDetails.getUsername());
-		
+
 		user.setAuthToken(token);
-		
+
 		userRepository.save(user);
 
 		return ResponseEntity.ok(new AuthResponse(token));

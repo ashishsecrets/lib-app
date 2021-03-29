@@ -28,7 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private UcsfRequestFilter ucsfRequestFilter;
-	
+
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		// configure AuthenticationManager so that it knows from where to load
@@ -54,11 +54,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		httpSecurity.csrf().disable()
 				// dont authenticate this particular request
 				.authorizeRequests().antMatchers("/api/auth/**").permitAll()
-				//.antMatchers("/api/greeting/**").access("hasRole('ROLE_ADMIN')")
-						.anyRequest().authenticated().and().
+				// .antMatchers("/api/greeting/**").access("hasRole('ROLE_ADMIN')")
+				.anyRequest().authenticated().and().
 				// make sure we use stateless session; session won't be used to
 				// store user's state.
-						exceptionHandling().authenticationEntryPoint(ucsfAuthenticationEntryPoint).and().sessionManagement()
+				exceptionHandling().authenticationEntryPoint(ucsfAuthenticationEntryPoint).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		// Add a filter to validate the tokens with every request
