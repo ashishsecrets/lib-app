@@ -18,6 +18,8 @@ public class UcsfAuthenticationEntryPoint implements AuthenticationEntryPoint, S
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
+		
+		System.out.println( " ================== YOU  _+++++++++++++++++++=");
 		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
 	}
 }

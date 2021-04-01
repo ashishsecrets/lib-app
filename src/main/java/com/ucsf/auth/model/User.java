@@ -52,6 +52,12 @@ public class User {
 	@Column
 	@JsonIgnore
 	private String password;
+	
+	@Column
+	private String phoneNumber;
+	
+	@Column
+	private String phoneCode;
 
 	@Column(name = "user_status")
 	private UserStatus userStatus;

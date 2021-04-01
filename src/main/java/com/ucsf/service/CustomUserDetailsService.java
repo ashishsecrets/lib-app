@@ -3,7 +3,6 @@ package com.ucsf.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -16,11 +15,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
-import com.ucsf.exception.AppException;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.payload.UserDto;
 import com.ucsf.repository.RoleRepository;
@@ -37,6 +36,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
 	RoleRepository roleRepository;
 
+	private static String ROLE_PREFIX = "ROLE_";
+
+	private boolean is2faEnabled = true;
+
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -45,7 +48,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 		boolean isCredentialNotExpired = true;
 		boolean isAccountNotLocked = true;
 		User user = userRepository.findByUsername(username);
-
 		if (user == null) {
 			throw new UsernameNotFoundException("User not found with username: " + username);
 		}
@@ -56,10 +58,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 			isEnable = false;
 		}
 
-		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
-			grantedAuthorities.add(new SimpleGrantedAuthority(role.getName().toString()));
+		if (!is2faEnabled) {
+			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+			}
+		} else {
+			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
 		}
-
 		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), isEnable,
 				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
 	}
@@ -68,17 +73,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 		User newUser = new User();
 		newUser.setUsername(user.getUsername());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-		newUser.setEmail(user.getEmail());
-		
-		Optional<Role> existed = roleRepository.findByName(RoleName.ROLE_PATIENT);
+		newUser.setEmail(user.getEmail());	
+
+		Role existed = roleRepository.findByName(RoleName.PATIENT);
 		if (existed == null) {
 			Role role = new Role();
-			role.setName(RoleName.ROLE_PATIENT);
+			role.setName(RoleName.PATIENT);
 			roleRepository.save(role);
 		}
 		// Set initial role
-		Role userRole = roleRepository.findByName(RoleName.ROLE_PATIENT)
-				.orElseThrow(() -> new AppException("User Role not set."));
+		Role userRole = roleRepository.findByName(RoleName.PATIENT);
+		// .orElseThrow(() -> new AppException("User Role not set."));
 		newUser.setRoles(Collections.singleton(userRole));
 
 		newUser.setUserStatus(UserStatus.ACTIVE);
@@ -97,10 +102,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@PostConstruct
 	public void saveRole() {
-		Optional<Role> existed = roleRepository.findByName(RoleName.ROLE_ADMIN);
+		Role existed = roleRepository.findByName(RoleName.ADMIN);
 		if (existed == null) {
 			Role role = new Role();
-			role.setName(RoleName.ROLE_ADMIN);
+			role.setName(RoleName.ADMIN);
 			roleRepository.save(role);
 		}
 	}
