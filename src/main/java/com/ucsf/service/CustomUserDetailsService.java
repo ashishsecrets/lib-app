@@ -20,6 +20,7 @@ import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
+import com.ucsf.config.JwtConfig;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.payload.UserDto;
 import com.ucsf.repository.RoleRepository;
@@ -38,7 +39,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	private static String ROLE_PREFIX = "ROLE_";
 
-	private boolean is2faEnabled = true;
+	@Autowired
+	JwtConfig jwtConfig;
+
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -57,8 +60,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 		} else {
 			isEnable = false;
 		}
-
-		if (!is2faEnabled) {
+		if(user.getIsVerified()) {
+			jwtConfig.setTwoFa(false); 
+		}
+		if (!jwtConfig.getTwoFa()) {
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
 			}
@@ -76,7 +81,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		newUser.setEmail(user.getEmail());	
 		newUser.setPhoneNumber(user.getPhone());
 		newUser.setPhoneCode(user.getPhoneCode());
-
+        newUser.setIsVerified(false);
 		Role existed = roleRepository.findByName(RoleName.PATIENT);
 		if (existed == null) {
 			Role role = new Role();
