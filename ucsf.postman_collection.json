@@ -1,0 +1,107 @@
+{
+	"info": {
+		"_postman_id": "d45ac08a-6b43-4f18-acfc-dd4c9b77f1ca",
+		"name": "ucsf",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "signup",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"Gurpree2\",\n\"email\":\"gurpree2t@gmail.com\",\n\"password\":\"12342\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/auth/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "authenticate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"Gurpree2\",\n\"password\":\"12342\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "test",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHdXJwcmVldGthdXIiLCJyb2xlcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9QUkVfVkVSSUZJQ0FUSU9OX1VTRVIifV0sImlhdCI6MTYxNzM1NTU2NCwiZXhwIjoxNjE3MzczNTY0fQ.CRQsEGTRe-jVJOIqCmXo2e17sw6uz8S8MKT03unB_uwvKrp1PbG-KVFZcyUHetwoNQgCZfAN_0zQs1dJr16KfA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"code\":\"2430\",\n\"username\":\"Gurpreetkaur\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/verify",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"verify"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
