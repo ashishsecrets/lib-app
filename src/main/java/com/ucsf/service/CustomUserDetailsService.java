@@ -74,6 +74,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 		newUser.setUsername(user.getUsername());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		newUser.setEmail(user.getEmail());	
+		newUser.setPhoneNumber(user.getPhone());
+		newUser.setPhoneCode(user.getPhoneCode());
 
 		Role existed = roleRepository.findByName(RoleName.PATIENT);
 		if (existed == null) {

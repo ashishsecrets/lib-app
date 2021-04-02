@@ -9,22 +9,21 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.authy.AuthyApiClient;
 import com.ucsf.auth.model.User;
+import com.ucsf.config.JwtConfig;
 
 @Service
 public class VerificationService {
 
-	@Value("${twilio.twoFa}")
-	private Boolean twoFa;
-
-	@Value("${twilio.apiKey}")
-	private String twilioAPIKey;
-
 	private AuthyApiClient authyClient;
+	
+	 @Autowired
+	 JwtConfig jwtConfig;
 
 	private String authyAPIUrl = "https://api.authy.com/protected/json/phones/verification/start";
 
@@ -32,7 +31,7 @@ public class VerificationService {
 
 	public JSONObject sendVerificationCode(User user) {
 		if (authyClient == null) {
-			authyClient = new AuthyApiClient(twilioAPIKey);
+			authyClient = new AuthyApiClient(jwtConfig.getTwilioAPIKey());
 		}
 		JSONObject response = authyCall(user);
 		return response;
@@ -49,7 +48,7 @@ public class VerificationService {
 			// add request header
 			con.setRequestMethod("POST");
 			con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-			con.setRequestProperty("X-Authy-API-Key", twilioAPIKey);
+			con.setRequestProperty("X-Authy-API-Key", jwtConfig.getTwilioAPIKey());
 			String urlParameters = "locale='en'&via=sms&phone_number=" + user.getPhoneNumber() + "&country_code="
 					+ user.getPhoneCode() + "";
 
@@ -115,7 +114,7 @@ public class VerificationService {
 		URL obj = new URL(url);
 		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		con.setRequestMethod("GET");
-		con.setRequestProperty("X-Authy-API-Key", twilioAPIKey);
+		con.setRequestProperty("X-Authy-API-Key", jwtConfig.getTwilioAPIKey());
 		StringBuffer response = new StringBuffer();
 		int responseCode = con.getResponseCode();
 		if (responseCode == 200) {

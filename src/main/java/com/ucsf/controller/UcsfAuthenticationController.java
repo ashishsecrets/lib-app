@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ucsf.auth.model.TwoFactorAuthentication;
 import com.ucsf.auth.model.User;
+import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
 import com.ucsf.payload.AuthRequest;
 import com.ucsf.payload.AuthResponse;
@@ -33,8 +34,9 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
-	@Autowired VerificationRepository verificationRepository;
+
+	@Autowired
+	VerificationRepository verificationRepository;
 
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
@@ -44,11 +46,13 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	UserRepository userRepository;
-	
+
 	@Autowired
 	VerificationService verificationService;
-	
-	private boolean is2faEnabled = true;
+
+	@Autowired
+	JwtConfig jwtConfig;
+
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authenticationRequest)
@@ -65,17 +69,17 @@ public class UcsfAuthenticationController {
 		user.setAuthToken(token);
 
 		userRepository.save(user);
-		
-		if(is2faEnabled) {
+
+		if (jwtConfig.getTwoFa()) {
 			TwoFactorAuthentication factorAuthentication = verificationRepository.findByUserId(user.getId());
-			if(factorAuthentication != null) {
+			if (factorAuthentication != null) {
 				verificationService.sendVerificationCode(user);
 				factorAuthentication.setCode("1234");
 				factorAuthentication.setExpiredAt(new Date()); // 15 mints
 				factorAuthentication.setCreatedAt(new Date());
 				verificationRepository.save(factorAuthentication);
 			} else {
-				factorAuthentication =  new TwoFactorAuthentication();
+				factorAuthentication = new TwoFactorAuthentication();
 				verificationService.sendVerificationCode(user);
 				factorAuthentication.setCode("1234");
 				factorAuthentication.setExpiredAt(new Date());
@@ -84,12 +88,12 @@ public class UcsfAuthenticationController {
 				verificationRepository.save(factorAuthentication);
 			}
 		}
-		
-		if(is2faEnabled) {
+
+		if (jwtConfig.getTwoFa()) {
 			return ResponseEntity.ok(new AuthResponse(token, false));
 		}
 		return ResponseEntity.ok(new AuthResponse(token, true));
-		
+
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)

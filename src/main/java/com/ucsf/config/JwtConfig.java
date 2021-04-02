@@ -24,4 +24,10 @@ public class JwtConfig {
 
 	@Value("${security.jwt.secret}")
 	private String secret;
+	
+	@Value("${twilio.apiKey}")
+	private String twilioAPIKey;
+	
+	@Value("${twilio.twoFa}")
+	private Boolean twoFa;
 }

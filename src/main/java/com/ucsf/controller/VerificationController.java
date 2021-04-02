@@ -32,21 +32,23 @@ public class VerificationController {
 
 	@PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
 	@RequestMapping(value = "/verify", method = RequestMethod.POST)
-	public String verify(@RequestBody VerifyRequest verifyRequest) {
+	public JSONObject verify(@RequestBody VerifyRequest verifyRequest) {
+		JSONObject jsonObject = null;
 		if (verifyRequest.getUsername() != null && verifyRequest.getCode() != null
 				&& verifyRequest.getCode().length() > 0) {
 			User user = userRepository.findByUsername(verifyRequest.getUsername());
 			if (user == null) {
-				return "Fail";
+				return jsonObject;
 			}
 			try {
-				JSONObject jsonObject = verificationService.otpCodeVerification(user, verifyRequest.getCode());
+				jsonObject = verificationService.otpCodeVerification(user, verifyRequest.getCode());
+				//update user role
 				System.out.println(jsonObject);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return "success";
+		return jsonObject;
 	}
 
 }
