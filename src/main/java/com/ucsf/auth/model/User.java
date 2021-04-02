@@ -57,6 +57,9 @@ public class User {
 	private String phoneNumber;
 	
 	@Column
+	private Boolean isVerified;
+	
+	@Column
 	private String phoneCode;
 
 	@Column(name = "user_status")

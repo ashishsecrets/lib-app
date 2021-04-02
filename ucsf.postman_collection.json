@@ -15,7 +15,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"username\":\"Gurpree2\",\n\"email\":\"gurpree2t@gmail.com\",\n\"password\":\"12342\"}",
+					"raw": "{\"username\":\"Gurpreetkaur\",\n\"email\":\"gurpreetkaur@gmail.com\",\n\"password\":\"1234\",\n\"phone\":\"8558940243\",\n\"phoneCode\":\"+91\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -45,7 +45,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"username\":\"Gurpree2\",\n\"password\":\"12342\"}",
+					"raw": "{\"username\":\"Gurpreetkaur\",\n\"password\":\"1234\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -53,7 +53,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/auth/login",
+					"raw": "http://localhost:8080/api/auth/authenticate",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -62,26 +62,26 @@
 					"path": [
 						"api",
 						"auth",
-						"login"
+						"authenticate"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "test",
+			"name": "verifyOTP",
 			"request": {
 				"method": "POST",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHdXJwcmVldGthdXIiLCJyb2xlcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9QUkVfVkVSSUZJQ0FUSU9OX1VTRVIifV0sImlhdCI6MTYxNzM1NTU2NCwiZXhwIjoxNjE3MzczNTY0fQ.CRQsEGTRe-jVJOIqCmXo2e17sw6uz8S8MKT03unB_uwvKrp1PbG-KVFZcyUHetwoNQgCZfAN_0zQs1dJr16KfA",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHdXJwcmVldGthdXIiLCJyb2xlcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9QUkVfVkVSSUZJQ0FUSU9OX1VTRVIifV0sImlhdCI6MTYxNzM3MTUzNCwiZXhwIjoxNjE3Mzg5NTM0fQ.x3NbC_BvdyukUxlgRVYyp5VCCk8DqMbJSBVPJFu7ze8o4wPY1zKjli0XTbrpcnFDsTd9OJjHGW1UheYblJCsDg",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"code\":\"2430\",\n\"username\":\"Gurpreetkaur\"}",
+					"raw": "{\"code\":\"7301\",\n\"username\":\"Gurpreetkaur\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -89,7 +89,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/verify",
+					"raw": "http://localhost:8080/api/verifyOtp",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -97,7 +97,34 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"verify"
+						"verifyOtp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/api/users/user",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHdXJwcmVldGthdXIiLCJyb2xlcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9QQVRJRU5UIn1dLCJpYXQiOjE2MTczNzE2NjYsImV4cCI6MTYxNzM4OTY2Nn0.Wku4Q5slPC_HzNTEjaPaPYboL4_5Opnr-IMFawhEhFOEPgRoQJbAcqnONIrfoxkJnxh3EwPJ_PTFnbQo_U3boA",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/api/users/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"users",
+						"user"
 					]
 				}
 			},
