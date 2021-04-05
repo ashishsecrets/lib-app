@@ -2,18 +2,12 @@ package com.ucsf.config;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import com.ucsf.auth.model.RoleName;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,8 +22,6 @@ public class JwtTokenUtil implements Serializable {
 	@Value("${security.jwt.secret}")
 	private String JWT_SECRET;
 
-	private JwtConfig jwtConfig;
-	
 	public String getUsernameFromToken(String token) {
 		return getClaimFromToken(token, Claims::getSubject);
 	}
@@ -78,13 +70,13 @@ public class JwtTokenUtil implements Serializable {
 	}
 
 	public boolean isPreVerificationUser(UserDetails userDetails) {
-		/*if (userDetails.getAuthorities() != null) {
-			List<String> authorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-					.collect(Collectors.toList());
-			return authorities.contains(RoleName.PRE_VERIFICATION_USER.toString()) ? false : true;
-		} else {
-			return false;
-		}*/
+		/*
+		 * if (userDetails.getAuthorities() != null) { List<String> authorities =
+		 * userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+		 * .collect(Collectors.toList()); return
+		 * authorities.contains(RoleName.PRE_VERIFICATION_USER.toString()) ? false :
+		 * true; } else { return false; }
+		 */
 		return false;
 	}
 

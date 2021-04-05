@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.authy.AuthyApiClient;
+import com.authy.*;
 import com.ucsf.auth.model.User;
 import com.ucsf.config.JwtConfig;
 
