@@ -88,4 +88,15 @@ public class User {
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", username=" + username + ", email=" + email + ", password="
+				+ password + ", phoneNumber=" + phoneNumber + ", isVerified=" + isVerified + ", phoneCode=" + phoneCode
+				+ ", userStatus=" + userStatus + ", authToken=" + authToken + ", createdDate=" + createdDate
+				+ ", lastModifiedDate=" + lastModifiedDate + ", metadata=" + metadata + ", userDiseaseInfo="
+				+ userDiseaseInfo + ", criterias=" + criterias + ", roles=" + roles + "]";
+	}
+	
+	
 }

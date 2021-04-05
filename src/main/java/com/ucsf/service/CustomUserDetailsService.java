@@ -54,6 +54,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 			throw new UsernameNotFoundException("User not found with username: " + username);
 		}
 
+		System.out.println(user.toString());
 		if (user.getUserStatus() != null && user.getUserStatus() == UserStatus.ACTIVE) {
 			isEnable = true;
 		} else {
