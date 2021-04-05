@@ -22,7 +22,7 @@ import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
 import com.ucsf.config.JwtConfig;
 import com.ucsf.model.UserMetadata;
-import com.ucsf.payload.UserDto;
+import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.UserRepository;
 
@@ -42,7 +42,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
 	JwtConfig jwtConfig;
 
-
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -60,8 +59,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 		} else {
 			isEnable = false;
 		}
-		if(user.getIsVerified()) {
-			jwtConfig.setTwoFa(false); 
+		if (user.getIsVerified()) {
+			jwtConfig.setTwoFa(false);
 		}
 		if (!jwtConfig.getTwoFa()) {
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
@@ -74,14 +73,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
 	}
 
-	public User save(UserDto user) {
+	public User save(SignUpRequest user) {
 		User newUser = new User();
 		newUser.setUsername(user.getUsername());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-		newUser.setEmail(user.getEmail());	
+		newUser.setEmail(user.getEmail());
 		newUser.setPhoneNumber(user.getPhone());
 		newUser.setPhoneCode(user.getPhoneCode());
-        newUser.setIsVerified(false);
+		newUser.setIsVerified(false);
 		Role existed = roleRepository.findByName(RoleName.PATIENT);
 		if (existed == null) {
 			Role role = new Role();
