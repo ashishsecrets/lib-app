@@ -24,7 +24,7 @@ public class EncryptStringService {
     SecretKey key;
 
     public EncryptStringService() throws Exception {
-        myEncryptionKey = "Redblink";
+        myEncryptionKey = "ThisIsSpartaThisIsSparta";
         myEncryptionScheme = DESEDE_ENCRYPTION_SCHEME;
         arrayBytes = myEncryptionKey.getBytes(UNICODE_FORMAT);
         ks = new DESedeKeySpec(arrayBytes);

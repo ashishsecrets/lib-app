@@ -17,10 +17,12 @@ public class PasswordResetLinkService {
 
 
     private LocalDateTime now = LocalDateTime.now();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
     public String createPasswordResetLink(User user){
         String link = "";
-        String string = user.getUsername()+"|"+now.toString()+"|"+"ucsfredblinkcheckpoint";
+        String dateTime = now.format(formatter);
+        String string = user.getUsername()+","+dateTime+","+"ucsfredblinkcheckpoint";
 
         try {
             link = encryption.encrypt(string);

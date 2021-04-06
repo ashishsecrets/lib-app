@@ -8,6 +8,8 @@ import com.ucsf.service.EmailService;
 import com.ucsf.service.LoggerService;
 
 import com.ucsf.service.PasswordResetLinkService;
+import com.ucsf.service.VerifyPassword;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class ResetPasswordController {
 
 	@Autowired
 	PasswordResetLinkService passResetLinkService;
+
+	@Autowired
+	VerifyPassword verifyPassword;
 
 	@Value("${spring.mail.from}")
 	String fromEmail;
@@ -56,16 +61,35 @@ public class ResetPasswordController {
 		return ResponseEntity.ok(new ResetPasswordResponse(true, "A reset password email has been sent."));
 	}
 
-	@RequestMapping(value = "/verify", method = RequestMethod.POST)
-	public ResponseEntity<VerifyPasswordRequest> verifyPassword(@RequestParam String password) {
+	/*@RequestMapping(value = "/verify", method = RequestMethod.POST)
+	public ResponseEntity<ResetPasswordResponse> verifyPassword(@ResponseBody VerifyPassword password) {
 
+		JSONObject responseJson = new JSONObject();
 		if (password != null && !password.equals("")) {
-			User user = userRepository.findByEmail(password);
-			if (user == null) {
-				return ResponseEntity.ok(new VerifyPasswordRequest());
+
+			if (!verifyPassword.verifyPass(password, link)) {
+				return ResponseEntity.ok(new ResetPasswordResponse(false, "User not found or link expired."));
 			}
 		}
-		return ResponseEntity.ok(new VerifyPasswordRequest());
+		return ResponseEntity.ok(new ResetPasswordResponse(true, "Password Reset."));
+	}*/
+
+	@RequestMapping(value = "/verify", method = RequestMethod.POST)
+	public ResponseEntity<ResetPasswordResponse> verifyPassword(@RequestBody VerifyPasswordRequest verifyPasswordData) throws Exception {
+
+		String password = verifyPasswordData.getPassword();
+		String link = verifyPasswordData.getLink();
+
+		JSONObject responseJson = new JSONObject();
+		if (password != null && !password.equals("")) {
+
+			if (!verifyPassword.verifyPass(password, link)) {
+				return ResponseEntity.ok(new ResetPasswordResponse(false, "User not found or link expired."));
+			}
+		}
+		return ResponseEntity.ok(new ResetPasswordResponse(true, "Password Reset."));
 	}
+
+
 
 }
