@@ -3,6 +3,7 @@ package com.ucsf.service;
 import com.ucsf.auth.model.User;
 import com.ucsf.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 @Service
-public class VerifyPassword {
+public class ResetPassword {
 
     LocalDateTime now = LocalDateTime.now();
 
@@ -20,7 +21,10 @@ public class VerifyPassword {
     @Autowired
     UserRepository userRepository;
 
-    public Boolean verifyPass(String password, String link){
+    @Autowired
+    BCryptPasswordEncoder bcryptEncoder;
+
+    public Boolean resetPass(String password, String link){
         Boolean isValid = false;
         String string = "";
         try {
@@ -38,6 +42,8 @@ public class VerifyPassword {
         User user = userRepository.findByUsername(username);
         if (user != null && minutes < 15) {
             isValid = true;
+            user.setPassword(bcryptEncoder.encode(password));
+            userRepository.save(user);
         }
 
         return isValid;

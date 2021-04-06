@@ -8,7 +8,7 @@ import com.ucsf.service.EmailService;
 import com.ucsf.service.LoggerService;
 
 import com.ucsf.service.PasswordResetLinkService;
-import com.ucsf.service.VerifyPassword;
+import com.ucsf.service.ResetPassword;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class ResetPasswordController {
 	PasswordResetLinkService passResetLinkService;
 
 	@Autowired
-	VerifyPassword verifyPassword;
+	ResetPassword resetPassword;
 
 	@Value("${spring.mail.from}")
 	String fromEmail;
@@ -83,7 +83,7 @@ public class ResetPasswordController {
 		JSONObject responseJson = new JSONObject();
 		if (password != null && !password.equals("")) {
 
-			if (!verifyPassword.verifyPass(password, link)) {
+			if (!resetPassword.resetPass(password, link)) {
 				return ResponseEntity.ok(new ResetPasswordResponse(false, "User not found or link expired."));
 			}
 		}
