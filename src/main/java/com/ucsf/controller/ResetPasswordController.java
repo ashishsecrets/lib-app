@@ -2,11 +2,12 @@ package com.ucsf.controller;
 
 import com.ucsf.auth.model.User;
 import com.ucsf.payload.ResetPasswordResponse;
-import com.ucsf.payload.VerifyPasswordRequest;
+import com.ucsf.payload.request.VerifyPasswordRequest;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
 import com.ucsf.service.LoggerService;
 
+import com.ucsf.service.PasswordResetLinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class ResetPasswordController {
 
 	@Autowired
 	EmailService emailService;
+
+	@Autowired
+	PasswordResetLinkService passResetLinkService;
 
 	@Value("${spring.mail.from}")
 	String fromEmail;
@@ -45,7 +49,7 @@ public class ResetPasswordController {
 		}
 		try {
 			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your UCSF account password",
-					user.getUsername() + " " + user.getUsername());
+					user.getUsername() + " " + user.getUsername(), passResetLinkService.createPasswordResetLink(user));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

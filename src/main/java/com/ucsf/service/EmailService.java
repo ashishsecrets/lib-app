@@ -23,10 +23,10 @@ public class EmailService {
 	@Autowired
 	JavaMailSender javaMailSender;
 
-	@Value("${web.site.url}")
-	String webSiteUrl;
+	/*@Value("${web.site.url}")
+	String webSiteUrl;*/
 
-	public void sendResetPasswordEmail(String from, String to, String subject, String name) throws Exception {
+	public void sendResetPasswordEmail(String from, String to, String subject, String name, String webSiteUrl) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
 
