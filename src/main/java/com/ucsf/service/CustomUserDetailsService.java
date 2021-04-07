@@ -65,7 +65,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 			System.out.println("Check if user verified: "+user.getIsVerified());
 			twoFa = false;
 		}
-		if (!twoFa) {
+		if (user.getIsVerified()) {
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
 			}
