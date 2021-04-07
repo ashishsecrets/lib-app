@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,8 +40,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	private static String ROLE_PREFIX = "ROLE_";
 
-	@Autowired
-	JwtConfig jwtConfig;
+	@Value("${twilio.twoFa}")
+	private Boolean twoFa;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -61,9 +62,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 			isEnable = false;
 		}
 		if (user.getIsVerified()) {
-			jwtConfig.setTwoFa(false);
+			System.out.println("Check if user verified: "+user.getIsVerified());
+			twoFa = false;
 		}
-		if (!jwtConfig.getTwoFa()) {
+		if (!twoFa) {
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
 			}
