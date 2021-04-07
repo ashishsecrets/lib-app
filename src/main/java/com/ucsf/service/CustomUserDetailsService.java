@@ -42,6 +42,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
 	JwtConfig jwtConfig;
 
+
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -49,6 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		boolean isUserNotExpired = true;
 		boolean isCredentialNotExpired = true;
 		boolean isAccountNotLocked = true;
+		jwtConfig.setTwoFa(true);
 		User user = userRepository.findByUsername(username);
 		if (user == null) {
 			throw new UsernameNotFoundException("User not found with username: " + username);
