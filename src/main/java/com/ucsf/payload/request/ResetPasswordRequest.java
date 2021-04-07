@@ -5,10 +5,11 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class VerifyPasswordRequest {
+public class ResetPasswordRequest {
 
     // user password verification Attribute
     private String password;
+    private String confirmPassword;
     private String link;
 
 }

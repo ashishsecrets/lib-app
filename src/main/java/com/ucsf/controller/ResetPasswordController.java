@@ -2,7 +2,7 @@ package com.ucsf.controller;
 
 import com.ucsf.auth.model.User;
 import com.ucsf.payload.ResetPasswordResponse;
-import com.ucsf.payload.request.VerifyPasswordRequest;
+import com.ucsf.payload.request.ResetPasswordRequest;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
 import com.ucsf.service.LoggerService;
@@ -62,15 +62,23 @@ public class ResetPasswordController {
 	}
 
 	@RequestMapping(value = "/reset-password", method = RequestMethod.POST)
-	public ResponseEntity<ResetPasswordResponse> verifyPassword(@RequestBody VerifyPasswordRequest verifyPasswordData) throws Exception {
+	public ResponseEntity<ResetPasswordResponse> verifyPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) throws Exception {
 
-		String password = verifyPasswordData.getPassword();
-		String link = verifyPasswordData.getLink();
+		if (resetPasswordRequest.getPassword() != null && !resetPasswordRequest.getPassword().equals("")) {
 
-		if (verifyPasswordData.getPassword() != null && !verifyPasswordData.getPassword().equals("")) {
+			String password = resetPasswordRequest.getPassword();
+			String confirmPassword = resetPasswordRequest.getConfirmPassword();
+			String link = resetPasswordRequest.getLink();
 
-			if (!resetPassword.resetPass(password, link)) {
-				return ResponseEntity.ok(new ResetPasswordResponse(false, "User not found or link expired."));
+			if((password != null & !password.equals("")) && (confirmPassword != null & !confirmPassword.equals("")) && (link != null & !link.equals(""))) {
+
+				if (!password.equals(confirmPassword)) {
+					return ResponseEntity.ok(new ResetPasswordResponse(false, "Password & confirmed password don't match."));
+				}
+
+				if (!resetPassword.resetPass(password, link)) {
+					return ResponseEntity.ok(new ResetPasswordResponse(false, "User not found or link expired."));
+				}
 			}
 		}
 		return ResponseEntity.ok(new ResetPasswordResponse(true, "Password Reset."));
