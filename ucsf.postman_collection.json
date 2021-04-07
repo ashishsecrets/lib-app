@@ -23,46 +23,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/auth/register",
-					"protocol": "http",
+					"raw": "{{devBaseUrl}}/api/auth/register",
 					"host": [
-						"localhost"
+						"{{devBaseUrl}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"auth",
 						"register"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "authenticate",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\"username\":\"Gurpreetkaur\",\n\"password\":\"1234\"}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/api/auth/authenticate",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"auth",
-						"authenticate"
 					]
 				}
 			},
@@ -75,13 +43,13 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHdXJwcmVldGthdXIiLCJyb2xlcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9QUkVfVkVSSUZJQ0FUSU9OX1VTRVIifV0sImlhdCI6MTYxNzM3MTUzNCwiZXhwIjoxNjE3Mzg5NTM0fQ.x3NbC_BvdyukUxlgRVYyp5VCCk8DqMbJSBVPJFu7ze8o4wPY1zKjli0XTbrpcnFDsTd9OJjHGW1UheYblJCsDg",
+						"value": "{{authToken}}",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\"code\":\"7301\",\n\"username\":\"Gurpreetkaur\"}",
+					"raw": "{\"code\":\"2753\",\n\"username\":\"Gurpreetkaur\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -89,12 +57,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/verifyOtp",
-					"protocol": "http",
+					"raw": "{{devBaseUrl}}/api/verifyOtp",
 					"host": [
-						"localhost"
+						"{{devBaseUrl}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"verifyOtp"
@@ -110,21 +76,120 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHdXJwcmVldGthdXIiLCJyb2xlcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9QQVRJRU5UIn1dLCJpYXQiOjE2MTczNzE2NjYsImV4cCI6MTYxNzM4OTY2Nn0.Wku4Q5slPC_HzNTEjaPaPYboL4_5Opnr-IMFawhEhFOEPgRoQJbAcqnONIrfoxkJnxh3EwPJ_PTFnbQo_U3boA",
+						"value": "{{authToken}}",
 						"type": "text"
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/api/users/user",
-					"protocol": "http",
+					"raw": "{{localBaseUrl}}/api/users/user",
 					"host": [
-						"localhost"
+						"{{localBaseUrl}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"users",
 						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SignIn",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json()",
+							"var token = jsonData[\"jwttoken\"];",
+							"pm.environment.set(\"authToken\",\"Bearer \" +token)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\":\"Gurpreetkaur\",\n\"password\":\"1234\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{devBaseUrl}}/api/auth/authenticate",
+					"host": [
+						"{{devBaseUrl}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ForgetPassword",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{devBaseUrl}}/api/password/forget-password?email=gurpreet.kaur@redblink.net",
+					"host": [
+						"{{devBaseUrl}}"
+					],
+					"path": [
+						"api",
+						"password",
+						"forget-password"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "gurpreet.kaur@redblink.net"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "resetPassword",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"password\":\"Password@123\",\n\"link\":\"5Rd3TGLCg8nFJhi4eUNeHvpk/NEpVo+RG0XK3ehOFC8jO0Ab2Gjb7SJUI4LpQcMN\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{devBaseUrl}}/api/password/reset-password",
+					"host": [
+						"{{devBaseUrl}}"
+					],
+					"path": [
+						"api",
+						"password",
+						"reset-password"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "gurpreet.kaur@redblink.net",
+							"disabled": true
+						}
 					]
 				}
 			},
