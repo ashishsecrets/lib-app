@@ -34,7 +34,6 @@ public class ResetPassword {
         }
         String[] split = string.split(",");
         String date = split[1];
-        //String str = "2016-03-04 11:30";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
         long minutes = ChronoUnit.MINUTES.between(dateTime, now);
