@@ -94,13 +94,13 @@ public class UcsfAuthenticationController {
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
 			responseJson.put("error",
 					new ApiError(ErrorCodes.USERNAME_ALREADY_USED.code(), Constants.USERNAME_ALREADY_USED.errordesc()));
-			return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
 		}
 
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
 			responseJson.put("error",
 					new ApiError(ErrorCodes.EMAIL_ALREADY_USED.code(), Constants.EMAIL_ALREADY_USED.errordesc()));
-			return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
 		}
 		
 		return ResponseEntity.ok(userDetailsService.save(signUpRequest));
