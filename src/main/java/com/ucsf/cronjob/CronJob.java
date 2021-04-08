@@ -20,7 +20,7 @@ public class CronJob {
 
 
     //@Autowired
-    @Scheduled(cron = "0 0 15 * * *")
+    //@Scheduled(cron = "0 0 15 * * *")
     public void readQuestionsFrmCsvToDb() {
 
         System.out.println("Scheduled questions read from csv to db.");
@@ -28,10 +28,7 @@ public class CronJob {
         // Deleting all questions from DB first.
         //questionRepository.deleteAll();
         //Adding all questions from csv
-        readCsvNAddQuestions("/Users/ashishsecrets/Downloads/Screening.csv");
-
-        //
-
+        readCsvNAddQuestions("/Users/ashishsecrets/IdeaProjects/Backend/src/main/resources/Screening.csv");
 
     }
 
@@ -52,10 +49,10 @@ public class CronJob {
             CSVReader csvReader = new CSVReader(filereader);
             String[] nextRecord;
             ArrayList<String> content = new ArrayList<>();
-            int count = 0;
+            int count = -1;
             int quesNumber = 0;
 
-            int ignoreCellCount = 3;
+            int ignoreCellCount = 2;
             // we are going to read data line by line
             while ((nextRecord = csvReader.readNext()) != null) {
                 for (String cell : nextRecord) {
@@ -63,12 +60,13 @@ public class CronJob {
                     if(count > ignoreCellCount){
                     content.add(cell);
                     System.out.println("Added a cell");}
+
                 }
 
-                if((count-ignoreCellCount) > quesNumber*(count-ignoreCellCount))
-                addQuestions(content, count-ignoreCellCount);
-                System.out.println("Added question" + (count-ignoreCellCount));
-                quesNumber++;
+                if(!(count-ignoreCellCount == 0)){
+                addQuestions(content, quesNumber);
+                System.out.println("Added question" + (quesNumber));
+                quesNumber+=3;}
             }
         }
         catch (Exception e) {
