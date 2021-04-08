@@ -65,9 +65,15 @@ public class UcsfAuthenticationController {
 			throws Exception {
 		loggerService.printLogs(log, "createAuthenticationToken", "Start user login and create auth token");
 
-		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
-		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+
+		if(userDetails == null){
+			userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getUsername());
+		}
+
+		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
+
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 

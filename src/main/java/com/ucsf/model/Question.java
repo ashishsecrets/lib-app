@@ -43,7 +43,5 @@ public class Question extends Auditable<String> {
 	@Column(columnDefinition = "TEXT")
 	private String choice;
 
-	@Column(name = "criteria_id")
-	private Long qualificationCriteriaId;
 
 }

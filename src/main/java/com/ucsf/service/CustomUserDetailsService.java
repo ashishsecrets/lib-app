@@ -53,7 +53,40 @@ public class CustomUserDetailsService implements UserDetailsService {
 		jwtConfig.setTwoFa(true);
 		User user = userRepository.findByUsername(username);
 		if (user == null) {
-			throw new UsernameNotFoundException("User not found with username: " + username);
+			UserDetails userDetails = null;
+			return userDetails;
+			//throw new UsernameNotFoundException("User not found with username: " + username);
+		}
+
+		if (user.getUserStatus() != null && user.getUserStatus() == UserStatus.ACTIVE) {
+			isEnable = true;
+		} else {
+			isEnable = false;
+		}
+		if (user.getIsVerified()) {
+			jwtConfig.setTwoFa(false);
+		}
+		if (!jwtConfig.getTwoFa()) {
+			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+			}
+		} else {
+			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
+		}
+		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), isEnable,
+				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
+	}
+
+	public UserDetails loadUserByEmail(String email) {
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+		boolean isEnable = true;
+		boolean isUserNotExpired = true;
+		boolean isCredentialNotExpired = true;
+		boolean isAccountNotLocked = true;
+		jwtConfig.setTwoFa(true);
+		User user = userRepository.findByEmail(email);
+		if (user == null) {
+			throw new UsernameNotFoundException("User not found with email: " + email);
 		}
 
 		if (user.getUserStatus() != null && user.getUserStatus() == UserStatus.ACTIVE) {
@@ -117,5 +150,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 			roleRepository.save(role);
 		}
 	}
+
 
 }
