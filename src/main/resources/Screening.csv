@@ -1,11 +1,10 @@
-QuestionDescription,QuestionType,Choice
-,,
-What is your age?,OPEN_ENDED,
+﻿QuestionDescription,QuestionType,Choice
+What is your age?,OPEN_ENDED,Number
 Have you ever been diagnosed with eczema (atopic dermatitis)?,DICHOTOMOUS,Yes||No
 Who were you diagnosed by?,MULTIPLE_CHOICE,"Dermatologist||Primary care doctor||Someone else,(With area for fill in the blank)"
 Check any of the following symptoms or diseases that apply to you: (check all that apply),CHECKBOX,"Itching||Rash on the inside of the elbows, behind the knees, face (mainly cheeks), behind the ears, buttocks, or hands/feet||Rash that improves or worsens over time||Personal or family history of seasonal allergies (e.g., allergic rhinitis, hay fever) or asthma||(If 2/4 checked then they can proceed to [f])"
-What age were you diagnosed with eczema?,SCROLL BAR,
+What age were you diagnosed with eczema?,SCROLL_BAR,Number
 Which of the following therapies are you currently using for eczema: (check all that apply),CHECKBOX,"Topical steroids (e.g. hydrocortisone, triamcinolone, clobetasol)- an anti-inflammatory cream, ointment, or solution||Topical calcineurin inhibitor (e.g., Protopic(R) (tacrolimus), Elidel(R) (pimecrolimus))||Eucrisa(R) (crisaborole) - topical medication||Dupixent(R) (dupilumab) - is a subcutaneous biologic injection||Oral pills (e.g., methotrexate, cyclosporine, azathioprine, prednisone, etc)||Phototherapy (light treatment)||Over-the-counter moisturizers"
 Do any of the following apply to you: (Check all that apply),CHECKBOX,"Have a current serious known infection||History of immunosuppression (including human immunodeficiency virus (HIV))||History of malignancy within 5 years (except completely treated in situ carcinoma of the cervix, completely treated and resolved non-metastatic squamous or basal cell carcinoma of the skin)||Any uncontrolled, severe illnesses or diseases||If any of these conditions were checked, bring them to a page that says:Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center"
-What is the best phone number for our study team to contact you? (optional),Fill in the blank(OPEN_ENDED),
+What is the best phone number for our study team to contact you? (optional),OPEN_ENDED,Numeric
 Would you like to provide photos?,DICHOTOMOUS,YES||NO

@@ -19,7 +19,7 @@ public class CronJob {
     QuestionRepository questionRepository;
 
 
-    @Autowired
+    //@Autowired
     @Scheduled(cron = "0 0 15 * * *")
     public void readQuestionsFrmCsvToDb() {
 
