@@ -23,7 +23,7 @@ public class Question extends Auditable<String> {
 		DROPDOWN, // given list of options
 		OPEN_ENDED, // User allows to answer into a input box.
 		DICHOTOMOUS, // Question with two options "Yes/No"
-		IMAGE_TYPE // user allows to click on images as their answer option to a question
+		IMAGE_TYPE, // user allows to click on images as their answer option to a question
 	}
 
 	@Id
