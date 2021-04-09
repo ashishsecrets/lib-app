@@ -62,8 +62,8 @@ public class ResetPasswordController {
 	}
 
 	@RequestMapping(value = "/reset-password", method = RequestMethod.POST)
-	public ResponseEntity<ResetPasswordResponse> verifyPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) throws Exception {
-
+	public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) throws Exception {
+		loggerService.printLogs(log, "resetPassword", "Reseting Password");
 		if (resetPasswordRequest.getPassword() != null && !resetPasswordRequest.getPassword().equals("")) {
 
 			String password = resetPasswordRequest.getPassword();

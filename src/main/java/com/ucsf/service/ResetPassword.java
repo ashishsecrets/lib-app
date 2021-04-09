@@ -1,7 +1,11 @@
 package com.ucsf.service;
 
 import com.ucsf.auth.model.User;
+import com.ucsf.controller.ResetPasswordController;
 import com.ucsf.repository.UserRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,11 @@ public class ResetPassword {
     @Autowired
     BCryptPasswordEncoder bcryptEncoder;
 
+    @Autowired
+	private LoggerService loggerService;
+
+	private static Logger log = LoggerFactory.getLogger(ResetPasswordController.class);
+	
     public Boolean resetPass(String password, String link){
         Boolean isValid = false;
         String string = "";
@@ -42,6 +51,7 @@ public class ResetPassword {
         if (user != null && minutes < 15) {
             isValid = true;
             user.setPassword(bcryptEncoder.encode(password));
+            loggerService.printLogs(log, "resetPass", "Updated Password");
             userRepository.save(user);
         }
 
