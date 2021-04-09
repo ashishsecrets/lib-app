@@ -1,8 +1,8 @@
 package com.ucsf.controller;
 
 import com.ucsf.auth.model.User;
-import com.ucsf.payload.ResetPasswordResponse;
 import com.ucsf.payload.request.ResetPasswordRequest;
+import com.ucsf.payload.response.ResetPasswordResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
 import com.ucsf.service.LoggerService;
@@ -54,7 +54,7 @@ public class ResetPasswordController {
 		}
 		try {
 			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your UCSF account password",
-					user.getUsername() + " " + user.getUsername(), passResetLinkService.createPasswordResetLink(user));
+					user.getUsername(), passResetLinkService.createPasswordResetLink(user));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
