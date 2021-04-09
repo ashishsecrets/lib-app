@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.opencsv.CSVReader;
@@ -42,7 +43,8 @@ public class LoadScreeningQuestions {
 	@Value("${screening-questions-file}")
 	private String filePath;
 
-	// @Scheduled(cron="0 */1 * * * *")
+
+	//@Scheduled(cron="0 */1 * * * *")
 	public void loadSheetContent() throws ClientProtocolException, IOException {
 		// clear all previous data
 		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
