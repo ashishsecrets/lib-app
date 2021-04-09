@@ -50,7 +50,6 @@ public class LoadScreeningQuestions {
 		jdbcTemplate.update("TRUNCATE TABLE choices");
 		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
 		String id = "1UhvTWTf_xp1NHm8VcVgFXxpxzAy8IOzWhWod1s_PqYU";
-		String filePath = null;
 		// load content sheet
 		// filePath = downloadSheetData(id, "screening");
 		try {
