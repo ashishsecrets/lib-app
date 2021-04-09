@@ -7,13 +7,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "user_disease_info")
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class UserDiseaseInfo extends Auditable<String>{
 
 	@Id

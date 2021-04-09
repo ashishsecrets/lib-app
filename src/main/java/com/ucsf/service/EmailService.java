@@ -36,8 +36,7 @@ public class EmailService {
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
 		body = body.replaceAll("\\{\\{url\\}\\}", url);
-		String redirectUrl = webSiteUrl+"?"+url;
-		System.out.println("1111111111111111111"+redirectUrl);
+		String redirectUrl = webSiteUrl+"?token="+url;
 		body = body.replaceAll("\\{\\{webSiteUrl\\}\\}", redirectUrl);
 		helper.setText(body, true);
 		javaMailSender.send(msg);

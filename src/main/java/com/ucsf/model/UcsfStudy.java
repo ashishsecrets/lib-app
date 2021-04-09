@@ -41,9 +41,6 @@ public class UcsfStudy {
 	@Column
 	private String description;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "study_id")
-	private List<UcsfSurvey> surveys;
 
 	@Column
 	private boolean enabled;
@@ -59,9 +56,5 @@ public class UcsfStudy {
 	
 	@Column(name = "custom_date")
 	private Date custom_date;
-	
-	@ManyToMany(fetch=FetchType.EAGER)
-	@JoinTable(name = "qualified_studies", joinColumns = @JoinColumn(name = "study_id"), inverseJoinColumns = @JoinColumn(name = "criteria_id"))
-	Set<QualificationCriteria> criterias;
 
 }

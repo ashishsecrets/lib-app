@@ -15,15 +15,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Question extends Auditable<String> {
+public class ScreeningQuestions extends Auditable<String> {
 
-	public enum QuestionType {
+	public enum QuestionTypes {
 		MULTIPLE_CHOICE, // given list of options
 		RATING_SCALE, // given list of options
 		DROPDOWN, // given list of options
 		OPEN_ENDED, // User allows to answer into a input box.
 		DICHOTOMOUS, // Question with two options "Yes/No"
-		IMAGE_TYPE, // user allows to click on images as their answer option to a question
+		IMAGE_TYPE,//user allows to click on images as their answer option to a question
+		CHECKBOX
 	}
 
 	@Id
@@ -38,10 +39,6 @@ public class Question extends Auditable<String> {
 	private boolean enabled;
 
 	@Column(name = "question_type")
-	private QuestionType questionType;
-
-	@Column(columnDefinition = "TEXT")
-	private String choice;
-
+	private String questionType;
 
 }

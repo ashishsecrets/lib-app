@@ -41,8 +41,8 @@ public class UserAnswer extends Auditable<String> {
 	@JoinColumn(name = "answered_by_id", insertable = false, updatable = false)
 	private User answeredBy;
 
-	@ManyToOne(targetEntity = Question.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+	@ManyToOne(targetEntity = ScreeningQuestions.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinColumn(name = "question_id", insertable = false, updatable = false)
-	private Question question;
+	private ScreeningQuestions question;
 
 }

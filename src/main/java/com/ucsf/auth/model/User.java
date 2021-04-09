@@ -18,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ucsf.model.QualificationCriteria;
 import com.ucsf.model.UserDiseaseInfo;
 import com.ucsf.model.UserMetadata;
 
@@ -80,9 +79,6 @@ public class User {
 	@JoinColumn(name = "disease_info_id")
 	private UserDiseaseInfo userDiseaseInfo;
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "qualified_users", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "criteria_id"))
-	Set<QualificationCriteria> criterias;
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
