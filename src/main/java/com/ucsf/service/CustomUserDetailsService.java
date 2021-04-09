@@ -77,7 +77,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
 	}
 
-	public UserDetails loadUserByEmail(String email) {
+	public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException{
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		boolean isEnable = true;
 		boolean isUserNotExpired = true;
@@ -86,7 +86,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		jwtConfig.setTwoFa(true);
 		User user = userRepository.findByEmail(email);
 		if (user == null) {
-			throw new UsernameNotFoundException("User not found with email: " + email);
+			throw new UsernameNotFoundException("User not found with email or username: " + email);
 		}
 
 		if (user.getUserStatus() != null && user.getUserStatus() == UserStatus.ACTIVE) {
