@@ -87,11 +87,12 @@ public class UcsfAuthenticationController {
 			verificationService.sendVerificationCode(user);
 		}
 		if (jwtConfig.getTwoFa()) {
-			return ResponseEntity.ok(new AuthResponse(token, false,"Verify OTP"));
+			return ResponseEntity.ok(new AuthResponse(token, false,"Verify OTP",user.getRoles()));
 		}
-		return ResponseEntity.ok(new AuthResponse(token, true,"Signed in Successfully!"));
+		return ResponseEntity.ok(new AuthResponse(token, true,"Signed in Successfully!",user.getRoles()));
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public ResponseEntity<?> saveUser(@RequestBody SignUpRequest signUpRequest) throws Exception {
 		loggerService.printLogs(log, "saveUser", "Register User");

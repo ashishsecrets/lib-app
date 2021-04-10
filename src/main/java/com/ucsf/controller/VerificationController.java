@@ -53,14 +53,14 @@ public class VerificationController {
 	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
 
 		loggerService.printLogs(log, "verifyOtp", "Verify Otp sent by Authy to user's phone number");
-
+		User user = null;
 		JSONObject jsonObject = null;
 		String token = "";
 		if (verifyRequest.getUsername() != null && verifyRequest.getCode() != null
 				&& verifyRequest.getCode().length() > 0) {
-			User user = userRepository.findByUsername(verifyRequest.getUsername());
+			 user = userRepository.findByUsername(verifyRequest.getUsername());
 			if (user == null) {
-				return ResponseEntity.ok(new AuthResponse(null, false, "User not Found"));
+				return ResponseEntity.ok(new AuthResponse(null, false, "User not Found",user.getRoles()));
 			}
 			try {
 				jsonObject = verificationService.otpCodeVerification(user, verifyRequest.getCode());
@@ -76,13 +76,13 @@ public class VerificationController {
 				}
 
 				else {
-					return ResponseEntity.ok(new AuthResponse(null, false, "Invalid Token!"));
+					return ResponseEntity.ok(new AuthResponse(null, false, "Invalid Token!",user.getRoles()));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return ResponseEntity.ok(new AuthResponse(token, true, "OTP verified successfully!"));
+		return ResponseEntity.ok(new AuthResponse(token, true, "OTP verified successfully!",user.getRoles()));
 	}
 
 }
