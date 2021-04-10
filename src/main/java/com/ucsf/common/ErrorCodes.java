@@ -2,7 +2,7 @@ package com.ucsf.common;
 
 public enum ErrorCodes {
 
-	USERNAME_ALREADY_USED(101), EMAIL_ALREADY_USED(102),SIGNUP_SUCCESS(200);
+	USERNAME_ALREADY_USED(101), EMAIL_ALREADY_USED(102),SIGNUP_SUCCESS(200),INVALID_CREDENTIALS(401);
 
 	private ErrorCodes(int value) {
 		this.code = value;
