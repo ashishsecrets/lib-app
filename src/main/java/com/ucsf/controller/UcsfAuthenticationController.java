@@ -61,10 +61,12 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	JwtConfig jwtConfig;
-	
-	@Autowired 
+
+	@Autowired
 	private LoggerService loggerService;
-	
+
+	private static String ROLE_PREFIX = "ROLE_";
+
 	private static Logger log = LoggerFactory.getLogger(UcsfAuthenticationController.class);
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -72,19 +74,18 @@ public class UcsfAuthenticationController {
 			throws Exception {
 		loggerService.printLogs(log, "createAuthenticationToken", "Start user login and create auth token");
 
+		// UserDetails userDetails =
+		// userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
 
-		UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-
-		if(userDetails == null){
-			userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getUsername());
-		}
+		// if(userDetails == null){
+		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail());
+		// }
 
 		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
 
-
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
-		User user = userRepository.findByUsername(userDetails.getUsername());
+		User user = userRepository.findByEmail(userDetails.getUsername());
 
 		user.setAuthToken(token);
 
@@ -94,22 +95,17 @@ public class UcsfAuthenticationController {
 			verificationService.sendVerificationCode(user);
 		}
 		if (jwtConfig.getTwoFa()) {
-			return ResponseEntity.ok(new AuthResponse(token, false,"Verify OTP",user.getRoles()));
+			return ResponseEntity.ok(new AuthResponse(token, false, "Verify OTP", user.getRoles()));
 		}
-		return ResponseEntity.ok(new AuthResponse(token, true,"Signed in Successfully!",user.getRoles()));
+		return ResponseEntity.ok(new AuthResponse(token, true, "Signed in Successfully!", user.getRoles()));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public ResponseEntity<?> saveUser(@RequestBody SignUpRequest signUpRequest) throws Exception {
 		loggerService.printLogs(log, "saveUser", "Register User");
-		
+
 		JSONObject responseJson = new JSONObject();
-		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-			responseJson.put("error",
-					new ApiError(ErrorCodes.USERNAME_ALREADY_USED.code(), Constants.USERNAME_ALREADY_USED.errordesc()));
-			return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
-		}
 
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
 			responseJson.put("error",
@@ -129,17 +125,18 @@ public class UcsfAuthenticationController {
 		boolean isCredentialNotExpired = true;
 		boolean isAccountNotLocked = true;
 		jwtConfig.setTwoFa(true);
-		String ROLE_PREFIX = "ROLE_";
 		grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
 
-		UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), isEnable,
-				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
+		UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
+				user.getPassword(), isEnable, isUserNotExpired, isCredentialNotExpired, isAccountNotLocked,
+				grantedAuthorities);
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
 		user.setAuthToken(token);
 
-		return ResponseEntity.ok(new RegisterResponse(token, false, "User Registered, Verify OTP Now.", user.getRoles()));
+		return ResponseEntity
+				.ok(new RegisterResponse(token, false, "User Registered, Verify OTP Now.", user.getRoles()));
 	}
 
 	private void authenticate(String username, String password) throws Exception {
