@@ -6,23 +6,23 @@ public class VerifyRequest implements Serializable {
 
 	private static final long serialVersionUID = 5926468583005150707L;
 
-	private String username;
+	private String email;
 	private String code;
 
 	public VerifyRequest() {
 	}
 
 	public VerifyRequest(String username, String code) {
-		this.setUsername(username);
+		this.setEmail(email);
 		this.setCode(code);
 	}
 
-	public String getUsername() {
-		return username;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setEmail(String username) {
+		this.email = username;
 	}
 
 	public String getCode() {

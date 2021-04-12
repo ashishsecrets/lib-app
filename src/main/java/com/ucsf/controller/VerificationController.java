@@ -56,9 +56,9 @@ public class VerificationController {
 		User user = null;
 		JSONObject jsonObject = null;
 		String token = "";
-		if (verifyRequest.getUsername() != null && verifyRequest.getCode() != null
+		if (verifyRequest.getEmail() != null && verifyRequest.getCode() != null
 				&& verifyRequest.getCode().length() > 0) {
-			 user = userRepository.findByUsername(verifyRequest.getUsername());
+			 user = userRepository.findByEmail(verifyRequest.getEmail());
 			if (user == null) {
 				return ResponseEntity.ok(new AuthResponse(null, false, "User not Found",user.getRoles()));
 			}
@@ -67,7 +67,7 @@ public class VerificationController {
 				if (jsonObject.get("success").equals(true)) {
 					user.setIsVerified(true);
 					userRepository.save(user);
-					final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+					final UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
 					token = jwtTokenUtil.generateToken(userDetails);
 					user.setAuthToken(token);
 					userRepository.save(user);
