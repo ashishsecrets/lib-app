@@ -12,7 +12,7 @@ public class VerifyRequest implements Serializable {
 	public VerifyRequest() {
 	}
 
-	public VerifyRequest(String username, String code) {
+	public VerifyRequest(String email, String code) {
 		this.setEmail(email);
 		this.setCode(code);
 	}
@@ -21,8 +21,8 @@ public class VerifyRequest implements Serializable {
 		return email;
 	}
 
-	public void setEmail(String username) {
-		this.email = username;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getCode() {
