@@ -33,10 +33,6 @@ public class User {
 	public enum UserStatus {
 		PENDING, EMAIL_NOT_VERIFIED, ACTIVE, DEACTIVE, DELETED
 	}
-	
-	public enum UserScreenStatus {
-		NEWADDED, INPROGRESS,COMPLETED
-	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,10 +40,10 @@ public class User {
 	private Long id;
 
 	@Column
-	private String name;
-
+	private String firstName;
+	
 	@Column
-	private String username;
+	private String lastName;
 
 	@Column
 	private String email;
@@ -55,13 +51,13 @@ public class User {
 	@Column
 	@JsonIgnore
 	private String password;
-	
+
 	@Column
 	private String phoneNumber;
-	
+
 	@Column
 	private Boolean isVerified;
-	
+
 	@Column
 	private String phoneCode;
 
@@ -82,7 +78,6 @@ public class User {
 	@ManyToOne(targetEntity = UserDiseaseInfo.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinColumn(name = "disease_info_id")
 	private UserDiseaseInfo userDiseaseInfo;
-
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
