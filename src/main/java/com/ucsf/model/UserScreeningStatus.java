@@ -17,7 +17,6 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.User;
-import com.ucsf.auth.model.User.UserScreenStatus;
 import com.ucsf.auth.model.User.UserStatus;
 
 import lombok.Data;
@@ -29,15 +28,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserScreeningStatus {
 
+	public enum UserScreenStatus {
+		NEWLY_ADDED, INPROGRESS,COMPLETED
+	}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "status_id")
 	private Long id;
 
-	@Column
+	@Column(name = "user_screening_status")
 	private UserScreenStatus userScreeningStatus;
 
-	@OneToOne(targetEntity = UcsfStudy.class, fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(targetEntity = UcsfStudy.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "study_id", insertable = false, updatable = false)
 	@JsonIgnore
 	private UcsfStudy study;
@@ -48,7 +50,7 @@ public class UserScreeningStatus {
 	@Column(name = "user_id")
 	private Long UserId;
 
-	@ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY, optional = false)
+	@OneToOne(targetEntity = User.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", insertable = false, updatable = false)
 	@JsonIgnore
 	private User users;

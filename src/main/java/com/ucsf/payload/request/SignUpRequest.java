@@ -8,7 +8,8 @@ public class SignUpRequest {
 	
 	// user Auth Attribute
 	private String email;
-    private String username;
+    private String firstName;
+    private String lastName;
     private String password;
     private String phone;
     private String phoneCode;

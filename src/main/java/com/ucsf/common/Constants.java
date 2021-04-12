@@ -4,7 +4,10 @@ public enum Constants {
 	
 	USERNAME_ALREADY_USED("Username is already taken!"),
 	EMAIL_ALREADY_USED("Email Address already in use!"),
-	SIGNUP_SUCCESS("SignUp Successfully");
+	SIGNUP_SUCCESS("SignUp Successfully"),
+	INVALID_INDEXVALUE("Invalid Index Value"),
+	INVALID_AUTHORIZATION_HEADER("Invalid auth header"),
+	QUESTION_NOT_FOUND("Question not found");
 	
 		private Constants(String value) { 
 	    this.errordesc = value; 

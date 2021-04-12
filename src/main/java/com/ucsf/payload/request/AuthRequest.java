@@ -11,15 +11,13 @@ public class AuthRequest implements Serializable {
 
 	private static final long serialVersionUID = 5926468583005150707L;
 	
-	private String username;
+	private String email;
 
 	public AuthRequest(String username, String password) {
-		this.username = username;
+		this.email = username;
 		this.password = password;
 	}
 
 	private String password;
 
-
-	
 }
