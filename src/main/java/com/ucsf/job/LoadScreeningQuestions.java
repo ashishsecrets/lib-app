@@ -23,7 +23,7 @@ import com.opencsv.CSVReader;
 import com.ucsf.model.Choices;
 import com.ucsf.model.ScreeningQuestions;
 import com.ucsf.repository.ChoiceRepository;
-import com.ucsf.repository.QuestionRepository;
+import com.ucsf.repository.ScreeningQuestionRepository;
 
 @EnableAutoConfiguration
 @EnableScheduling
@@ -37,7 +37,7 @@ public class LoadScreeningQuestions {
 	ChoiceRepository choiceRepository;
 
 	@Autowired
-	QuestionRepository questionRepository;
+	ScreeningQuestionRepository questionRepository;
 
 	@Value("${screening-questions-file}")
 	private String filePath;
@@ -113,6 +113,8 @@ public class LoadScreeningQuestions {
 					sc.setDescription(questionDescription);
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
+					sc.setStudyId(1l);//repo
+					sc.setIndexValue(counter);
 					questionRepository.save(sc);
 					if (choices != null && !choices.equals("")) {
 						String[] split = choices.split("//");

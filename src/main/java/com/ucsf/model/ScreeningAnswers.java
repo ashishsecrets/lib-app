@@ -1,6 +1,5 @@
 package com.ucsf.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ucsf.auth.model.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,20 +11,26 @@ import javax.persistence.*;
 @Getter
 @Setter
 public class ScreeningAnswers extends Auditable<String> {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_answer_id")
+	private Long id;
 
-    @Lob
-    private String answer;
+	@Column(name = "answer_description", columnDefinition = "TEXT")
+	private Long answerDescription;
 
-    @OneToOne(targetEntity = ScreeningQuestions.class,fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "question_id", nullable = false)
-    @JsonIgnore
-    private ScreeningQuestions questions;
+	@Column(name = "answered_by_id")
+	private Long answeredById;
 
-    @ManyToOne(targetEntity = User.class,fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
-    private User users;
+	@Column(name = "question_id")
+	private Long questionId;
+
+	@ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+	@JoinColumn(name = "answered_by_id", insertable = false, updatable = false)
+	private User answeredBy;
+
+	@ManyToOne(targetEntity = ScreeningQuestions.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+	@JoinColumn(name = "question_id", insertable = false, updatable = false)
+	private ScreeningQuestions question;
+    
 }

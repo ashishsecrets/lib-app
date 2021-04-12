@@ -33,6 +33,10 @@ public class User {
 	public enum UserStatus {
 		PENDING, EMAIL_NOT_VERIFIED, ACTIVE, DEACTIVE, DELETED
 	}
+	
+	public enum UserScreenStatus {
+		NEWADDED, INPROGRESS,COMPLETED
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

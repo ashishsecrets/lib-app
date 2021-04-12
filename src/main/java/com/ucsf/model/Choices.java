@@ -15,9 +15,12 @@ public class Choices extends Auditable<String> {
 
     @Lob
     private String choice;
+    
+    @Column(name = "question_id")
+	private Long questionId;
 	
     @ManyToOne(targetEntity = ScreeningQuestions.class,fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "question_id", nullable = false)
+    @JoinColumn(name = "question_id", insertable = false,updatable = false)
     @JsonIgnore
     private ScreeningQuestions questions;
 }
