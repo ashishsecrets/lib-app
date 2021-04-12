@@ -46,8 +46,8 @@ public class ResetPassword {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
         long minutes = ChronoUnit.MINUTES.between(dateTime, now);
-        String username = split[0];
-        User user = userRepository.findByUsername(username);
+        String email = split[0];
+        User user = userRepository.findByEmail(email);
         if (user != null && minutes < 15) {
             isValid = true;
             user.setPassword(bcryptEncoder.encode(password));

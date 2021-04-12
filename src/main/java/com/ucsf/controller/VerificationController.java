@@ -58,31 +58,29 @@ public class VerificationController {
 		String token = "";
 		if (verifyRequest.getEmail() != null && verifyRequest.getCode() != null
 				&& verifyRequest.getCode().length() > 0) {
-			 user = userRepository.findByEmail(verifyRequest.getEmail());
+			user = userRepository.findByEmail(verifyRequest.getEmail());
 			if (user == null) {
-				return ResponseEntity.ok(new AuthResponse(null, false, "User not Found",user.getRoles()));
+				return ResponseEntity.ok(new AuthResponse(null, false, "User not Found", user.getRoles()));
 			}
 			try {
 				jsonObject = verificationService.otpCodeVerification(user, verifyRequest.getCode());
 				if (jsonObject.get("success").equals(true)) {
 					user.setIsVerified(true);
 					userRepository.save(user);
-					final UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
+				    UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
 					token = jwtTokenUtil.generateToken(userDetails);
 					user.setAuthToken(token);
 					userRepository.save(user);
-
-					System.out.println(jsonObject);
 				}
 
 				else {
-					return ResponseEntity.ok(new AuthResponse(null, false, "Invalid Token!",user.getRoles()));
+					return ResponseEntity.ok(new AuthResponse(null, false, "Invalid Token!", user.getRoles()));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return ResponseEntity.ok(new AuthResponse(token, true, "OTP verified successfully!",user.getRoles()));
+		return ResponseEntity.ok(new AuthResponse(token, true, "OTP verified successfully!", user.getRoles()));
 	}
 
 }
