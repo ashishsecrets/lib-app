@@ -22,9 +22,12 @@ import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
 import com.ucsf.config.JwtConfig;
 import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserScreeningStatus;
+import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.UserRepository;
+import com.ucsf.repository.UserScreeningStatusRepository;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -41,6 +44,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Autowired
 	JwtConfig jwtConfig;
+	
+	@Autowired
+	UserScreeningStatusRepository userScreeningStatusRepository;
 
 
 	@Override
@@ -51,7 +57,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		boolean isCredentialNotExpired = true;
 		boolean isAccountNotLocked = true;
 		jwtConfig.setTwoFa(true);
-		User user = userRepository.findByUsername(username);
+		User user = userRepository.findByEmail(username);
 		if (user == null) {
 			UserDetails userDetails = null;
 			return userDetails;
@@ -73,7 +79,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		} else {
 			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
 		}
-		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), isEnable,
+		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), isEnable,
 				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
 	}
 
@@ -86,9 +92,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 		jwtConfig.setTwoFa(true);
 		User user = userRepository.findByEmail(email);
 		if (user == null) {
-			throw new UsernameNotFoundException("User not found with email or username: " + email);
+			throw new UsernameNotFoundException("User not found with email : " + email);
 		}
-
 		if (user.getUserStatus() != null && user.getUserStatus() == UserStatus.ACTIVE) {
 			isEnable = true;
 		} else {
@@ -104,18 +109,20 @@ public class CustomUserDetailsService implements UserDetailsService {
 		} else {
 			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
 		}
-		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), isEnable,
+		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), isEnable,
 				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
 	}
 
 	public User save(SignUpRequest user) {
 		User newUser = new User();
-		newUser.setUsername(user.getUsername());
+		newUser.setFirstName(user.getFirstName());
+		newUser.setLastName(user.getLastName());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		newUser.setEmail(user.getEmail());
 		newUser.setPhoneNumber(user.getPhone());
 		newUser.setPhoneCode(user.getPhoneCode());
 		newUser.setIsVerified(false);
+
 		Role existed = roleRepository.findByName(RoleName.PATIENT);
 		if (existed == null) {
 			Role role = new Role();
@@ -138,7 +145,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 			metadata.setConsentAccepted(true);
 			newUser.setMetadata(metadata);
 		}
-		return userRepository.save(newUser);
+		User savedUser = userRepository.save(newUser);
+		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
+		userScreeningStatus.setStudyId(1l);
+		userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
+		userScreeningStatus.setUserId(savedUser.getId());
+		userScreeningStatusRepository.save(userScreeningStatus);
+		return savedUser;
 	}
 
 	@PostConstruct
@@ -150,6 +163,4 @@ public class CustomUserDetailsService implements UserDetailsService {
 			roleRepository.save(role);
 		}
 	}
-
-
 }

@@ -54,7 +54,7 @@ public class ResetPasswordController {
 		}
 		try {
 			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your UCSF account password",
-					user.getUsername(), passResetLinkService.createPasswordResetLink(user));
+					user.getFirstName() + user.getLastName(), passResetLinkService.createPasswordResetLink(user));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -62,7 +62,8 @@ public class ResetPasswordController {
 	}
 
 	@RequestMapping(value = "/reset-password", method = RequestMethod.POST)
-	public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) throws Exception {
+	public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest)
+			throws Exception {
 		loggerService.printLogs(log, "resetPassword", "Reseting Password");
 		if (resetPasswordRequest.getPassword() != null && !resetPasswordRequest.getPassword().equals("")) {
 
@@ -70,10 +71,12 @@ public class ResetPasswordController {
 			String confirmPassword = resetPasswordRequest.getConfirmPassword();
 			String link = resetPasswordRequest.getLink();
 
-			if((password != null & !password.equals("")) && (confirmPassword != null & !confirmPassword.equals("")) && (link != null & !link.equals(""))) {
+			if ((password != null & !password.equals("")) && (confirmPassword != null & !confirmPassword.equals(""))
+					&& (link != null & !link.equals(""))) {
 
 				if (!password.equals(confirmPassword)) {
-					return ResponseEntity.ok(new ResetPasswordResponse(false, "Password & confirmed password don't match."));
+					return ResponseEntity
+							.ok(new ResetPasswordResponse(false, "Password & confirmed password don't match."));
 				}
 
 				if (!resetPassword.resetPass(password, link)) {
@@ -83,7 +86,5 @@ public class ResetPasswordController {
 		}
 		return ResponseEntity.ok(new ResetPasswordResponse(true, "Password Reset."));
 	}
-
-
 
 }

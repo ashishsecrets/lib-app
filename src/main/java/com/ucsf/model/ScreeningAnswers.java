@@ -17,13 +17,22 @@ public class ScreeningAnswers extends Auditable<String> {
 	private Long id;
 
 	@Column(name = "answer_description", columnDefinition = "TEXT")
-	private Long answerDescription;
+	private String answerDescription;
+	
+	@Column(name = "answer_choice")
+	private String answerChoice;
 
 	@Column(name = "answered_by_id")
 	private Long answeredById;
 
 	@Column(name = "question_id")
 	private Long questionId;
+	
+	@Column(name = "study_id")
+	private Long studyId;
+	
+	@Column(name = "index_value")
+	private int indexValue;
 
 	@ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinColumn(name = "answered_by_id", insertable = false, updatable = false)
@@ -32,5 +41,9 @@ public class ScreeningAnswers extends Auditable<String> {
 	@ManyToOne(targetEntity = ScreeningQuestions.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinColumn(name = "question_id", insertable = false, updatable = false)
 	private ScreeningQuestions question;
+	
+	@ManyToOne(targetEntity = ScreeningQuestions.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+	@JoinColumn(name = "study_id", insertable = false, updatable = false)
+	private UcsfStudy study;
     
 }

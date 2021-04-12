@@ -20,7 +20,7 @@ public class PasswordResetLinkService {
     public String createPasswordResetLink(User user){
         String link = "";
         String dateTime = now.format(formatter);
-        String string = user.getUsername()+","+dateTime+","+"ucsfredblinkcheckpoint";
+        String string = user.getEmail()+","+dateTime+","+"ucsfredblinkcheckpoint";
 
         try {
             link = encryption.encrypt(string);
