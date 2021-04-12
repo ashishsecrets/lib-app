@@ -1,5 +1,7 @@
 package com.ucsf.controller;
 
+import com.ucsf.auth.model.RoleName;
+import com.ucsf.payload.response.RegisterResponse;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +35,9 @@ import com.ucsf.repository.UserRepository;
 import com.ucsf.service.CustomUserDetailsService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.VerificationService;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @RestController
 @CrossOrigin
@@ -109,8 +116,30 @@ public class UcsfAuthenticationController {
 					new ApiError(ErrorCodes.EMAIL_ALREADY_USED.code(), Constants.EMAIL_ALREADY_USED.errordesc()));
 			return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
 		}
-		
-		return ResponseEntity.ok(userDetailsService.save(signUpRequest));
+
+		User user = userDetailsService.save(signUpRequest);
+
+		if (jwtConfig.getTwoFa()) {
+			verificationService.sendVerificationCode(user);
+		}
+
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+		boolean isEnable = true;
+		boolean isUserNotExpired = true;
+		boolean isCredentialNotExpired = true;
+		boolean isAccountNotLocked = true;
+		jwtConfig.setTwoFa(true);
+		String ROLE_PREFIX = "ROLE_";
+		grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
+
+		UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), isEnable,
+				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
+
+		final String token = jwtTokenUtil.generateToken(userDetails);
+
+		user.setAuthToken(token);
+
+		return ResponseEntity.ok(new RegisterResponse(token, false, "User Registered, Verify OTP Now.", user.getRoles()));
 	}
 
 	private void authenticate(String username, String password) throws Exception {
