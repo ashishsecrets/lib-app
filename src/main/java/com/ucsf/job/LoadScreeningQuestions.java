@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.GeneralSecurityException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -39,19 +40,23 @@ public class LoadScreeningQuestions {
 	@Autowired
 	ScreeningQuestionRepository questionRepository;
 
+	@Autowired
+	SheetsGoogleToCsv googleToCsv;
+
 	@Value("${screening-questions-file}")
 	private String filePath;
 
 	//@Scheduled(cron="0 */1 * * * *")
-	public void loadSheetContent() throws ClientProtocolException, IOException {
+	public void loadSheetContent() throws ClientProtocolException, IOException, GeneralSecurityException {
 		// clear all previous data
-		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
+		/*jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
 		jdbcTemplate.update("TRUNCATE TABLE questions");
 		jdbcTemplate.update("TRUNCATE TABLE choices");
-		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
+		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");*/
 		//String id = "1UhvTWTf_xp1NHm8VcVgFXxpxzAy8IOzWhWod1s_PqYU";
 		// load content sheet
-		// filePath = downloadSheetData(id, "screening");
+		//googleToCsv.main("C10", "screening.csv",3);
+		 //filePath = downloadSheetData(id, "screening");
 		try {
 			readDownloadedContentCsvData(filePath);
 		} catch (Exception e) {
@@ -62,9 +67,11 @@ public class LoadScreeningQuestions {
 	public String downloadSheetData(String id, String sheetName) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		String filePath = sheetName + ".csv";
+
 		try {
+
 			HttpGet request = new HttpGet(
-					"https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=out:csv&sheet=" + sheetName);
+					"https://docs.google.com/spreadsheets/d/" +id+ "/gviz/tq?tqx=out:csv&sheet=" + sheetName);
 			CloseableHttpResponse response = httpClient.execute(request);
 			try {
 				HttpEntity entity = response.getEntity();
@@ -113,7 +120,7 @@ public class LoadScreeningQuestions {
 					sc.setDescription(questionDescription);
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
-					sc.setStudyId(1l);//repo
+					//sc.setStudyId(1l);//repo
 					sc.setIndexValue(counter);
 					questionRepository.save(sc);
 					if (choices != null && !choices.equals("")) {

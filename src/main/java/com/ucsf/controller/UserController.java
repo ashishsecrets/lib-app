@@ -21,10 +21,10 @@ public class UserController {
 	
 	
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
-	public ResponseEntity<?> createAuthenticationToken(@RequestParam String token) throws Exception {
-		System.out.println(token);
+	public ResponseEntity<?> createAuthenticationToken() throws Exception {
+		//System.out.println(token);
 		loadScreeningQuestions.loadSheetContent();
-		System.out.println(token);
+		//System.out.println(token);
 		return ResponseEntity.ok("success");
 	}
 
