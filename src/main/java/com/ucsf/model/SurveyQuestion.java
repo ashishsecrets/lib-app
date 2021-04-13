@@ -1,12 +1,8 @@
 package com.ucsf.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -46,5 +42,16 @@ public class SurveyQuestion extends Auditable<String> {
 
 	@Column(name = "survey_id")
 	private Long surveyId;
+
+	@Column(name = "study_id")
+	private Long studyId;
+
+	@Column(name = "index_value")
+	private int indexValue;
+
+	@ManyToOne(targetEntity = UcsfStudy.class, fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "study_id", insertable = false, updatable = false)
+	@JsonIgnore
+	private UcsfStudy study;
 
 }
