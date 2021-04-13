@@ -25,6 +25,7 @@ import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.ScreeningAnswerRequest;
 import com.ucsf.payload.response.ApiError;
+import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.ScreeningAnswerRepository;
 import com.ucsf.repository.ScreeningQuestionRepository;
@@ -48,7 +49,7 @@ public class ScreeningAnswerController {
 
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
-	
+
 	@Autowired
 	UserRepository userRepository;
 
@@ -61,14 +62,13 @@ public class ScreeningAnswerController {
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 
-		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (userDetail != null && userDetail.getUsername() != null) {
 			String email = userDetail.getUsername();
 			user = userRepository.findByEmail(email);
 		} else {
 			loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
-			responseJson.put("error", new ApiError(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 		}
@@ -76,13 +76,13 @@ public class ScreeningAnswerController {
 		Optional<ScreeningQuestions> sq = screeningQuestionRepository.findById(answerRequest.getQuestionId());
 		if (sq.isPresent()) {
 			if (answerRequest.getIndexValue() != sq.get().getId()) {
-				responseJson.put("error",
-						new ApiError(ErrorCodes.INVALID_INDEXVALUE.code(), Constants.INVALID_INDEXVALUE.errordesc()));
+				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
+						Constants.INVALID_INDEXVALUE.errordesc()));
 				return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
 			}
 		} else {
 			responseJson.put("error",
-					new ApiError(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
+					new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
 			return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
 		}
 
@@ -93,15 +93,14 @@ public class ScreeningAnswerController {
 		screenAnswer.setStudyId(answerRequest.getStudyId());
 		screenAnswer.setIndexValue(answerRequest.getIndexValue());
 		screeningAnswerRepository.save(screenAnswer);
-		
+
 		UserScreeningStatus existedStatus = userScreeningStatusRepository.findByUserId(user.getId());
 
-		if(existedStatus != null) {
+		if (existedStatus != null) {
 			existedStatus.setStudyId(answerRequest.getStudyId());
 			existedStatus.setUserScreeningStatus(UserScreenStatus.INPROGRESS);
 			userScreeningStatusRepository.save(existedStatus);
-		}
-		else {
+		} else {
 			UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 			userScreeningStatus.setStudyId(answerRequest.getStudyId());
 			userScreeningStatus.setUserScreeningStatus(UserScreenStatus.INPROGRESS);
@@ -109,7 +108,7 @@ public class ScreeningAnswerController {
 			userScreeningStatusRepository.save(userScreeningStatus);
 			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
 		}
-
-		return ResponseEntity.ok(new SuccessResponse(true, "Screening answer saved successfully!"));
+		responseJson.put("data", new SuccessResponse(true, "Screening answer saved successfully!"));
+		return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
 	}
 }

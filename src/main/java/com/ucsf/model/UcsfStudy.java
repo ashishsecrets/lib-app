@@ -51,5 +51,5 @@ public class UcsfStudy {
 	
 	@Column(name = "custom_date")
 	private Date custom_date;
-
+	
 }

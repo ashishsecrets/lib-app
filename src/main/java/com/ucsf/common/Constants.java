@@ -8,6 +8,8 @@ public enum Constants {
 	INVALID_INDEXVALUE("Invalid Index Value"),
 	INVALID_AUTHORIZATION_HEADER("Invalid auth header"),
 	QUESTION_NOT_FOUND("Question not found"),
+	PASSWORD_NOT_MATCHING("Password and confirm password not matching"),
+	LINK_EXPIRED("User not found or Link expired"),
 	USER_NOT_FOUND("User not existed");
 	
 		private Constants(String value) { 

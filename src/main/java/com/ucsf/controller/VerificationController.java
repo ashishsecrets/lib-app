@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
 import com.ucsf.payload.request.VerifyRequest;
-import com.ucsf.payload.response.AuthResponse;
+import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.CustomUserDetailsService;
 import com.ucsf.service.LoggerService;
@@ -52,6 +51,7 @@ public class VerificationController {
 
 	private static Logger log = LoggerFactory.getLogger(VerificationController.class);
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
 	@RequestMapping(value = "/verifyOtp", method = RequestMethod.POST)
 	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
@@ -60,15 +60,13 @@ public class VerificationController {
 		User user = null;
 		JSONObject jsonObject = null;
 		JSONObject responseJson = new JSONObject();
-		JSONObject errorResponse = new JSONObject();
 		String token = "";
 		if (verifyRequest.getEmail() != null && verifyRequest.getCode() != null
 				&& verifyRequest.getCode().length() > 0) {
 			user = userRepository.findByEmail(verifyRequest.getEmail());
 			if (user == null) {
-				errorResponse.put("code", ErrorCodes.USER_NOT_FOUND.code());
-				errorResponse.put("message", Constants.USER_NOT_FOUND.errordesc());
-				responseJson.put("error",errorResponse);
+				responseJson.put("error",
+						new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
 				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 			}
 			try {
@@ -88,20 +86,16 @@ public class VerificationController {
 						userRepository.save(user);
 					}
 				}
-
 				else {
-					errorResponse.put("code", ErrorCodes.USER_NOT_FOUND.code());
-					errorResponse.put("message", Constants.USER_NOT_FOUND.errordesc());
-					responseJson.put("error",errorResponse);
+					responseJson.put("error",
+							new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
 					return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		responseJson.put("data",user);
-		return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-		//return ResponseEntity.ok(new AuthResponse(token, true, "OTP verified successfully!", user.getRoles()));
+		responseJson.put("data", user);
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
-
 }

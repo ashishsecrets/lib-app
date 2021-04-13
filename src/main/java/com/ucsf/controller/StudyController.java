@@ -25,7 +25,7 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UcsfStudy;
 import com.ucsf.model.UcsfStudy.StudyFrequency;
 import com.ucsf.payload.request.StudyRequest;
-import com.ucsf.payload.response.ApiError;
+import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.ScreeningAnswerRepository;
 import com.ucsf.repository.ScreeningQuestionRepository;
@@ -72,7 +72,7 @@ public class StudyController {
 			user = userRepository.findByEmail(email);
 		} else {
 			loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
-			responseJson.put("error", new ApiError(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 		}
@@ -86,7 +86,9 @@ public class StudyController {
 		study.setStartDate(new Date());
 		study.setEndDate(DateUtils.addMonths(new Date(), 3));
 		studyRepository.save(study);
-		return ResponseEntity.ok(new SuccessResponse(true, "Study saved successfully!"));
+
+		responseJson.put("data", new SuccessResponse(true, "Study Saved"));
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -102,7 +104,7 @@ public class StudyController {
 			user = userRepository.findByEmail(email);
 		} else {
 			loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
-			responseJson.put("error", new ApiError(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 		}
@@ -110,7 +112,8 @@ public class StudyController {
 		Iterable<UcsfStudy> study = studyRepository.findAll();
 		List<UcsfStudy> studies = new ArrayList<UcsfStudy>();
 		study.forEach(studies::add);
-		return new ResponseEntity<List<UcsfStudy>>(studies, HttpStatus.OK);
+		responseJson.put("data", study);
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
 
 }

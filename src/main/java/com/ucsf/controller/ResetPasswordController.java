@@ -4,7 +4,7 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.payload.request.ResetPasswordRequest;
-import com.ucsf.payload.response.ApiError;
+import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
@@ -56,24 +56,26 @@ public class ResetPasswordController {
 		if (email != null && !email.equals("")) {
 			user = userRepository.findByEmail(email);
 			if (user == null) {
-				responseJson.put("error",
-						new ApiError(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
-				return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
+				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
+						Constants.USER_NOT_FOUND.errordesc()));
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 			}
 		}
 		try {
 			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your UCSF account password",
-					user.getFirstName() + user.getLastName(), passResetLinkService.createPasswordResetLink(user));
+					user.getFirstName() + " " + user.getLastName(), passResetLinkService.createPasswordResetLink(user));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return ResponseEntity.ok(new SuccessResponse(true, "A reset password email has been sent."));
+		responseJson.put("data", new SuccessResponse(true, "Email sent"));
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/reset-password", method = RequestMethod.POST)
-	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest)
-			throws Exception {
+	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) throws Exception {
 		loggerService.printLogs(log, "resetPassword", "Reseting Password");
+		JSONObject responseJson = new JSONObject();
 		if (resetPasswordRequest.getPassword() != null && !resetPasswordRequest.getPassword().equals("")) {
 
 			String password = resetPasswordRequest.getPassword();
@@ -84,16 +86,19 @@ public class ResetPasswordController {
 					&& (link != null & !link.equals(""))) {
 
 				if (!password.equals(confirmPassword)) {
-					return ResponseEntity
-							.ok(new SuccessResponse(false, "Password & confirmed password don't match."));
+					responseJson.put("error", new ErrorResponse(ErrorCodes.PASSWORD_NOT_MATCHING.code(),
+							Constants.PASSWORD_NOT_MATCHING.errordesc()));
+					return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 				}
 
 				if (!resetPassword.resetPass(password, link)) {
-					return ResponseEntity.ok(new SuccessResponse(false, "User not found or link expired."));
+					responseJson.put("error",
+							new ErrorResponse(ErrorCodes.LINK_EXPIRED.code(), Constants.LINK_EXPIRED.errordesc()));
+					return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 				}
 			}
 		}
-		return ResponseEntity.ok(new SuccessResponse(true, "Password Reset."));
+		responseJson.put("data", new SuccessResponse(true, "Password Reset."));
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
-
 }

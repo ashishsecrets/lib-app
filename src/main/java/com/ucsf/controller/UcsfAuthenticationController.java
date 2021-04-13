@@ -1,7 +1,6 @@
 package com.ucsf.controller;
 
 import com.ucsf.auth.model.RoleName;
-import com.ucsf.payload.response.RegisterResponse;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +28,7 @@ import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
 import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
-import com.ucsf.payload.response.ApiError;
-import com.ucsf.payload.response.AuthResponse;
+import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.CustomUserDetailsService;
 import com.ucsf.service.LoggerService;
@@ -69,23 +67,24 @@ public class UcsfAuthenticationController {
 
 	private static Logger log = LoggerFactory.getLogger(UcsfAuthenticationController.class);
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authenticationRequest)
 			throws Exception {
 		loggerService.printLogs(log, "createAuthenticationToken", "Start user login and create auth token");
+		JSONObject responseJson = new JSONObject();
+		User user = userRepository.findByEmail(authenticationRequest.getEmail());
+		if (user == null) {
+			responseJson.put("error",
+					new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 
-		// UserDetails userDetails =
-		// userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
-
-		// if(userDetails == null){
 		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail());
-		// }
 
 		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
-
-		User user = userRepository.findByEmail(userDetails.getUsername());
 
 		user.setAuthToken(token);
 
@@ -95,9 +94,11 @@ public class UcsfAuthenticationController {
 			verificationService.sendVerificationCode(user);
 		}
 		if (jwtConfig.getTwoFa()) {
-			return ResponseEntity.ok(new AuthResponse(token, false, "Verify OTP", user.getRoles()));
+			responseJson.put("data", user);
+			return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 		}
-		return ResponseEntity.ok(new AuthResponse(token, true, "Signed in Successfully!", user.getRoles()));
+		responseJson.put("data", user);
+		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -106,11 +107,9 @@ public class UcsfAuthenticationController {
 		loggerService.printLogs(log, "saveUser", "Register User");
 
 		JSONObject responseJson = new JSONObject();
-		JSONObject errorResponse = new JSONObject();
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			errorResponse.put("code", ErrorCodes.EMAIL_ALREADY_USED.code());
-			errorResponse.put("message", Constants.EMAIL_ALREADY_USED.errordesc());
-			responseJson.put("error",errorResponse);
+			responseJson.put("error",
+					new ErrorResponse(ErrorCodes.EMAIL_ALREADY_USED.code(), Constants.EMAIL_ALREADY_USED.errordesc()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
@@ -135,7 +134,7 @@ public class UcsfAuthenticationController {
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
 		user.setAuthToken(token);
-        responseJson.put("data", user);
+		responseJson.put("data", user);
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
