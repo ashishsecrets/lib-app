@@ -3,6 +3,7 @@ package com.ucsf.controller;
 import java.io.IOException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ucsf.auth.model.User;
+import com.ucsf.common.Constants;
+import com.ucsf.common.ErrorCodes;
 import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
 import com.ucsf.payload.request.VerifyRequest;
@@ -56,12 +59,17 @@ public class VerificationController {
 		loggerService.printLogs(log, "verifyOtp", "Verify Otp sent by Authy to user's phone number");
 		User user = null;
 		JSONObject jsonObject = null;
+		JSONObject responseJson = new JSONObject();
+		JSONObject errorResponse = new JSONObject();
 		String token = "";
 		if (verifyRequest.getEmail() != null && verifyRequest.getCode() != null
 				&& verifyRequest.getCode().length() > 0) {
 			user = userRepository.findByEmail(verifyRequest.getEmail());
 			if (user == null) {
-				return ResponseEntity.ok(new AuthResponse(null, false, "User not Found", user.getRoles()));
+				errorResponse.put("code", ErrorCodes.USER_NOT_FOUND.code());
+				errorResponse.put("message", Constants.USER_NOT_FOUND.errordesc());
+				responseJson.put("error",errorResponse);
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 			}
 			try {
 				jsonObject = verificationService.otpCodeVerification(user, verifyRequest.getCode());
@@ -82,13 +90,18 @@ public class VerificationController {
 				}
 
 				else {
-					return ResponseEntity.ok(new AuthResponse(null, false, "Invalid Token!", user.getRoles()));
+					errorResponse.put("code", ErrorCodes.USER_NOT_FOUND.code());
+					errorResponse.put("message", Constants.USER_NOT_FOUND.errordesc());
+					responseJson.put("error",errorResponse);
+					return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return ResponseEntity.ok(new AuthResponse(token, true, "OTP verified successfully!", user.getRoles()));
+		responseJson.put("data",user);
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		//return ResponseEntity.ok(new AuthResponse(token, true, "OTP verified successfully!", user.getRoles()));
 	}
 
 }

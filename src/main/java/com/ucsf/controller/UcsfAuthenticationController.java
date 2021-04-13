@@ -106,11 +106,12 @@ public class UcsfAuthenticationController {
 		loggerService.printLogs(log, "saveUser", "Register User");
 
 		JSONObject responseJson = new JSONObject();
-
+		JSONObject errorResponse = new JSONObject();
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			responseJson.put("error",
-					new ApiError(ErrorCodes.EMAIL_ALREADY_USED.code(), Constants.EMAIL_ALREADY_USED.errordesc()));
-			return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
+			errorResponse.put("code", ErrorCodes.EMAIL_ALREADY_USED.code());
+			errorResponse.put("message", Constants.EMAIL_ALREADY_USED.errordesc());
+			responseJson.put("error",errorResponse);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
 		User user = userDetailsService.save(signUpRequest);
@@ -134,9 +135,8 @@ public class UcsfAuthenticationController {
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
 		user.setAuthToken(token);
-
-		return ResponseEntity
-				.ok(new RegisterResponse(token, false, "User Registered, Verify OTP Now.", user.getRoles()));
+        responseJson.put("data", user);
+		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
 	private void authenticate(String username, String password) throws Exception {
