@@ -58,6 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/questions/**").hasRole("PATIENT")
 				.antMatchers("/api/answers/**").hasRole("PATIENT")
 				.antMatchers("/api/users/**").permitAll()
+				.antMatchers("/api/study/**").hasRole("PATIENT")
 				.anyRequest().authenticated().and().
 				// make sure we use stateless session; session won't be used to
 				// store user's state.

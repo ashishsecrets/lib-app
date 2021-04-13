@@ -1,18 +1,24 @@
 package com.ucsf.controller;
 
 import com.ucsf.auth.model.User;
+import com.ucsf.common.Constants;
+import com.ucsf.common.ErrorCodes;
 import com.ucsf.payload.request.ResetPasswordRequest;
-import com.ucsf.payload.response.ResetPasswordResponse;
+import com.ucsf.payload.response.ApiError;
+import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
 import com.ucsf.service.LoggerService;
 
 import com.ucsf.service.PasswordResetLinkService;
 import com.ucsf.service.ResetPassword;
+
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,15 +47,18 @@ public class ResetPasswordController {
 
 	private static Logger log = LoggerFactory.getLogger(ResetPasswordController.class);
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/forget-password", method = RequestMethod.POST)
-	public ResponseEntity<ResetPasswordResponse> forgetPassword(@RequestParam String email) {
+	public ResponseEntity<?> forgetPassword(@RequestParam String email) {
 		loggerService.printLogs(log, "forgetPassword", "Sending forget password email");
-
+		JSONObject responseJson = new JSONObject();
 		User user = null;
 		if (email != null && !email.equals("")) {
 			user = userRepository.findByEmail(email);
 			if (user == null) {
-				return ResponseEntity.ok(new ResetPasswordResponse(false, "There is no user with this email."));
+				responseJson.put("error",
+						new ApiError(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
+				return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
 			}
 		}
 		try {
@@ -58,11 +67,11 @@ public class ResetPasswordController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return ResponseEntity.ok(new ResetPasswordResponse(true, "A reset password email has been sent."));
+		return ResponseEntity.ok(new SuccessResponse(true, "A reset password email has been sent."));
 	}
 
 	@RequestMapping(value = "/reset-password", method = RequestMethod.POST)
-	public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest)
+	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest)
 			throws Exception {
 		loggerService.printLogs(log, "resetPassword", "Reseting Password");
 		if (resetPasswordRequest.getPassword() != null && !resetPasswordRequest.getPassword().equals("")) {
@@ -76,15 +85,15 @@ public class ResetPasswordController {
 
 				if (!password.equals(confirmPassword)) {
 					return ResponseEntity
-							.ok(new ResetPasswordResponse(false, "Password & confirmed password don't match."));
+							.ok(new SuccessResponse(false, "Password & confirmed password don't match."));
 				}
 
 				if (!resetPassword.resetPass(password, link)) {
-					return ResponseEntity.ok(new ResetPasswordResponse(false, "User not found or link expired."));
+					return ResponseEntity.ok(new SuccessResponse(false, "User not found or link expired."));
 				}
 			}
 		}
-		return ResponseEntity.ok(new ResetPasswordResponse(true, "Password Reset."));
+		return ResponseEntity.ok(new SuccessResponse(true, "Password Reset."));
 	}
 
 }

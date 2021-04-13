@@ -25,7 +25,7 @@ import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.ScreeningAnswerRequest;
 import com.ucsf.payload.response.ApiError;
-import com.ucsf.payload.response.ScreeningAnswerResponse;
+import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.ScreeningAnswerRepository;
 import com.ucsf.repository.ScreeningQuestionRepository;
 import com.ucsf.repository.UserRepository;
@@ -108,9 +108,8 @@ public class ScreeningAnswerController {
 			userScreeningStatus.setUserId(user.getId());
 			userScreeningStatusRepository.save(userScreeningStatus);
 			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
-
 		}
 
-		return ResponseEntity.ok(new ScreeningAnswerResponse(true, "Screening answer saved successfully!"));
+		return ResponseEntity.ok(new SuccessResponse(true, "Screening answer saved successfully!"));
 	}
 }

@@ -7,7 +7,8 @@ public enum Constants {
 	SIGNUP_SUCCESS("SignUp Successfully"),
 	INVALID_INDEXVALUE("Invalid Index Value"),
 	INVALID_AUTHORIZATION_HEADER("Invalid auth header"),
-	QUESTION_NOT_FOUND("Question not found");
+	QUESTION_NOT_FOUND("Question not found"),
+	USER_NOT_FOUND("User not existed");
 	
 		private Constants(String value) { 
 	    this.errordesc = value; 

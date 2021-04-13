@@ -34,9 +34,8 @@ public class UcsfStudy {
 	@Column
 	private String description;
 
-
 	@Column
-	private boolean enabled;
+	private Boolean enabled;
 	
 	@Column
 	private boolean isDefault;
@@ -52,7 +51,5 @@ public class UcsfStudy {
 	
 	@Column(name = "custom_date")
 	private Date custom_date;
-	
-	
 
 }

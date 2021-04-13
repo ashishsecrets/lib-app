@@ -51,7 +51,7 @@ public class VerificationController {
 
 	@PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
 	@RequestMapping(value = "/verifyOtp", method = RequestMethod.POST)
-	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest ,@RequestParam Boolean isNew) {
+	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
 
 		loggerService.printLogs(log, "verifyOtp", "Verify Otp sent by Authy to user's phone number");
 		User user = null;
@@ -66,7 +66,7 @@ public class VerificationController {
 			try {
 				jsonObject = verificationService.otpCodeVerification(user, verifyRequest.getCode());
 				if (jsonObject.get("success").equals(true)) {
-					if (isNew) {
+					if (verifyRequest.getIsNew()) {
 						UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
 						token = jwtTokenUtil.generateToken(userDetails);
 						user.setAuthToken(token);

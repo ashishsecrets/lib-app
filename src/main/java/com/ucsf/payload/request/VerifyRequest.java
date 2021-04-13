@@ -12,10 +12,12 @@ public class VerifyRequest implements Serializable {
 
 	private String email;
 	private String code;
+	private Boolean isNew;
 
-	public VerifyRequest(String email, String code) {
+	public VerifyRequest(String email, String code,Boolean isNew) {
 		this.email = email;
 		this.code = code;
+		this.isNew = isNew;
 	}
 
 	public String getEmail() {
