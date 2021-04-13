@@ -2,6 +2,10 @@ package com.ucsf.payload.request;
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+@Data
+@NoArgsConstructor
 public class VerifyRequest implements Serializable {
 
 	private static final long serialVersionUID = 5926468583005150707L;
@@ -9,12 +13,9 @@ public class VerifyRequest implements Serializable {
 	private String email;
 	private String code;
 
-	public VerifyRequest() {
-	}
-
 	public VerifyRequest(String email, String code) {
-		this.setEmail(email);
-		this.setCode(code);
+		this.email = email;
+		this.code = code;
 	}
 
 	public String getEmail() {
@@ -31,6 +32,11 @@ public class VerifyRequest implements Serializable {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

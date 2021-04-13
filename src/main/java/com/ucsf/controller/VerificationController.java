@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class VerificationController {
 
 	@PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
 	@RequestMapping(value = "/verifyOtp", method = RequestMethod.POST)
-	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
+	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest ,@RequestParam Boolean isNew) {
 
 		loggerService.printLogs(log, "verifyOtp", "Verify Otp sent by Authy to user's phone number");
 		User user = null;
@@ -65,12 +66,19 @@ public class VerificationController {
 			try {
 				jsonObject = verificationService.otpCodeVerification(user, verifyRequest.getCode());
 				if (jsonObject.get("success").equals(true)) {
-					user.setIsVerified(true);
-					userRepository.save(user);
-				    UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
-					token = jwtTokenUtil.generateToken(userDetails);
-					user.setAuthToken(token);
-					userRepository.save(user);
+					if (isNew) {
+						UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
+						token = jwtTokenUtil.generateToken(userDetails);
+						user.setAuthToken(token);
+						userRepository.save(user);
+					} else {
+						user.setIsVerified(true);
+						userRepository.save(user);
+						UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
+						token = jwtTokenUtil.generateToken(userDetails);
+						user.setAuthToken(token);
+						userRepository.save(user);
+					}
 				}
 
 				else {

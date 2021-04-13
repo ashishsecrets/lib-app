@@ -48,9 +48,9 @@ public class UserScreeningStatus {
 	private Long studyId;
 
 	@Column(name = "user_id")
-	private Long UserId;
+	private Long userId;
 
-	@OneToOne(targetEntity = User.class, fetch = FetchType.LAZY, optional = false)
+	@ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", insertable = false, updatable = false)
 	@JsonIgnore
 	private User users;
