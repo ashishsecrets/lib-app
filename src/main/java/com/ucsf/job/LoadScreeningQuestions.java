@@ -40,9 +40,7 @@ public class LoadScreeningQuestions {
 	@Autowired
 	ScreeningQuestionRepository questionRepository;
 
-	@Autowired
-	SheetsGoogleToCsv googleToCsv;
-
+	
 	@Value("${screening-questions-file}")
 	private String filePath;
 
