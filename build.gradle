@@ -13,14 +13,30 @@ repositories {
 	mavenCentral()
 }
 
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'SheetsQuickstart'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+version = '1.0'
+
+
 dependencies {
+
+	compile 'com.google.api-client:google-api-client:1.30.4'
+	compile 'com.google.oauth-client:google-oauth-client-jetty:1.30.6'
+	compile 'com.google.apis:google-api-services-sheets:v4-rev581-1.25.0'
+	compile (group: 'com.google.apis', name: 'google-api-services-sheets', version: 'v4-rev25-1.22.0')
+	compile (group: 'com.google.gdata', name: 'core', version: '1.47.1')
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	       compile("org.springframework.boot:spring-boot-starter-mail")
 
 	// https://mvnrepository.com/artifact/com.integralblue/log4jdbc-spring-boot-starter
-	implementation group: 'com.integralblue', name: 'log4jdbc-spring-boot-starter', version: '1.0.1'
+	 implementation group: 'com.integralblue', name: 'log4jdbc-spring-boot-starter', version: '1.0.1'
 	
 	compile group: 'com.authy', name: 'authy-java', version: '1.5.1'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
