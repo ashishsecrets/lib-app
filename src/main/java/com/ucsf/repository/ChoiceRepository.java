@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.ucsf.model.Choices;
+import com.ucsf.model.ScreeningAnsChoice;
 
-public interface ChoiceRepository extends CrudRepository<Choices, Long> {
+public interface ChoiceRepository extends CrudRepository<ScreeningAnsChoice, Long> {
 	
-	List<Choices> findByQuestionId(Long questionId);
+	List<ScreeningAnsChoice> findByQuestionId(Long questionId);
 }

@@ -21,7 +21,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import com.opencsv.CSVReader;
-import com.ucsf.model.Choices;
+import com.ucsf.model.ScreeningAnsChoice;
 import com.ucsf.model.ScreeningQuestions;
 import com.ucsf.repository.ChoiceRepository;
 import com.ucsf.repository.ScreeningQuestionRepository;
@@ -40,21 +40,19 @@ public class LoadScreeningQuestions {
 	@Autowired
 	ScreeningQuestionRepository questionRepository;
 
-	
 	@Value("${screening-questions-file}")
 	private String filePath;
 
-	//@Scheduled(cron="0 */1 * * * *")
+	// @Scheduled(cron="0 */1 * * * *")
 	public void loadSheetContent() throws ClientProtocolException, IOException, GeneralSecurityException {
 		// clear all previous data
-		/*jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
+		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
 		jdbcTemplate.update("TRUNCATE TABLE questions");
 		jdbcTemplate.update("TRUNCATE TABLE choices");
-		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");*/
-		//String id = "1UhvTWTf_xp1NHm8VcVgFXxpxzAy8IOzWhWod1s_PqYU";
-		// load content sheet
-		//googleToCsv.main("C10", "screening.csv",3);
-		 //filePath = downloadSheetData(id, "screening");
+		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
+		String id = "1UhvTWTf_xp1NHm8VcVgFXxpxzAy8IOzWhWod1s_PqYU";
+
+		filePath = downloadSheetData(id, "screening");
 		try {
 			readDownloadedContentCsvData(filePath);
 		} catch (Exception e) {
@@ -64,12 +62,11 @@ public class LoadScreeningQuestions {
 
 	public String downloadSheetData(String id, String sheetName) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
-		String filePath = sheetName + ".csv";
+		String filePath = sheetName+".csv";
 
 		try {
-
 			HttpGet request = new HttpGet(
-					"https://docs.google.com/spreadsheets/d/" +id+ "/gviz/tq?tqx=out:csv&sheet=" + sheetName);
+					"https://docs.google.com/spreadsheets/d/"+id+"/gviz/tq?tqx=out:csv&sheet="+filePath);
 			CloseableHttpResponse response = httpClient.execute(request);
 			try {
 				HttpEntity entity = response.getEntity();
@@ -90,8 +87,6 @@ public class LoadScreeningQuestions {
 		} finally {
 			httpClient.close();
 		}
-
-		System.out.println(filePath);
 		return filePath;
 	}
 
@@ -118,13 +113,13 @@ public class LoadScreeningQuestions {
 					sc.setDescription(questionDescription);
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
-					//sc.setStudyId(1l);//repo
+					// sc.setStudyId(1l);//repo
 					sc.setIndexValue(counter);
 					questionRepository.save(sc);
 					if (choices != null && !choices.equals("")) {
 						String[] split = choices.split("//");
 						for (String c : split) {
-							Choices choice = new Choices();
+							ScreeningAnsChoice choice = new ScreeningAnsChoice();
 							choice.setChoice(c);
 							choice.setQuestionId(sc.getId());
 							choiceRepository.save(choice);

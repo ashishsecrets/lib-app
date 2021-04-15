@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
-import com.ucsf.model.Choices;
+import com.ucsf.model.ScreeningAnsChoice;
 import com.ucsf.model.ScreeningQuestions;
 import com.ucsf.payload.response.ApiError;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
@@ -68,7 +68,7 @@ public class ScreeningQuestionController {
 		}
 		
 		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(studyId, indexValue);
-		List<Choices> choices = choiceRepository.findByQuestionId(sc.getId());
+		List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
 		ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 		response.setScreeningQuestions(sc);
 		response.setChoices(choices);
