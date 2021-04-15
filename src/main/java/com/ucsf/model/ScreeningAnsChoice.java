@@ -5,10 +5,10 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "choices")
+@Table(name = "screening_ans_choice")
 @Getter
 @Setter
-public class Choices extends Auditable<String> {
+public class ScreeningAnsChoice extends Auditable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
