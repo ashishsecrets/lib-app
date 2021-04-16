@@ -12,6 +12,7 @@ import com.ucsf.service.LoggerService;
 
 import com.ucsf.service.PasswordResetLinkService;
 import com.ucsf.service.ResetPassword;
+import com.ucsf.service.VerificationService;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -44,6 +45,9 @@ public class ResetPasswordController {
 
 	@Autowired
 	private LoggerService loggerService;
+	
+	@Autowired
+	VerificationService verificationService;
 
 	private static Logger log = LoggerFactory.getLogger(ResetPasswordController.class);
 
@@ -100,5 +104,29 @@ public class ResetPasswordController {
 		}
 		responseJson.put("data", new SuccessResponse(true, "Password Reset."));
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value = "/resend-code", method = RequestMethod.POST)
+	public ResponseEntity<?> resendCode(@RequestParam String email) throws Exception {
+		loggerService.printLogs(log, "resendCode", "Resend Password");
+		JSONObject responseJson = new JSONObject();
+		JSONObject jsonObject = null;
+		User user = userRepository.findByEmail(email);
+		if(user == null) {
+			responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
+					Constants.USER_NOT_FOUND.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+		jsonObject = verificationService.sendVerificationCode(user);
+		if (jsonObject.get("success").equals(true)) {
+			responseJson.put("data", new SuccessResponse(true, "Code Sent."));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
+		else {
+			responseJson.put("error", new ErrorResponse(ErrorCodes.CODE_NOT_SENT.code(),
+					Constants.CODE_NOT_SENT.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 	}
 }
