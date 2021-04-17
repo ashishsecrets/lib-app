@@ -24,7 +24,6 @@ import com.ucsf.model.ScreeningQuestions;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.ScreeningAnswerRequest;
-import com.ucsf.payload.response.ApiError;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.ScreeningAnswerRepository;
@@ -109,6 +108,6 @@ public class ScreeningAnswerController {
 			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
 		}
 		responseJson.put("data", new SuccessResponse(true, "Screening answer saved successfully!"));
-		return new ResponseEntity(responseJson.toString(), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 	}
 }

@@ -28,6 +28,7 @@ import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
 import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
+import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.CustomUserDetailsService;
@@ -80,7 +81,7 @@ public class UcsfAuthenticationController {
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
-		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail());
+		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(),false);
 
 		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
 
@@ -94,10 +95,10 @@ public class UcsfAuthenticationController {
 			verificationService.sendVerificationCode(user);
 		}
 		if (jwtConfig.getTwoFa()) {
-			responseJson.put("data", user);
+			responseJson.put("data", new AuthResponse(userDetails,user,"You have to be vrified by 2FA"));
 			return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 		}
-		responseJson.put("data", user);
+		responseJson.put("data", new AuthResponse(userDetails,user,"You have to be vrified by 2FA"));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 

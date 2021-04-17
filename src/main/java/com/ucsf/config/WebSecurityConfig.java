@@ -54,12 +54,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		httpSecurity.csrf().disable()
 				// dont authenticate this particular request
 				.authorizeRequests().antMatchers("/api/auth/**").permitAll().antMatchers("/api/verify").permitAll()
-				.antMatchers("/api/password/**").permitAll()
-				.antMatchers("/api/questions/**").hasRole("PATIENT")
-				.antMatchers("/api/answers/**").hasRole("PATIENT")
-				.antMatchers("/api/users/**").permitAll()
-				.antMatchers("/api/study/**").hasRole("PATIENT")
-				.anyRequest().authenticated().and().
+				.antMatchers("/api/password/**").permitAll().antMatchers("/api/questions/**").hasRole("PATIENT")
+				.antMatchers("/api/answers/**").hasRole("PATIENT").antMatchers("/api/users/**").permitAll()
+				.antMatchers("/api/survey/**").permitAll().antMatchers("/api/study/**").hasRole("PATIENT").anyRequest()
+				.authenticated().and().
+
 				// make sure we use stateless session; session won't be used to
 				// store user's state.
 				exceptionHandling().authenticationEntryPoint(ucsfAuthenticationEntryPoint).and().sessionManagement()
@@ -68,4 +67,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		// Add a filter to validate the tokens with every request
 		httpSecurity.addFilterBefore(ucsfRequestFilter, UsernamePasswordAuthenticationFilter.class);
 	}
+
 }

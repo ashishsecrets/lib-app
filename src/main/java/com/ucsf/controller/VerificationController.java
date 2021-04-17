@@ -21,6 +21,7 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
 import com.ucsf.payload.request.VerifyRequest;
+import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.CustomUserDetailsService;
@@ -58,6 +59,7 @@ public class VerificationController {
 
 		loggerService.printLogs(log, "verifyOtp", "Verify Otp sent by Authy to user's phone number");
 		User user = null;
+		UserDetails userDetails = null;
 		JSONObject jsonObject = null;
 		JSONObject responseJson = new JSONObject();
 		String token = "";
@@ -72,21 +74,13 @@ public class VerificationController {
 			try {
 				jsonObject = verificationService.otpCodeVerification(user, verifyRequest.getCode());
 				if (jsonObject.get("success").equals(true)) {
-					if (verifyRequest.getIsNew()) {
-						UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
-						token = jwtTokenUtil.generateToken(userDetails);
-						user.setAuthToken(token);
-						userRepository.save(user);
-					} else {
-						user.setIsVerified(true);
-						userRepository.save(user);
-						UserDetails userDetails = userDetailsService.loadUserByEmail(user.getEmail());
-						token = jwtTokenUtil.generateToken(userDetails);
-						user.setAuthToken(token);
-						userRepository.save(user);
-					}
-				}
-				else {
+
+					userDetails = userDetailsService.loadUserByEmail(user.getEmail(),true);
+					token = jwtTokenUtil.generateToken(userDetails);
+					user.setAuthToken(token);
+					userRepository.save(user);
+
+				} else {
 					responseJson.put("error",
 							new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
 					return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
@@ -95,7 +89,8 @@ public class VerificationController {
 				e.printStackTrace();
 			}
 		}
-		responseJson.put("data", user);
-		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		responseJson.put("data", new AuthResponse(userDetails,user, "User verified"));
+		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
+
 	}
 }

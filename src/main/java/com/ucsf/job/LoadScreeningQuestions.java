@@ -48,7 +48,7 @@ public class LoadScreeningQuestions {
 		// clear all previous data
 		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
 		jdbcTemplate.update("TRUNCATE TABLE questions");
-		jdbcTemplate.update("TRUNCATE TABLE choices");
+		jdbcTemplate.update("TRUNCATE TABLE screening_ans_choice");
 		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
 		String id = "1UhvTWTf_xp1NHm8VcVgFXxpxzAy8IOzWhWod1s_PqYU";
 

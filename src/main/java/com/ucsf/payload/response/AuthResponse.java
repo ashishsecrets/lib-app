@@ -3,7 +3,9 @@ package com.ucsf.payload.response;
 import java.io.Serializable;
 import java.util.Set;
 
-import com.ucsf.auth.model.Role;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.ucsf.auth.model.User;
 
 import lombok.Data;
 
@@ -11,15 +13,20 @@ import lombok.Data;
 public class AuthResponse implements Serializable {
 
 	private static final long serialVersionUID = -8091879091924046844L;
-	private final String jwttoken;
-	private final boolean isVerifiedUser;
+	private final String authToken;
 	private final String message;
-	private final Set<Role> authority;
+	private final String email;
+	private final String firstName;
+	private final String lastName;
+	private final Set authority;
 
-	public AuthResponse(String jwttoken, boolean isVerifiedUser,String message,Set<Role> authority) {
-		this.jwttoken = jwttoken;
-		this.isVerifiedUser = isVerifiedUser;
+	public AuthResponse(UserDetails userDetail, User user, String message) {
+		this.authToken = user.getAuthToken();
 		this.message = message;
-		this.authority = authority;
+		this.authority = (Set) userDetail.getAuthorities();
+		this.email = userDetail.getUsername();
+		this.firstName = user.getFirstName();
+		this.lastName = user.getLastName();
+
 	}
 }

@@ -24,18 +24,15 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse.toMap(), HttpStatus.NOT_FOUND);
 	}
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<?> globleExcpetionHandler(Exception ex, WebRequest request) {
-		/*
-		 * ErrorDetails errorDetails = new
-		 * ErrorDetails(ErrorCodes.INVALID_CREDENTIALS.code(), ex.getMessage(),
-		 * request.getDescription(false)); return new ResponseEntity<>(errorDetails,
-		 * HttpStatus.INTERNAL_SERVER_ERROR);
-		 */
-		ErrorResponse errorDetails = new ErrorResponse(ErrorCodes.INVALID_CREDENTIALS.code(),
-				Constants.INVALID_CREDENTIALS.errordesc());
-		JSONObject errorResponse = new JSONObject();
-		errorResponse.put("data", errorDetails);
-		return new ResponseEntity<>(errorResponse.toMap(), HttpStatus.NOT_FOUND);
-	}
+	/*
+	 * @ExceptionHandler(Exception.class) public ResponseEntity<?>
+	 * globleExcpetionHandler(Exception ex, WebRequest request) { JSONObject
+	 * errorResponse = new JSONObject(); if
+	 * (ex.getMessage().equals("Bad credentials")) { ErrorResponse errorDetails =
+	 * new ErrorResponse(ErrorCodes.INVALID_CREDENTIALS.code(),
+	 * Constants.INVALID_CREDENTIALS.errordesc()); errorResponse.put("data",
+	 * errorDetails); return new ResponseEntity<>(errorResponse.toMap(),
+	 * HttpStatus.NOT_FOUND); } else { return new
+	 * ResponseEntity<>(errorResponse.toMap(), HttpStatus.NOT_FOUND); } }
+	 */
 }

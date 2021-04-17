@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucsf.job.LoadScreeningQuestions;
+import com.ucsf.job.LoadSurveyQuestions;
 
 @RestController
 @CrossOrigin
@@ -17,9 +18,14 @@ public class UserController {
 	@Autowired
 	LoadScreeningQuestions loadScreeningQuestions;
 	
+	@Autowired
+	LoadSurveyQuestions loadSurveyQuestions;
+	
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> createAuthenticationToken() throws Exception {
-		loadScreeningQuestions.loadSheetContent();
+		System.out.println("1111111111");
+		//loadScreeningQuestions.loadSheetContent();
+		loadSurveyQuestions.loadSheetContent();
 		return ResponseEntity.ok("success");
 	}
 
