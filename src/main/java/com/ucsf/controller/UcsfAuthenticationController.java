@@ -121,7 +121,7 @@ public class UcsfAuthenticationController {
 		if (jwtConfig.getTwoFa()) {
 			JSONObject jsonObject = null;
 			jsonObject = verificationService.sendVerificationCode(user);
-			loggerService.printLogs(log, "send otp while authenticate() "+jsonObject.toString(), user.getEmail());
+			loggerService.printLogs(log, "send otp while saveUser() "+jsonObject.toString(), user.getEmail());
 		}
 
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
