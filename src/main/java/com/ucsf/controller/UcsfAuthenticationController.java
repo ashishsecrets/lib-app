@@ -81,7 +81,7 @@ public class UcsfAuthenticationController {
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
-		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(),false);
+		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), false);
 
 		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
 
@@ -92,13 +92,15 @@ public class UcsfAuthenticationController {
 		userRepository.save(user);
 
 		if (jwtConfig.getTwoFa()) {
-			verificationService.sendVerificationCode(user);
+			JSONObject jsonObject = null;
+			jsonObject = verificationService.sendVerificationCode(user);
+			loggerService.printLogs(log, "send otp while authenticate() "+jsonObject.toString(), user.getEmail());
 		}
 		if (jwtConfig.getTwoFa()) {
-			responseJson.put("data", new AuthResponse(userDetails,user,"You have to be vrified by 2FA"));
+			responseJson.put("data", new AuthResponse(userDetails, user, "You have to be vrified by 2FA"));
 			return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 		}
-		responseJson.put("data", new AuthResponse(userDetails,user,"You have to be vrified by 2FA"));
+		responseJson.put("data", new AuthResponse(userDetails, user, "You have to be vrified by 2FA"));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
@@ -117,7 +119,9 @@ public class UcsfAuthenticationController {
 		User user = userDetailsService.save(signUpRequest);
 
 		if (jwtConfig.getTwoFa()) {
-			verificationService.sendVerificationCode(user);
+			JSONObject jsonObject = null;
+			jsonObject = verificationService.sendVerificationCode(user);
+			loggerService.printLogs(log, "send otp while authenticate() "+jsonObject.toString(), user.getEmail());
 		}
 
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -135,7 +139,7 @@ public class UcsfAuthenticationController {
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
 		user.setAuthToken(token);
-		responseJson.put("data", new AuthResponse(userDetails,user,"You have to be vrified by 2FA"));
+		responseJson.put("data", new AuthResponse(userDetails, user, "You have to be vrified by 2FA"));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
