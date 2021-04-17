@@ -48,6 +48,39 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
 
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+		boolean isEnable = true;
+		boolean isUserNotExpired = true;
+		boolean isCredentialNotExpired = true;
+		boolean isAccountNotLocked = true;
+		jwtConfig.setTwoFa(true);
+		User user = userRepository.findByEmail(username);
+		if (user == null) {
+			UserDetails userDetails = null;
+			return userDetails;
+			//throw new UsernameNotFoundException("User not found with username: " + username);
+		}
+
+		if (user.getUserStatus() != null && user.getUserStatus() == UserStatus.ACTIVE) {
+			isEnable = true;
+		} else {
+			isEnable = false;
+		}
+		
+		if (!jwtConfig.getTwoFa()) {
+			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+			}
+		} else {
+			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
+		}
+		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), isEnable,
+				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
+	}
+
 	public UserDetails loadUserByEmail(String email,Boolean isVerified) throws UsernameNotFoundException{
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		boolean isEnable = true;
@@ -124,11 +157,5 @@ public class CustomUserDetailsService implements UserDetailsService {
 			role.setName(RoleName.ADMIN);
 			roleRepository.save(role);
 		}
-	}
-
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

@@ -135,7 +135,7 @@ public class UcsfAuthenticationController {
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
 		user.setAuthToken(token);
-		responseJson.put("data", user);
+		responseJson.put("data", new AuthResponse(userDetails,user,"You have to be vrified by 2FA"));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
