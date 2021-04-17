@@ -120,6 +120,7 @@ public class ResetPasswordController {
 		}
 		jsonObject = verificationService.sendVerificationCode(user);
 		if (jsonObject.get("success").equals(true)) {
+			loggerService.printLogs(log, jsonObject.toString(), user.getEmail());
 			responseJson.put("data", new SuccessResponse(true, "Code Sent."));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		}
