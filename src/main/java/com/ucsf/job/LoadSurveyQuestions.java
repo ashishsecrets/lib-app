@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
+import lombok.Data;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -50,6 +51,15 @@ public class LoadSurveyQuestions {
 	@Value("${survey-itch-questions-file}")
 	private String filePath3;
 
+	private class Sheet {
+		String id;
+		String sheetName;
+		public Sheet(String id, String sheetName) {
+			this.id = id;
+			this.sheetName = sheetName;
+		}
+	}
+
 	// @Scheduled(cron="0 */1 * * * *")
 	public void loadSheetContent() throws ClientProtocolException, IOException, GeneralSecurityException {
 		// clear all previous data
@@ -57,14 +67,17 @@ public class LoadSurveyQuestions {
 		jdbcTemplate.update("TRUNCATE TABLE survey_questions");
 		jdbcTemplate.update("TRUNCATE TABLE survey_ans_choice");
 		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
-		String id = "1UhvTWTf_xp1NHm8VcVgFXxpxzAy8IOzWhWod1s_PqYU";
 
-		HashMap<String, String> sheetName = new HashMap();
-		sheetName.put("patient", filePath);
-		sheetName.put("dermatology", filePath2);
-		sheetName.put("itch", filePath3);
-		for(Map.Entry<String, String> sheet : sheetName.entrySet()) {
-			filePath = downloadSheetData(id, sheet.getValue());
+		Map<String, Sheet> sheetName = new HashMap();
+		List<Sheet> list = new ArrayList<>();
+		list.add(new Sheet("12Q-7nq9fhUM8BeEBWrn8hy26eLdDjx9g3R_ZeixjRVw", "patient"));
+		list.add(new Sheet("1MK20TCV04yCB_md1JV-OL0QyZkkXI6b8LrO4zvHW8dk", "dermatology"));
+		list.add(new Sheet("1DoSxuwLDnqzYHIzsCbi85I1KMS8yfmjv4s1vJRbUtnw", "itch"));
+		sheetName.put("patient", list.get(0));
+		sheetName.put("dermatology", list.get(1));
+		sheetName.put("itch", list.get(2));
+		for(Map.Entry<String, Sheet> sheet : sheetName.entrySet()) {
+			filePath = downloadSheetData(sheet.getValue().id, sheet.getValue().sheetName);
 			try {
 				readDownloadedContentCsvData(filePath);
 			} catch (Exception e) {
@@ -162,4 +175,6 @@ public class LoadSurveyQuestions {
 			e.printStackTrace();
 		}
 	}
+
+
 }
