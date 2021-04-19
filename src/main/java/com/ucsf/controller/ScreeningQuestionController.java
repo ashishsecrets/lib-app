@@ -49,7 +49,7 @@ public class ScreeningQuestionController {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/question/{studyId}/{indexValue}", method = RequestMethod.GET)
-	public ResponseEntity<?> createAuthenticationToken(@PathVariable Long studyId, @PathVariable int indexValue)
+	public ResponseEntity<?> fetchQuestion(@PathVariable Long studyId, @PathVariable int indexValue)
 			throws Exception {
 		
 		User user = null;

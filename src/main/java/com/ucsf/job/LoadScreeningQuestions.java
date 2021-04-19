@@ -113,7 +113,9 @@ public class LoadScreeningQuestions {
 					sc.setDescription(questionDescription);
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
-					// sc.setStudyId(1l);//repo
+					sc.setStudyId(1l);//repo
+					//ScreeningQuestions scq = questionRepository.findByStudyIdOrderByIndexValueDesc(1l); //studyId
+					//sc.setIndexValue(scq != null ? scq.getIndexValue():1 );
 					sc.setIndexValue(counter);
 					questionRepository.save(sc);
 					if (choices != null && !choices.equals("")) {

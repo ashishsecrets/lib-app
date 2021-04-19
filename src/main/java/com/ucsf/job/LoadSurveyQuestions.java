@@ -42,13 +42,13 @@ public class LoadSurveyQuestions {
 	@Autowired
 	SurveyQuestionRepository surveyRepository;
 
-	@Value("${survey-patient-questions-file}")
+	//@Value("${survey-patient-questions-file}")
 	private String filePath;
 
-	@Value("${survey-dermatology-questions-file}")
+	//@Value("${survey-dermatology-questions-file}")
 	private String filePath2;
 
-	@Value("${survey-itch-questions-file}")
+	//@Value("${survey-itch-questions-file}")
 	private String filePath3;
 
 	private class Sheet {

@@ -98,12 +98,14 @@ public class ScreeningAnswerController {
 		if (existedStatus != null) {
 			existedStatus.setStudyId(answerRequest.getStudyId());
 			existedStatus.setUserScreeningStatus(UserScreenStatus.INPROGRESS);
+			existedStatus.setIndexValue(sq.get().getIndexValue());
 			userScreeningStatusRepository.save(existedStatus);
 		} else {
 			UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 			userScreeningStatus.setStudyId(answerRequest.getStudyId());
 			userScreeningStatus.setUserScreeningStatus(UserScreenStatus.INPROGRESS);
 			userScreeningStatus.setUserId(user.getId());
+			existedStatus.setIndexValue(sq.get().getIndexValue());
 			userScreeningStatusRepository.save(userScreeningStatus);
 			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
 		}

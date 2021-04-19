@@ -24,8 +24,8 @@ public class UserController {
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> createAuthenticationToken() throws Exception {
 		System.out.println("1111111111");
-		//loadScreeningQuestions.loadSheetContent();
-		loadSurveyQuestions.loadSheetContent();
+		loadScreeningQuestions.loadSheetContent();
+		//loadSurveyQuestions.loadSheetContent();
 		return ResponseEntity.ok("success");
 	}
 

@@ -43,6 +43,9 @@ public class UserScreeningStatus {
 
 	@Column(name = "user_id")
 	private Long userId;
+	
+	@Column(name = "index_value")
+	private int indexValue;
 
 	@ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", insertable = false, updatable = false)
