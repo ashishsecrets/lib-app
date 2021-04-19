@@ -148,15 +148,15 @@ public class LoadSurveyQuestions {
 					sc.setDescription(questionDescription);
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
-					if (csvFile.contains("patient")) {
-						sc.setSurveyId(1l);// repo
+					/*if (csvFile.contains("patient")) {
+						sc.setSurveyId(null);// repo
 					}
 					if (csvFile.contains("dermatology")) {
-						sc.setSurveyId(2l);// repo
+						sc.setSurveyId(null);// repo
 					}
 					if (csvFile.contains("itch")) {
-						sc.setSurveyId(3l);// repo
-					}
+						sc.setSurveyId(null);// repo
+					}*/
 					sc.setIndexValue(counter);
 					surveyRepository.save(sc);
 					if (choices != null && !choices.equals("")) {
