@@ -6,8 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -42,8 +41,14 @@ public class LoadSurveyQuestions {
 	@Autowired
 	SurveyQuestionRepository surveyRepository;
 
-	@Value("${screening-questions-file}")
+	@Value("${survey-patient-questions-file}")
 	private String filePath;
+
+	@Value("${survey-dermatology-questions-file}")
+	private String filePath2;
+
+	@Value("${survey-itch-questions-file}")
+	private String filePath3;
 
 	// @Scheduled(cron="0 */1 * * * *")
 	public void loadSheetContent() throws ClientProtocolException, IOException, GeneralSecurityException {
@@ -54,9 +59,12 @@ public class LoadSurveyQuestions {
 		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
 		String id = "1UhvTWTf_xp1NHm8VcVgFXxpxzAy8IOzWhWod1s_PqYU";
 
-		List<String> sheetName = Arrays.asList("patient", "dermatology", "itch");
-		for (String sheet : sheetName) {
-			filePath = downloadSheetData(id, sheet);
+		HashMap<String, String> sheetName = new HashMap();
+		sheetName.put("patient", filePath);
+		sheetName.put("dermatology", filePath2);
+		sheetName.put("itch", filePath3);
+		for(Map.Entry<String, String> sheet : sheetName.entrySet()) {
+			filePath = downloadSheetData(id, sheet.getValue());
 			try {
 				readDownloadedContentCsvData(filePath);
 			} catch (Exception e) {
