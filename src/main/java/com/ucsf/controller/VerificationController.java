@@ -53,7 +53,7 @@ public class VerificationController {
 	private static Logger log = LoggerFactory.getLogger(VerificationController.class);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
+	//@PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
 	@RequestMapping(value = "/verifyOtp", method = RequestMethod.POST)
 	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
 
