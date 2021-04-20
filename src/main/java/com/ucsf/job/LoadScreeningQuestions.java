@@ -63,10 +63,11 @@ public class LoadScreeningQuestions {
 	public String downloadSheetData(String id, String sheetName) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		String filePath = sheetName+".csv";
+		int gid = 0;
 
 		try {
-			HttpGet request = new HttpGet(
-					"https://docs.google.com/spreadsheets/d/"+id+"/gviz/tq?tqx=out:csv&sheet="+filePath);
+			HttpGet request = new HttpGet("https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=out:csv&sheet="
+					+ filePath + "&gid=" + gid);
 			CloseableHttpResponse response = httpClient.execute(request);
 			try {
 				HttpEntity entity = response.getEntity();
@@ -114,8 +115,7 @@ public class LoadScreeningQuestions {
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
 					sc.setStudyId(1l);//repo
-					//ScreeningQuestions scq = questionRepository.findByStudyIdOrderByIndexValueDesc(1l); //studyId
-					//sc.setIndexValue(scq != null ? scq.getIndexValue():1 );
+					//sc.setIndexValue(questionRepository.findFirstByStudyIdOrderByIndexValueDesc(1l).getIndexValue());
 					sc.setIndexValue(counter);
 					questionRepository.save(sc);
 					if (choices != null && !choices.equals("")) {

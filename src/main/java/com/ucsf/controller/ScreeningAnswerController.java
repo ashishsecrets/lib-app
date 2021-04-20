@@ -1,7 +1,12 @@
 package com.ucsf.controller;
 
+import java.util.List;
 import java.util.Optional;
 
+import com.ucsf.model.ScreeningAnsChoice;
+import com.ucsf.payload.response.ScreeningQuestionResponse;
+import com.ucsf.repository.*;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +31,6 @@ import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.ScreeningAnswerRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
-import com.ucsf.repository.ScreeningAnswerRepository;
-import com.ucsf.repository.ScreeningQuestionRepository;
-import com.ucsf.repository.UserRepository;
-import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.service.LoggerService;
 
 @RestController
@@ -51,6 +52,9 @@ public class ScreeningAnswerController {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Autowired
+	ChoiceRepository choiceRepository;
 
 	private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
@@ -109,7 +113,26 @@ public class ScreeningAnswerController {
 			userScreeningStatusRepository.save(userScreeningStatus);
 			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
 		}
+
+		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue()+1);
+		Boolean isSuccess = false;
+		try {
+			List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
+			ScreeningQuestionResponse response = new ScreeningQuestionResponse();
+			response.setScreeningQuestions(sc);
+			response.setChoices(choices);
+			responseJson.put("next question", response);
+			isSuccess = true;
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+
+		if(!isSuccess)
+			responseJson.put("next question", new SuccessResponse(true, "Last Question Index Reached !"));
+
 		responseJson.put("data", new SuccessResponse(true, "Screening answer saved successfully!"));
+
+
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 	}
 }
