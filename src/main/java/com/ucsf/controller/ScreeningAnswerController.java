@@ -104,6 +104,7 @@ public class ScreeningAnswerController {
 			existedStatus.setUserScreeningStatus(UserScreenStatus.INPROGRESS);
 			existedStatus.setIndexValue(sq.get().getIndexValue());
 			userScreeningStatusRepository.save(existedStatus);
+			loggerService.printLogs(log, "saveScreeningAnswers", "User Study Status updated");
 		} else {
 			UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 			userScreeningStatus.setStudyId(answerRequest.getStudyId());

@@ -2,6 +2,7 @@ package com.ucsf.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ucsf.service.AuditEntityListener;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@EntityListeners(AuditEntityListener.class)
 public class UcsfSurvey {
 
 	@Id

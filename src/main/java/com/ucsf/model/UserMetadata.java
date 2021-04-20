@@ -2,16 +2,28 @@ package com.ucsf.model;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import com.ucsf.auth.model.User;
 
 @Entity
 @Table(name = "user_metadata")
 public class UserMetadata extends Auditable<String> {
+
+	public enum StudyAcceptanceNotification {
+		NOT_APPROVED,APPROVED_BY_EMAIL,APPROVED_BY_SMS, APPROVED_BY_PUSH
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "metadata_id")
@@ -28,67 +40,24 @@ public class UserMetadata extends Auditable<String> {
 
 	@Column
 	private String phone;
-	
+
 	@Column(name = "is_consent_accepted")
 	private boolean isConsentAccepted;
-	
+
 	@Column(name = "consent_acceptance_date")
 	private Date consentAcceptanceDate;
+
+	@Column(name = "notified_by")
+	private StudyAcceptanceNotification notifiedBy;
+
+	@Column(name = "is_study_accepted")
+	private Boolean isStudyAccepted;
 	
-	public Long getMetadataId() {
-		return metadataId;
-	}
-
-	public void setMetadataId(Long metadataId) {
-		this.metadataId = metadataId;
-	}
-
-	public String getRace() {
-		return race;
-	}
-
-	public void setRace(String race) {
-		this.race = race;
-	}
-
-	public String getAge() {
-		return age;
-	}
-
-	public void setAge(String age) {
-		this.age = age;
-	}
-
-	public String getZipCode() {
-		return zipCode;
-	}
-
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
-	}
-
-	public String getPhone() {
-		return phone;
-	}
-
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
-
-	public boolean isConsentAccepted() {
-		return isConsentAccepted;
-	}
-
-	public void setConsentAccepted(boolean isConsentAccepted) {
-		this.isConsentAccepted = isConsentAccepted;
-	}
-
-	public Date getConsentAcceptanceDate() {
-		return consentAcceptanceDate;
-	}
-
-	public void setConsentAcceptanceDate(Date consentAcceptanceDate) {
-		this.consentAcceptanceDate = consentAcceptanceDate;
-	}
+	@Column(name = "user_id")
+	private Long userId;
+	
+	@OneToOne(targetEntity = User.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+	@JoinColumn(name = "user_id",insertable = false,updatable = false)
+	private User user;
 
 }
