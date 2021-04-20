@@ -10,14 +10,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.ucsf.auth.model.User;
 
+import lombok.Data;
+
 @Entity
 @Table(name = "user_metadata")
+@Data
 public class UserMetadata extends Auditable<String> {
 
 	public enum StudyAcceptanceNotification {

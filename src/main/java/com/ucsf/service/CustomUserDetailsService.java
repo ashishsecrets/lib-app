@@ -130,6 +130,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		newUser.setRoles(Collections.singleton(userRole));
 
 		newUser.setUserStatus(UserStatus.ACTIVE);
+		User savedUser = userRepository.save(newUser);
 		UserMetadata metadata = new UserMetadata();
 		if (user.getUserMetadata() != null) {
 			metadata.setAge(user.getUserMetadata().getAge());
@@ -138,9 +139,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 			metadata.setPhone(user.getUserMetadata().getPhone());
 			// metadata.setAcceptanceDate(new Date());
 			metadata.setConsentAccepted(true);
-			newUser.setMetadata(metadata);
+			metadata.setUserId(savedUser.getId());
+			//save metadata in metadatarepo
+			//newUser.setMetadata(metadata);
 		}
-		User savedUser = userRepository.save(newUser);
 		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 		userScreeningStatus.setStudyId(1l);
 		userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
