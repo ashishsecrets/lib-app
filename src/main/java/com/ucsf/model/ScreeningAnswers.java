@@ -3,14 +3,17 @@ package com.ucsf.model;
 import com.ucsf.auth.model.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.context.annotation.Primary;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-@Table(name = "screening_answers")
+@Table(name = "screening_answers", uniqueConstraints=
+@UniqueConstraint(columnNames={"question_id"}))
 @Getter
 @Setter
-public class ScreeningAnswers extends Auditable<String> {
+public class ScreeningAnswers extends Auditable<String> implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "screening_answer_id")
@@ -30,7 +33,8 @@ public class ScreeningAnswers extends Auditable<String> {
 	
 	@Column(name = "study_id")
 	private Long studyId;
-	
+
+
 	@Column(name = "index_value")
 	private int indexValue;
 
@@ -38,7 +42,7 @@ public class ScreeningAnswers extends Auditable<String> {
 	@JoinColumn(name = "answered_by_id", insertable = false, updatable = false)
 	private User answeredBy;
 
-	@ManyToOne(targetEntity = ScreeningQuestions.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+	@OneToOne(targetEntity = ScreeningQuestions.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinColumn(name = "question_id", insertable = false, updatable = false)
 	private ScreeningQuestions question;
 	

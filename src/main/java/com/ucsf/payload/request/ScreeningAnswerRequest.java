@@ -8,4 +8,5 @@ public class ScreeningAnswerRequest {
     private Long studyId;
     private String answer;
     private String answerDescription;
+    private Boolean forward;
 }

@@ -34,6 +34,8 @@ import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.service.LoggerService;
 
+import javax.transaction.Transactional;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/answers")
@@ -59,6 +61,7 @@ public class ScreeningAnswerController {
 
 	private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
+	@Transactional
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public ResponseEntity<?> saveScreeningAnswers(@RequestBody ScreeningAnswerRequest answerRequest) throws Exception {
@@ -66,6 +69,11 @@ public class ScreeningAnswerController {
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 		Boolean isNewStatus = false;
+		Boolean isSuccess = false;
+		int quesIncrement = 1;
+		if(!answerRequest.getForward()){
+			quesIncrement = -1;
+		}
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (userDetail != null && userDetail.getUsername() != null) {
 			String email = userDetail.getUsername();
@@ -83,7 +91,7 @@ public class ScreeningAnswerController {
 		if (userScreeningStatus != null) {
 			userScreeningStatus.setStudyId(answerRequest.getStudyId());
 			userScreeningStatus.setUserScreeningStatus(UserScreenStatus.INPROGRESS);
-			userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue()+1);
+			userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue()+quesIncrement);
 			userScreeningStatusRepository.save(userScreeningStatus);
 		} else {
 			userScreeningStatus = new UserScreeningStatus();
@@ -95,37 +103,6 @@ public class ScreeningAnswerController {
 			isNewStatus = true;
 			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
 		}
-
-
-		Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
-		if (sq.isPresent()) {
-			if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
-				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
-						Constants.INVALID_INDEXVALUE.errordesc()));
-				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-			}
-		} else {
-			responseJson.put("error",
-					new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
-			responseJson.put("next question", new SuccessResponse(true, "Last Question Index Reached !"));
-			userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue()-1);
-			userScreeningStatusRepository.save(userScreeningStatus);
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-		}
-
-
-
-
-
-		ScreeningAnswers screenAnswer = new ScreeningAnswers();
-		screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription());
-		screenAnswer.setAnswerChoice(answerRequest.getAnswer());
-		screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId()));
-		screenAnswer.setStudyId(answerRequest.getStudyId());
-		screenAnswer.setIndexValue(userScreeningStatus.getIndexValue());
-		screeningAnswerRepository.save(screenAnswer);
-
-
 
 		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue());
 
@@ -139,12 +116,49 @@ public class ScreeningAnswerController {
 			e.printStackTrace();
 		}
 
+		if(!answerRequest.getAnswer().isEmpty()){
+		Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId() - 1)));
+		screenAnswerOp = screeningAnswerRepository.findById(screenAnswerOp.get().getId());
+		screenAnswerOp.get().setAnswerDescription(answerRequest.getAnswerDescription());
+		screenAnswerOp.get().setAnswerChoice(answerRequest.getAnswer());
+		screenAnswerOp.get().setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId()-1));
+		screenAnswerOp.get().setStudyId(answerRequest.getStudyId());
+		screenAnswerOp.get().setIndexValue(userScreeningStatus.getIndexValue()-1);
+		screeningAnswerRepository.save(screenAnswerOp.get());
+		isSuccess = true;
+		responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
+
+		Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
+		if (sq.isPresent()) {
+			if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
+				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
+						Constants.INVALID_INDEXVALUE.errordesc()));
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+			}
+		} else {
+			responseJson.put("error",
+					new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
+			String string = "";
+			if(isSuccess){
+				string = "Screening answer saved successfully!";
+			}
+			responseJson.put("next question", new SuccessResponse(isSuccess, "Last Question Index Reached !" + " " + string ));
+			if(userScreeningStatus.getIndexValue() > 0){
+				userScreeningStatus.setUserScreeningStatus(UserScreenStatus.COMPLETED);
+			}
+			userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue()-quesIncrement);
+			userScreeningStatusRepository.save(userScreeningStatus);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+
+
+
+
+
 		if(isNewStatus){
 			responseJson.put("data", new SuccessResponse(true, "Please answer the first question."));
 		}
-		else {
-			responseJson.put("data", new SuccessResponse(true, "Screening answer saved successfully!"));
-		}
-		return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);
 	}
 }
