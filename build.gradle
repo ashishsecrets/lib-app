@@ -22,6 +22,9 @@ dependencies {
 	compile (group: 'com.google.apis', name: 'google-api-services-sheets', version: 'v4-rev25-1.22.0')
 	compile (group: 'com.google.gdata', name: 'core', version: '1.47.1')
 
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12'
+	compile group: 'com.notnoop.apns', name: 'apns', version: '1.0.0.Beta6'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -29,7 +32,7 @@ dependencies {
 	
 	compile group: 'com.authy', name: 'authy-java', version: '1.5.1'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly group: 'com.twilio.sdk', name: 'twilio', version: '8.9.0'
+	compile group: 'com.twilio.sdk', name: 'twilio', version: '8.9.0'
 	runtimeOnly 'mysql:mysql-connector-java'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
@@ -42,7 +45,6 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.1'
     implementation group: 'org.thymeleaf', name: 'thymeleaf', version: '3.0.11.RELEASE'
     compile "com.opencsv:opencsv:4.0"
-	   compile('org.apache.httpcomponents:httpclient:4.3.6')
     compile('commons-httpclient:commons-httpclient:3.1')
     
 }
