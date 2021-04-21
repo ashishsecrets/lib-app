@@ -13,14 +13,6 @@ repositories {
 	mavenCentral()
 }
 
-apply plugin: 'java'
-apply plugin: 'application'
-
-mainClassName = 'SheetsQuickstart'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-version = '1.0'
-
 
 dependencies {
 
@@ -34,9 +26,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	       compile("org.springframework.boot:spring-boot-starter-mail")
-
-	// https://mvnrepository.com/artifact/com.integralblue/log4jdbc-spring-boot-starter
-	 implementation group: 'com.integralblue', name: 'log4jdbc-spring-boot-starter', version: '1.0.1'
 	
 	compile group: 'com.authy', name: 'authy-java', version: '1.5.1'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
