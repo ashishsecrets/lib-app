@@ -105,6 +105,24 @@ public class ScreeningAnswerController {
 
 		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue());
 
+		if(!answerRequest.getAnswer().isEmpty()){
+			Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-1).getId())));
+			ScreeningAnswers screenAnswer;
+			if(screenAnswerOp.isPresent()){
+				screenAnswer = 	screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
+			}
+			else {
+				screenAnswer = new ScreeningAnswers();
+			}
+			screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription().toString());
+			screenAnswer.setAnswerChoice(answerRequest.getAnswer());
+			screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-1).getId()));
+			screenAnswer.setStudyId(answerRequest.getStudyId());
+			screenAnswer.setIndexValue(userScreeningStatus.getIndexValue()-1);
+			screeningAnswerRepository.save(screenAnswer);
+			isSuccess = true;}
+		//responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
+
 		Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
 		if (sq.isPresent()) {
 			if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
@@ -116,7 +134,9 @@ public class ScreeningAnswerController {
 			responseJson.put("error",
 					new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
 			String string = "";
-
+			if(isSuccess){
+				string = "Last question saved";
+			}
 			responseJson.put("error", new ErrorResponse(200, "Last Question Index Reached !" + " " + string ));
 			if(userScreeningStatus.getIndexValue() > 0){
 				userScreeningStatus.setUserScreeningStatus(UserScreenStatus.COMPLETED);
@@ -131,23 +151,7 @@ public class ScreeningAnswerController {
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
-		if(!answerRequest.getAnswer().isEmpty()){
-			Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId() - 1)));
-			ScreeningAnswers screenAnswer;
-			if(screenAnswerOp.isPresent()){
-				screenAnswer = 	screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
-			}
-			else {
-				screenAnswer = new ScreeningAnswers();
-			}
-			screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription());
-			screenAnswer.setAnswerChoice(answerRequest.getAnswer());
-			screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId()-1));
-			screenAnswer.setStudyId(answerRequest.getStudyId());
-			screenAnswer.setIndexValue(userScreeningStatus.getIndexValue()-1);
-			screeningAnswerRepository.save(screenAnswer);
-			isSuccess = true;}
-			//responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
+
 
 
 		try {
