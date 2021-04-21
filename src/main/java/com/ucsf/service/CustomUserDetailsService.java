@@ -22,10 +22,12 @@ import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
 import com.ucsf.config.JwtConfig;
 import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.repository.RoleRepository;
+import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
 
@@ -39,6 +41,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Autowired
 	RoleRepository roleRepository;
+	
+	@Autowired
+	UserMetaDataRepository userMetaDataRepository;
 
 	private static String ROLE_PREFIX = "ROLE_";
 
@@ -136,10 +141,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 			metadata.setAge(user.getUserMetadata().getAge());
 			metadata.setRace(user.getUserMetadata().getRace());
 			metadata.setZipCode(user.getUserMetadata().getZipCode());
-			metadata.setPhone(user.getUserMetadata().getPhone());
 			// metadata.setAcceptanceDate(new Date());
-			metadata.setConsentAccepted(true);
+			metadata.setConsentAccepted(false);
+			metadata.setIsStudyAccepted(false);
 			metadata.setUserId(savedUser.getId());
+			metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
+			userMetaDataRepository.save(metadata);
 			//save metadata in metadatarepo
 			//newUser.setMetadata(metadata);
 		}

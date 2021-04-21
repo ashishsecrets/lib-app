@@ -23,7 +23,7 @@ import lombok.Data;
 public class UserMetadata extends Auditable<String> {
 
 	public enum StudyAcceptanceNotification {
-		NOT_APPROVED,APPROVED_BY_EMAIL,APPROVED_BY_SMS, APPROVED_BY_PUSH
+		NOT_APPROVED,NOTIFIED_BY_EMAIL,NOTIFIED_BY_SMS, NOTIFIED_BY_PUSH
 	}
 
 	@Id
@@ -39,9 +39,6 @@ public class UserMetadata extends Auditable<String> {
 
 	@Column(name = "zip_code")
 	private String zipCode;
-
-	@Column
-	private String phone;
 
 	@Column(name = "is_consent_accepted")
 	private boolean isConsentAccepted;
