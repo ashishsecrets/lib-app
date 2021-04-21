@@ -3,7 +3,6 @@ package com.ucsf.controller;
 import java.util.List;
 import java.util.Optional;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.ucsf.model.ScreeningAnsChoice;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
 import com.ucsf.repository.*;
