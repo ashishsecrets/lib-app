@@ -106,7 +106,7 @@ public class ScreeningAnswerController {
 		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue());
 
 		if(!answerRequest.getAnswer().isEmpty()){
-			Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-1).getId())));
+			Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-quesIncrement).getId())));
 			ScreeningAnswers screenAnswer;
 			if(screenAnswerOp.isPresent()){
 				screenAnswer = 	screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
@@ -116,9 +116,9 @@ public class ScreeningAnswerController {
 			}
 			screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription().toString());
 			screenAnswer.setAnswerChoice(answerRequest.getAnswer());
-			screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-1).getId()));
+			screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-quesIncrement).getId()));
 			screenAnswer.setStudyId(answerRequest.getStudyId());
-			screenAnswer.setIndexValue(userScreeningStatus.getIndexValue()-1);
+			screenAnswer.setIndexValue(userScreeningStatus.getIndexValue()-quesIncrement);
 			screeningAnswerRepository.save(screenAnswer);
 			isSuccess = true;}
 		//responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
