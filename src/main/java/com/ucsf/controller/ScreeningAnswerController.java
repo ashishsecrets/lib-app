@@ -117,15 +117,13 @@ public class ScreeningAnswerController {
 			responseJson.put("error",
 					new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
 			String string = "";
-			if(isSuccess){
-				string = "Screening answer saved successfully!";
-			}
-			responseJson.put("next question", new SuccessResponse(isSuccess, "Last Question Index Reached !" + " " + string ));
+
+			responseJson.put("error", new ErrorResponse(200, "Last Question Index Reached !" + " " + string ));
 			if(userScreeningStatus.getIndexValue() > 0){
 				userScreeningStatus.setUserScreeningStatus(UserScreenStatus.COMPLETED);
 			}
 			else if (userScreeningStatus.getIndexValue() <= 0){
-				responseJson.put("next question", new SuccessResponse(isSuccess, "Cannot go further back! Answer first question" + " " + string ));
+				responseJson.put("error", new ErrorResponse(200, "Cannot go further back! Answer first question" + " " + string ));
 				userScreeningStatus.setIndexValue(-1);
 				userScreeningStatusRepository.save(userScreeningStatus);
 			}
@@ -149,8 +147,8 @@ public class ScreeningAnswerController {
 			screenAnswer.setStudyId(answerRequest.getStudyId());
 			screenAnswer.setIndexValue(userScreeningStatus.getIndexValue()-1);
 			screeningAnswerRepository.save(screenAnswer);
-			isSuccess = true;
-			responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
+			isSuccess = true;}
+			//responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
 
 
 		try {
@@ -158,14 +156,17 @@ public class ScreeningAnswerController {
 			ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 			response.setScreeningQuestions(sc);
 			response.setChoices(choices);
-			responseJson.put("next question", response);
+			responseJson.put("data", response);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 
 
-		if(isNewStatus){
+		/*if(isNewStatus){
 			responseJson.put("data", new SuccessResponse(true, "Please answer the first question."));
+		}*/
+		if(!isSuccess){
+			responseJson.put("error", new ErrorResponse(200, "Please enter valid answer"));
 		}
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);
