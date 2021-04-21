@@ -106,28 +106,6 @@ public class ScreeningAnswerController {
 
 		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue());
 
-		try {
-			List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
-			ScreeningQuestionResponse response = new ScreeningQuestionResponse();
-			response.setScreeningQuestions(sc);
-			response.setChoices(choices);
-			responseJson.put("next question", response);
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-		}
-
-		if(!answerRequest.getAnswer().isEmpty()){
-		Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId() - 1)));
-		screenAnswerOp = screeningAnswerRepository.findById(screenAnswerOp.get().getId());
-		screenAnswerOp.get().setAnswerDescription(answerRequest.getAnswerDescription());
-		screenAnswerOp.get().setAnswerChoice(answerRequest.getAnswer());
-		screenAnswerOp.get().setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId()-1));
-		screenAnswerOp.get().setStudyId(answerRequest.getStudyId());
-		screenAnswerOp.get().setIndexValue(userScreeningStatus.getIndexValue()-1);
-		screeningAnswerRepository.save(screenAnswerOp.get());
-		isSuccess = true;
-		responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
-
 		Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
 		if (sq.isPresent()) {
 			if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
@@ -146,13 +124,44 @@ public class ScreeningAnswerController {
 			if(userScreeningStatus.getIndexValue() > 0){
 				userScreeningStatus.setUserScreeningStatus(UserScreenStatus.COMPLETED);
 			}
+			else if (userScreeningStatus.getIndexValue() <= 0){
+				responseJson.put("next question", new SuccessResponse(isSuccess, "Cannot go further back! Answer first question" + " " + string ));
+				userScreeningStatus.setIndexValue(-1);
+				userScreeningStatusRepository.save(userScreeningStatus);
+			}
 			userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue()-quesIncrement);
 			userScreeningStatusRepository.save(userScreeningStatus);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
+		if(!answerRequest.getAnswer().isEmpty()){
+			Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId() - 1)));
+			ScreeningAnswers screenAnswer;
+			if(screenAnswerOp.isPresent()){
+				screenAnswer = 	screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
+			}
+			else {
+				screenAnswer = new ScreeningAnswers();
+			}
+			screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription());
+			screenAnswer.setAnswerChoice(answerRequest.getAnswer());
+			screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId()-1));
+			screenAnswer.setStudyId(answerRequest.getStudyId());
+			screenAnswer.setIndexValue(userScreeningStatus.getIndexValue()-1);
+			screeningAnswerRepository.save(screenAnswer);
+			isSuccess = true;
+			responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
 
 
+		try {
+			List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
+			ScreeningQuestionResponse response = new ScreeningQuestionResponse();
+			response.setScreeningQuestions(sc);
+			response.setChoices(choices);
+			responseJson.put("next question", response);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
 
 
 		if(isNewStatus){
