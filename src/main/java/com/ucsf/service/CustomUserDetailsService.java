@@ -102,8 +102,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 		} else {
 			isEnable = false;
 		}
+		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+			if (role.getName().toString().equals("ADMIN")) {
+				isVerified = true;
+			}
+		}
 
-		if (!jwtConfig.getTwoFa() || isVerified) {
+		if (!jwtConfig.getTwoFa() || isVerified ) {
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
 			}
