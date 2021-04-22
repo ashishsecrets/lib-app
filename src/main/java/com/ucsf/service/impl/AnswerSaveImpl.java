@@ -25,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -127,8 +128,16 @@ public class AnswerSaveImpl implements AnswerSaveService {
                 string = "Last question saved";
             }
             if(userScreeningStatus.getIndexValue() > 0){
-                responseJson.put("data", new SuccessResponse(true, "Last Question Index Reached !" + " " + string ));
                 responseJson.remove("error");
+                ScreeningQuestionResponse response = new ScreeningQuestionResponse();
+                ScreeningQuestions sc = new ScreeningQuestions();
+                ScreeningAnswers sa = new ScreeningAnswers();
+                List<ScreeningAnsChoice> choices = new ArrayList<>();
+                response.setScreeningQuestions(sc);
+                response.setScreeningAnswers(sa);
+                response.setChoices(choices);
+                response.setIsLastQuestion(true);
+                responseJson.put("data", response);
                 userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.COMPLETED);
             }
             else if (userScreeningStatus.getIndexValue() <= 0){
@@ -151,6 +160,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
             response.setScreeningQuestions(sc);
             response.setScreeningAnswers(sa);
             response.setChoices(choices);
+            response.setIsLastQuestion(false);
             responseJson.put("data", response);
         } catch (NullPointerException e) {
             e.printStackTrace();

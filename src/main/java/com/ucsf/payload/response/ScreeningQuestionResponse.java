@@ -14,5 +14,6 @@ public class ScreeningQuestionResponse {
 	ScreeningQuestions screeningQuestions;
 	ScreeningAnswers screeningAnswers;
 	List<ScreeningAnsChoice> choices;
+	Boolean isLastQuestion;
 	
 }
