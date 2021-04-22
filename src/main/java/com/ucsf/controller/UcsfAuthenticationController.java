@@ -33,6 +33,7 @@ import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.CustomUserDetailsService;
 import com.ucsf.service.LoggerService;
+import com.ucsf.service.UserService;
 import com.ucsf.service.VerificationService;
 
 import java.util.HashSet;
@@ -51,6 +52,9 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	private CustomUserDetailsService userDetailsService;
+	
+	@Autowired
+	UserService userService;
 
 	@Autowired
 	UserRepository userRepository;
@@ -100,7 +104,7 @@ public class UcsfAuthenticationController {
 			responseJson.put("data", new AuthResponse(userDetails, user, "You have to be vrified by 2FA"));
 			return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 		}
-		responseJson.put("data", new AuthResponse(userDetails, user, "You have to be vrified by 2FA"));
+		responseJson.put("data", new AuthResponse(userDetails, user, "User saved Successfully!"));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
@@ -116,8 +120,8 @@ public class UcsfAuthenticationController {
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
-		User user = userDetailsService.save(signUpRequest);
-
+		User user = userService.save(signUpRequest);
+		
 		if (jwtConfig.getTwoFa()) {
 			JSONObject jsonObject = null;
 			jsonObject = verificationService.sendVerificationCode(user);

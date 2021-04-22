@@ -1,0 +1,94 @@
+package com.ucsf.service.impl;
+
+import java.util.Collections;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.ucsf.auth.model.Role;
+import com.ucsf.auth.model.RoleName;
+import com.ucsf.auth.model.User;
+import com.ucsf.auth.model.User.UserStatus;
+import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserScreeningStatus;
+import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
+import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
+import com.ucsf.payload.request.SignUpRequest;
+import com.ucsf.repository.RoleRepository;
+import com.ucsf.repository.UserMetaDataRepository;
+import com.ucsf.repository.UserRepository;
+import com.ucsf.repository.UserScreeningStatusRepository;
+import com.ucsf.service.UserService;
+
+@Service("userService")
+public class UserServiceImpl implements UserService{
+	
+	@Autowired
+	UserRepository userRepository;
+	
+	@Autowired
+	private PasswordEncoder bcryptEncoder;
+
+	@Autowired
+	RoleRepository roleRepository;
+	
+	@Autowired
+	UserMetaDataRepository userMetaDataRepository;
+	
+	@Autowired
+	UserScreeningStatusRepository userScreeningStatusRepository;
+
+	@Override
+	public Page<User> findAll(int page, int size) {
+	    Page<User> users = userRepository.findAll(PageRequest.of(page, size));
+		return users;
+	}
+	
+	@Override
+	public User save(SignUpRequest user) {
+		User newUser = new User();
+		newUser.setFirstName(user.getFirstName());
+		newUser.setLastName(user.getLastName());
+		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+		newUser.setEmail(user.getEmail());
+		newUser.setPhoneNumber(user.getPhone());
+		newUser.setPhoneCode(user.getPhoneCode());
+
+		Role existed = roleRepository.findByName(RoleName.PATIENT);
+		if (existed == null) {
+			Role role = new Role();
+			role.setName(RoleName.PATIENT);
+			roleRepository.save(role);
+		}
+		// Set initial role
+		Role userRole = roleRepository.findByName(RoleName.PATIENT);
+		// .orElseThrow(() -> new AppException("User Role not set."));
+		newUser.setRoles(Collections.singleton(userRole));
+
+		newUser.setUserStatus(UserStatus.ACTIVE);
+		User savedUser = userRepository.save(newUser);
+		UserMetadata metadata = new UserMetadata();
+		if (user.getUserMetadata() != null) {
+			metadata.setAge(user.getUserMetadata().getAge());
+			metadata.setRace(user.getUserMetadata().getRace());
+			metadata.setZipCode(user.getUserMetadata().getZipCode());
+			// metadata.setAcceptanceDate(new Date());
+			metadata.setConsentAccepted(false);
+			metadata.setIsStudyAccepted(false);
+			metadata.setUserId(savedUser.getId());
+			metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
+			userMetaDataRepository.save(metadata);
+			//save metadata in metadatarepo
+			//newUser.setMetadata(metadata);
+		}
+		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
+		userScreeningStatus.setStudyId(1l);
+		userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
+		userScreeningStatus.setUserId(savedUser.getId());
+		userScreeningStatusRepository.save(userScreeningStatus);
+		return savedUser;
+	}
+}
