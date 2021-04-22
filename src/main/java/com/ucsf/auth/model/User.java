@@ -68,4 +68,19 @@ public class User {
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
+	
+	public void addRole(Role userRole) {
+		if(this.roles == null)		{
+			this.roles = new HashSet<>();
+		}
+		for(Role role : this.roles) {
+			if(role.getName().equals(userRole.getName())){
+				return;
+			}
+		}
+		if(userRole != null && userRole.getName() != null) {
+			this.roles.add(userRole);	
+		}
+		
+	}
 }
