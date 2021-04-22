@@ -137,8 +137,9 @@ public class ScreeningAnswerController {
 			if(isSuccess){
 				string = "Last question saved";
 			}
-			responseJson.put("data", new SuccessResponse(true, "Last Question Index Reached !" + " " + string ));
 			if(userScreeningStatus.getIndexValue() > 0){
+				responseJson.put("data", new SuccessResponse(true, "Last Question Index Reached !" + " " + string ));
+				responseJson.remove("error");
 				userScreeningStatus.setUserScreeningStatus(UserScreenStatus.COMPLETED);
 			}
 			else if (userScreeningStatus.getIndexValue() <= 0){
