@@ -130,9 +130,9 @@ public class AnswerSaveImpl implements AnswerSaveService {
             if(userScreeningStatus.getIndexValue() > 0){
                 responseJson.remove("error");
                 ScreeningQuestionResponse response = new ScreeningQuestionResponse();
-                ScreeningQuestions sc = new ScreeningQuestions();
-                ScreeningAnswers sa = new ScreeningAnswers();
-                List<ScreeningAnsChoice> choices = new ArrayList<>();
+                ScreeningQuestions sc = null;
+                ScreeningAnswers sa = null;
+                List<ScreeningAnsChoice> choices = null;
                 response.setScreeningQuestions(sc);
                 response.setScreeningAnswers(sa);
                 response.setChoices(choices);
@@ -160,7 +160,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
             response.setScreeningQuestions(sc);
             response.setScreeningAnswers(sa);
             response.setChoices(choices);
-            response.setIsLastQuestion(false);
+            response.setIsLastQuestion(!Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent());
             responseJson.put("data", response);
         } catch (NullPointerException e) {
             e.printStackTrace();
