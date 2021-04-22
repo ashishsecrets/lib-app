@@ -3,6 +3,7 @@ package com.ucsf.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ucsf.model.ScreeningAnsChoice;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
 import com.ucsf.repository.*;
@@ -103,7 +104,6 @@ public class ScreeningAnswerController {
 			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
 		}
 
-		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue());
 
 		if(!answerRequest.getAnswer().isEmpty()){
 			Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-quesIncrement).getId())));
@@ -137,7 +137,7 @@ public class ScreeningAnswerController {
 			if(isSuccess){
 				string = "Last question saved";
 			}
-			responseJson.put("error", new ErrorResponse(200, "Last Question Index Reached !" + " " + string ));
+			responseJson.put("data", new SuccessResponse(true, "Last Question Index Reached !" + " " + string ));
 			if(userScreeningStatus.getIndexValue() > 0){
 				userScreeningStatus.setUserScreeningStatus(UserScreenStatus.COMPLETED);
 			}
@@ -152,12 +152,14 @@ public class ScreeningAnswerController {
 		}
 
 
-
+		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue());
+		ScreeningAnswers sa = screeningAnswerRepository.findByQuestionId(sc.getId());
 
 		try {
 			List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
 			ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 			response.setScreeningQuestions(sc);
+			response.setScreeningAnswers(sa);
 			response.setChoices(choices);
 			responseJson.put("data", response);
 		} catch (NullPointerException e) {
@@ -168,9 +170,9 @@ public class ScreeningAnswerController {
 		/*if(isNewStatus){
 			responseJson.put("data", new SuccessResponse(true, "Please answer the first question."));
 		}*/
-		if(!isSuccess){
+		/*if(!isSuccess){
 			responseJson.put("error", new ErrorResponse(200, "Please enter valid answer"));
-		}
+		}*/
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);
 	}
