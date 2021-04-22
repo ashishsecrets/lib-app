@@ -24,29 +24,29 @@ import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.service.UserService;
 
 @Service("userService")
-public class UserServiceImpl implements UserService{
-	
+public class UserServiceImpl implements UserService {
+
 	@Autowired
 	UserRepository userRepository;
-	
+
 	@Autowired
 	private PasswordEncoder bcryptEncoder;
 
 	@Autowired
 	RoleRepository roleRepository;
-	
+
 	@Autowired
 	UserMetaDataRepository userMetaDataRepository;
-	
+
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
 
 	@Override
 	public Page<User> findAll(int page, int size) {
-	    Page<User> users = userRepository.findAll(PageRequest.of(page, size));
+		Page<User> users = userRepository.findAll(PageRequest.of(page, size));
 		return users;
 	}
-	
+
 	@Override
 	public User save(SignUpRequest user) {
 		User newUser = new User();
@@ -57,17 +57,18 @@ public class UserServiceImpl implements UserService{
 		newUser.setPhoneNumber(user.getPhone());
 		newUser.setPhoneCode(user.getPhoneCode());
 
-		Role existed = roleRepository.findByName(RoleName.PATIENT);
-		if (existed == null) {
-			Role role = new Role();
-			role.setName(RoleName.PATIENT);
-			roleRepository.save(role);
+		//Add Role
+		if(user.getUserRoles() != null && user.getUserRoles().size() > 0) {
+			for(String role : user.getUserRoles()) {
+				if(role.equals("ADMIN")) {
+					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
+				}
+				else{
+					newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
+				}
+				//newUser.addRole(new Role(role));
+			}
 		}
-		// Set initial role
-		Role userRole = roleRepository.findByName(RoleName.PATIENT);
-		// .orElseThrow(() -> new AppException("User Role not set."));
-		newUser.setRoles(Collections.singleton(userRole));
-
 		newUser.setUserStatus(UserStatus.ACTIVE);
 		User savedUser = userRepository.save(newUser);
 		UserMetadata metadata = new UserMetadata();
