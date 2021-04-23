@@ -158,6 +158,9 @@ public class AnswerSaveImpl implements AnswerSaveService {
             List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
             ScreeningQuestionResponse response = new ScreeningQuestionResponse();
             response.setScreeningQuestions(sc);
+            if(sa==null){
+                sa = new ScreeningAnswers();
+            }
             response.setScreeningAnswers(sa);
             response.setChoices(choices);
             response.setIsLastQuestion(!Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent());
