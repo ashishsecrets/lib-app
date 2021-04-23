@@ -10,5 +10,5 @@ public interface ScreeningAnswerRepository extends CrudRepository< ScreeningAnsw
 	ScreeningAnswers findByQuestionId(Long questionId);
 	ScreeningAnswers deleteByQuestionId(Long id);
 	List<ScreeningAnswers> findByStudyId(Long studyId);
-	
+	ScreeningAnswers findByQuestionIdAndAnsweredById(Long quesId, Long userId);
 }

@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service("answerSaveService")
+@Service
 public class AnswerSaveImpl implements AnswerSaveService {
 
     @Autowired
@@ -108,6 +108,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
             screenAnswer.setAnswerChoice(answerRequest.getAnswer());
             screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-quesIncrement).getId()));
             screenAnswer.setStudyId(answerRequest.getStudyId());
+            screenAnswer.setAnsweredById(user.getId());
             screenAnswer.setIndexValue(userScreeningStatus.getIndexValue()-quesIncrement);
             screeningAnswerRepository.save(screenAnswer);
             isSuccess = true;}
@@ -152,7 +153,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
 
 
         ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue());
-        ScreeningAnswers sa = screeningAnswerRepository.findByQuestionId(sc.getId());
+        ScreeningAnswers sa = screeningAnswerRepository.findByQuestionIdAndAnsweredById(sc.getId(), user.getId());
 
         try {
             List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
