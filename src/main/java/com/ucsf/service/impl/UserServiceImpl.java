@@ -66,6 +66,9 @@ public class UserServiceImpl implements UserService {
 				//newUser.addRole(new Role(role));
 			}
 		}
+		else {
+			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
+		}
 		newUser.setUserStatus(UserStatus.ACTIVE);
 		User savedUser = userRepository.save(newUser);
 		UserMetadata metadata = new UserMetadata();
