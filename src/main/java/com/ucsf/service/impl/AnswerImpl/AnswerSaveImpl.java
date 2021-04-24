@@ -1,4 +1,4 @@
-package com.ucsf.service.impl;
+package com.ucsf.service.impl.AnswerImpl;
 
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service("answerSaveService")
 public class AnswerSaveImpl implements AnswerSaveService {
 
     @Autowired
@@ -50,6 +50,9 @@ public class AnswerSaveImpl implements AnswerSaveService {
     @Autowired
     ChoiceRepository choiceRepository;
 
+    @Autowired
+    ScreeningTest screeningTest;
+
     private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
 
@@ -58,6 +61,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
         loggerService.printLogs(log, "saveScreeningAnswers", "Saving screening Answers");
         User user = null;
         JSONObject responseJson = new JSONObject();
+        Optional<ScreeningAnswers> screenAnswerOp = null;
         Boolean isNewStatus = false;
         Boolean isSuccess = false;
         int quesIncrement = 1;
@@ -102,7 +106,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
 
 
         if(!answerRequest.getAnswer().isEmpty()){
-            Optional<ScreeningAnswers> screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-quesIncrement).getId())));
+            screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-quesIncrement).getId())));
             ScreeningAnswers screenAnswer;
             if(screenAnswerOp.isPresent()){
                 screenAnswer = 	screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
@@ -171,6 +175,16 @@ public class AnswerSaveImpl implements AnswerSaveService {
             response.setScreeningAnswers(sa);
             response.setChoices(choices);
             response.setIsLastQuestion(!Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent());
+            response.setMessage("");
+            if(screenAnswerOp != null){
+                if(screeningTest.screenTest(screenAnswerOp.get()).isFinished){
+                    response.setScreeningQuestions(new ScreeningQuestions());
+                    response.setScreeningAnswers(new ScreeningAnswers());
+                    response.setChoices(new ArrayList<>());
+                    response.setMessage(screeningTest.screenTest(screenAnswerOp.get()).getMessage());
+                    response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get()).isFinished);
+                }
+            }
             responseJson.put("data", response);
         } catch (NullPointerException e) {
             e.printStackTrace();

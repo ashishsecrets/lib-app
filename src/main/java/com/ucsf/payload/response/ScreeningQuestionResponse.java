@@ -15,5 +15,6 @@ public class ScreeningQuestionResponse {
 	ScreeningAnswers screeningAnswers;
 	List<ScreeningAnsChoice> choices;
 	Boolean isLastQuestion;
+	String message;
 	
 }
