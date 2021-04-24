@@ -149,7 +149,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
                 response.setChoices(choices);
                 response.setIsLastQuestion(true);
                 responseJson.put("data", response);
-                userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.COMPLETED);
+                userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
             }
             else if (userScreeningStatus.getIndexValue() <= 0){
                 responseJson.put("error", new ErrorResponse(200, "Cannot go further back! Answer first question" + " " + string ));
