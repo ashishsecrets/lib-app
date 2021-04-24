@@ -61,8 +61,14 @@ public class AnswerSaveImpl implements AnswerSaveService {
         Boolean isNewStatus = false;
         Boolean isSuccess = false;
         int quesIncrement = 1;
-        if(!answerRequest.getForward()){
+        if(answerRequest.getForward() == ScreeningAnswerRequest.ForwardStatus.FALSE){
             quesIncrement = -1;
+        }
+        else if(answerRequest.getForward() == ScreeningAnswerRequest.ForwardStatus.TRUE){
+            quesIncrement = 1;
+        }
+        else  if(answerRequest.getForward() == ScreeningAnswerRequest.ForwardStatus.NONE){
+            quesIncrement = 0;
         }
         UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userDetail != null && userDetail.getUsername() != null) {
