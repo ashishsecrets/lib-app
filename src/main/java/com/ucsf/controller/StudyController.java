@@ -133,7 +133,7 @@ public class StudyController {
 		 * +user.getId());
 		 */
 		//Iterable<UcsfStudy> study = studyRepository.findAll();
-		List<Map<String,Object>> studies = jdbcTemplate.queryForList("SELECT us.*,uss.user_screening_status FROM ucsf_studies us LEFT JOIN user_screening_status uss ON us.study_id = uss.study_id and  uss.user_id=28;");
+		List<Map<String,Object>> studies = jdbcTemplate.queryForList("SELECT us.*,uss.user_screening_status FROM ucsf_studies us LEFT JOIN user_screening_status uss ON us.study_id = uss.study_id and  uss.user_id="+user.getId()+";");
 		System.out.println(studies);
 		List<StudyResponse> listStudyResponse = new ArrayList<StudyResponse>();
 		for(Map<String,Object> map :studies) {
@@ -149,7 +149,6 @@ public class StudyController {
 			studyResponse.setDefault(Boolean.parseBoolean(map.get("is_default") != null ?map.get("is_default").toString():""));
 			studyResponse.setEnabled(Boolean.parseBoolean(map.get("is_enabled") != null ?map.get("is_enabled").toString():""));
 			listStudyResponse.add(studyResponse);
-			System.out.println(map.get("study_id"));
 		}
 		responseJson.put("data", listStudyResponse);
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
