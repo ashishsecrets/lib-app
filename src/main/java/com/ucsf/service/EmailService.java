@@ -48,7 +48,20 @@ public class EmailService {
 		helper.setTo(to);
 		helper.setFrom(from);
 		helper.setSubject(subject);
-		File file = ResourceUtils.getFile("classpath:template/passwordResetEmail.html");
+		File file = ResourceUtils.getFile("classpath:template/studyApprovalEmail.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
+	
+	public void sendStudyDisApprovalEmail(String from, String to, String subject, String name) throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(from);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/studyDisApprovalEmail.html");
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
 		helper.setText(body, true);

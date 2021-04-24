@@ -3,6 +3,11 @@ package com.ucsf.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONObject;
@@ -11,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,11 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
+import com.ucsf.config.BeanUtil;
 import com.ucsf.model.UcsfStudy;
 import com.ucsf.model.UcsfStudy.StudyFrequency;
 import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.StudyRequest;
 import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.payload.response.StudyResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.ScreeningAnswerRepository;
 import com.ucsf.repository.ScreeningQuestionRepository;
@@ -63,6 +72,9 @@ public class StudyController {
 	
 	@Autowired
 	UserMetaDataRepository  userMetaDataRepository;
+	
+	@Autowired
+	JdbcTemplate jdbcTemplate;
 
 	private static Logger log = LoggerFactory.getLogger(StudyController.class);
 
@@ -115,17 +127,38 @@ public class StudyController {
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 		}
-
-		Iterable<UcsfStudy> study = studyRepository.findAll();
-		List<UcsfStudy> studies = new ArrayList<UcsfStudy>();
-		study.forEach(studies::add);
-		responseJson.put("data", study);
+		/*
+		 * EntityManager entityManager = BeanUtil.getBean(EntityManager.class); Query
+		 * query = entityManager.createQuery(
+		 * "SELECT us,uss.userScreeningStatus,uss.indexValue FROM UcsfStudy us LEFT JOIN UserScreeningStatus uss ON us.id = uss.studyId and uss.userId ="
+		 * +user.getId());
+		 */
+		//Iterable<UcsfStudy> study = studyRepository.findAll();
+		List<Map<String,Object>> studies = jdbcTemplate.queryForList("SELECT us.*,uss.user_screening_status FROM ucsf_studies us LEFT JOIN user_screening_status uss ON us.study_id = uss.study_id and  uss.user_id=28;");
+		System.out.println(studies);
+		List<StudyResponse> listStudyResponse = new ArrayList<StudyResponse>();
+		for(Map<String,Object> map :studies) {
+			StudyResponse studyResponse = new StudyResponse();
+			if(map.get("user_screening_status") == null) {
+				studyResponse.setStudyStatus(UserScreenStatus.AVAILABLE.toString());
+			}
+			else {
+				studyResponse.setStudyStatus(map.get("user_screening_status").toString());
+			}
+			studyResponse.setDescription(map.get("description").toString());
+			studyResponse.setTitle(map.get("title").toString());
+			studyResponse.setDefault(Boolean.parseBoolean(map.get("is_default") != null ?map.get("is_default").toString():""));
+			studyResponse.setEnabled(Boolean.parseBoolean(map.get("is_enabled") != null ?map.get("is_enabled").toString():""));
+			listStudyResponse.add(studyResponse);
+			System.out.println(map.get("study_id"));
+		}
+		responseJson.put("data", listStudyResponse);
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/approveStudy", method = RequestMethod.POST)
-	public ResponseEntity<?> approveStudy(@PathVariable Long userId,@RequestParam Boolean isAccepted) throws Exception {
+	public ResponseEntity<?> approveStudy(@PathVariable Long userId,@RequestParam String status) throws Exception {
 		loggerService.printLogs(log, "approveStudy", "approve UCSF Study");
 		User user = null;
 		JSONObject responseJson = new JSONObject();
@@ -142,7 +175,7 @@ public class StudyController {
 		
 		 UserMetadata metaData = userMetaDataRepository.findByUserId(userId);
          if(metaData != null) {
-        	 metaData.setIsStudyAccepted(isAccepted);
+        	 metaData.setStudyStatus(status);
         	 userMetaDataRepository.save(metaData);
         	 loggerService.printLogs(log, "approveStudy", "Updated Study approval status for user with id "+userId);
          }

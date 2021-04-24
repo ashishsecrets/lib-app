@@ -69,9 +69,10 @@ public class StudyAcceptanceNotificationJob {
 	public void sendNotifications() {
 		loggerService.printLogs(log, "sendNotifications",
 				"Job started for sending study approval notifications " + new Date());
-		List<UserMetadata> userMetaData = userMetaDataRepository.findByIsStudyAccepted(true);
 		Optional<User> user = null;
 		User approvedUser = null;
+		User disApprovedUser = null;
+		List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus("approved");
 		if (userMetaData != null && userMetaData.size() > 0) {
 			for (UserMetadata metaData : userMetaData) {
 				user = userRepository.findById(metaData.getUserId());
@@ -142,6 +143,81 @@ public class StudyAcceptanceNotificationJob {
 					loggerService.printErrorLogs(log, "sendNotifications",
 							"Error while sending study approval SMS to user: " + approvedUser.getEmail()
 									+ "phoneNumber: " + approvedUser.getPhoneCode() + approvedUser.getPhoneNumber()
+									+ "At: " + new Date());
+				}
+			}
+		}
+		
+		List<UserMetadata> userMetaData2 = userMetaDataRepository.findByStudyStatus("disapproved");
+		if (userMetaData2 != null && userMetaData2.size() > 0) {
+			for (UserMetadata metaData : userMetaData2) {
+				user = userRepository.findById(metaData.getUserId());
+				if (user.isPresent()) {
+					disApprovedUser = user.get();
+				}
+				// Notify by Email
+				try {
+					emailService.sendStudyDisApprovalEmail(fromEmail, disApprovedUser.getEmail(),
+							"Study DisApproval From UCSF Team",
+							disApprovedUser.getFirstName() + " " + disApprovedUser.getLastName());
+					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
+					userMetaDataRepository.save(metaData);
+					loggerService.printLogs(log, "sendNotifications",
+							"Study approval mail sent to user: " + disApprovedUser.getEmail() + "At: " + new Date());
+				} catch (Exception e) {
+					loggerService.printErrorLogs(log, "sendNotifications",
+							"Error while sending study DisApproval mail to user: " + disApprovedUser.getEmail() + "At: "
+									+ new Date());
+				}
+				// Notify By Push Notification
+				try {
+					ApnsService service;
+					InputStream inputStream = null;
+					try {
+						inputStream = new ClassPathResource("Certificates.p12").getInputStream();// add certificate
+																									// in resource field
+					} catch (IOException e) {
+						loggerService.printErrorLogs(log, "sendNotifications",
+								"Error while getting input stream from push notification certificate "
+										+ disApprovedUser.getEmail() + "At: " + new Date());
+					}
+
+					if (!Arrays.asList(env.getActiveProfiles()).contains("pro")) {
+						System.out.println("push running with Prod environment");
+
+						service = APNS.newService().withCert(inputStream, "123456").withProductionDestination().build();
+					} else {
+						System.out.println("push running with Local environment");
+
+						service = APNS.newService().withCert(inputStream, "123456").withSandboxDestination().build();
+					}
+					String payload = APNS.newPayload().customField("customData", "").alertBody("Hi "+disApprovedUser.getFirstName()+" Your UCSF study has been disapproved").alertTitle("UCSF Study Status").build();
+
+					ApnsNotification apns = service.push(disApprovedUser.getDevideId(), payload);
+					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
+					userMetaDataRepository.save(metaData);
+					loggerService.printLogs(log, "sendNotifications", "Study disApproval push notification sent to user: "
+							+ disApprovedUser.getEmail() + "At: " + new Date());
+				} catch (Exception e) {
+					loggerService.printErrorLogs(log, "sendNotifications",
+							"Error while sending study disApproval push notification to user: " + disApprovedUser.getEmail()
+									+ "At: " + new Date());
+				}
+				// Notify by SMS
+				try {
+					Twilio.init(accoundSid, authToken);
+					Message.creator(new PhoneNumber(disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber()),
+							new PhoneNumber(twilioNumber), "Your UCSF study disApproved").create();
+					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
+					userMetaDataRepository.save(metaData);
+					loggerService.printLogs(log, "sendNotifications",
+							"Study disApproval SMS sent to user: " + disApprovedUser.getEmail()
+									+ "phoneNumber: " + disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber()
+									+ "At: " + new Date());
+				} catch (Exception e) {
+					loggerService.printErrorLogs(log, "sendNotifications",
+							"Error while sending study disApproval SMS to user: " + disApprovedUser.getEmail()
+									+ "phoneNumber: " + disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber()
 									+ "At: " + new Date());
 				}
 			}

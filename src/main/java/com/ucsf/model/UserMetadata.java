@@ -49,8 +49,8 @@ public class UserMetadata extends Auditable<String> {
 	@Column(name = "notified_by")
 	private StudyAcceptanceNotification notifiedBy;
 
-	@Column(name = "is_study_accepted")
-	private Boolean isStudyAccepted;
+	@Column(name = "study_status")
+	private String studyStatus;
 	
 	@Column(name = "user_id")
 	private Long userId;
