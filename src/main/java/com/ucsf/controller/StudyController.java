@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
-import com.ucsf.config.BeanUtil;
 import com.ucsf.model.UcsfStudy;
 import com.ucsf.model.UcsfStudy.StudyFrequency;
 import com.ucsf.model.UserMetadata;
