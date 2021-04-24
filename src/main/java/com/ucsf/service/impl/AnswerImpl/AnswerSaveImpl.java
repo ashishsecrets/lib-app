@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service("answerSaveService")
@@ -64,7 +65,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
         Optional<ScreeningAnswers> screenAnswerOp = null;
         Boolean isNewStatus = false;
         Boolean isSuccess = false;
-        int quesIncrement = 1;
+        int quesIncrement = 0;
         if(answerRequest.getForward() == ScreeningAnswerRequest.ForwardStatus.FALSE){
             quesIncrement = -1;
         }
@@ -99,6 +100,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
             userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS);
             userScreeningStatus.setUserId(user.getId());
             userScreeningStatus.setIndexValue(1);
+            quesIncrement = 1;
             userScreeningStatusRepository.save(userScreeningStatus);
             isNewStatus = true;
             loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
@@ -176,7 +178,8 @@ public class AnswerSaveImpl implements AnswerSaveService {
             response.setChoices(choices);
             response.setIsLastQuestion(!Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent());
             response.setMessage("");
-            if(screenAnswerOp != null){
+            try{
+                if(screenAnswerOp != null){
                 if(screeningTest.screenTest(screenAnswerOp.get()).isFinished){
                     response.setScreeningQuestions(new ScreeningQuestions());
                     response.setScreeningAnswers(new ScreeningAnswers());
@@ -184,7 +187,10 @@ public class AnswerSaveImpl implements AnswerSaveService {
                     response.setMessage(screeningTest.screenTest(screenAnswerOp.get()).getMessage());
                     response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get()).isFinished);
                     userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
+                    }
                 }
+            } catch (NoSuchElementException e) {
+                e.printStackTrace();
             }
             responseJson.put("data", response);
         } catch (NullPointerException e) {
