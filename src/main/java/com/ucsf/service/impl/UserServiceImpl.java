@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
 			metadata.setZipCode(user.getUserMetadata().getZipCode());
 			// metadata.setAcceptanceDate(new Date());
 			metadata.setConsentAccepted(false);
-			metadata.setIsStudyAccepted(false);
+			metadata.setStudyStatus("newlyAdded");
 			metadata.setUserId(savedUser.getId());
 			metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
 			userMetaDataRepository.save(metadata);
