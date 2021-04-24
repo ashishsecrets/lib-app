@@ -183,6 +183,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
                     response.setChoices(new ArrayList<>());
                     response.setMessage(screeningTest.screenTest(screenAnswerOp.get()).getMessage());
                     response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get()).isFinished);
+                    userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
                 }
             }
             responseJson.put("data", response);
