@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class ScreeningAnswers extends Auditable<String> implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "screening_answer_id")
+	@Column(name = "screening_answer_id", columnDefinition = "TEXT")
 	private Long id;
 
 	@Column(name = "answer_description", columnDefinition = "TEXT")
