@@ -182,21 +182,23 @@ public class AnswerSaveImpl implements AnswerSaveService {
             response.setChoices(choices);
             response.setIsLastQuestion(!Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent());
             response.setMessage("");
+            responseJson.put("data", response);
             try{
                 if(screenAnswerOp != null){
-                if(screeningTest.screenTest(screenAnswerOp.get()).isFinished){
+                    ScreenTestData screenTestData = screeningTest.screenTest(screenAnswerOp.get());
+                if(screenTestData != null && screenTestData.isFinished){
                     response.setScreeningQuestions(new ScreeningQuestions());
                     response.setScreeningAnswers(new ScreeningAnswers());
                     response.setChoices(new ArrayList<>());
                     response.setMessage(screeningTest.screenTest(screenAnswerOp.get()).getMessage());
                     response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get()).isFinished);
                     userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
-                    }
+                    responseJson.put("data", response);
                 }
+                    }
             } catch (NoSuchElementException e) {
                 e.printStackTrace();
             }
-            responseJson.put("data", response);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
