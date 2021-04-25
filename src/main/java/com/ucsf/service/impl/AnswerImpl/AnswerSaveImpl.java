@@ -107,23 +107,27 @@ public class AnswerSaveImpl implements AnswerSaveService {
         }
 
 
-        if(!answerRequest.getAnswer().isEmpty()){
-            screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-quesIncrement).getId())));
-            ScreeningAnswers screenAnswer;
-            if(screenAnswerOp.isPresent()){
-                screenAnswer = 	screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
-            }
-            else {
-                screenAnswer = new ScreeningAnswers();
-            }
-            screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription().toString());
-            screenAnswer.setAnswerChoice(answerRequest.getAnswer());
-            screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()-quesIncrement).getId()));
-            screenAnswer.setStudyId(answerRequest.getStudyId());
-            screenAnswer.setAnsweredById(user.getId());
-            screenAnswer.setIndexValue(userScreeningStatus.getIndexValue()-quesIncrement);
-            screeningAnswerRepository.save(screenAnswer);
-            isSuccess = true;}
+      try {
+          if (!answerRequest.getAnswer().isEmpty()) {
+              screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId())));
+              ScreeningAnswers screenAnswer;
+              if (screenAnswerOp.isPresent()) {
+                  screenAnswer = screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
+              } else {
+                  screenAnswer = new ScreeningAnswers();
+              }
+              screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription().toString());
+              screenAnswer.setAnswerChoice(answerRequest.getAnswer());
+              screenAnswer.setQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()));
+              screenAnswer.setStudyId(answerRequest.getStudyId());
+              screenAnswer.setAnsweredById(user.getId());
+              screenAnswer.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
+              screeningAnswerRepository.save(screenAnswer);
+              isSuccess = true;
+          }
+      } catch (NullPointerException e) {
+          e.printStackTrace();
+      }
         //responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer saved successfully!")); }
 
         Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
