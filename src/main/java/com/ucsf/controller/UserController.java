@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucsf.auth.model.User;
+import com.ucsf.job.LoadScreeningQuestions;
 import com.ucsf.service.UserService;
 
 @RestController
@@ -21,8 +22,12 @@ public class UserController {
 	@Autowired
 	UserService userService;
 	
+	@Autowired
+	LoadScreeningQuestions loadScreeningQuestions;
+	
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllUsers() throws Exception {
+		loadScreeningQuestions.loadSheetContent();
 		System.out.println("1111111111");
 		return ResponseEntity.ok("success");
 	}
