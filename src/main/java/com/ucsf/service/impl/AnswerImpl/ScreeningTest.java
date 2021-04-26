@@ -44,42 +44,17 @@ public class ScreeningTest {
         }
     }
     
-     if (lastAnswer.getIndexValue()==3) {
-        if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
-            //skip next quest increase index value
-        	//UserScreeningStatus userScreeningStatus = userScreeningStatusRepository.findByUserIdAndIndexValue(lastAnswer.getAnsweredById(),lastAnswer.getIndexValue()+1);
-        	//ScreeningQuestions studyQuestions = screeningQuestionRepository.findByStudyIdAndIndexValue(lastAnswer.getStudyId(), lastAnswer.getIndexValue());
-        	//studyQuestions.setIndexValue(lastAnswer.getIndexValue()+1);
-        	//screeningQuestionRepository.save(studyQuestions);
-        	//userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue()+1); 
-        	//userScreeningStatusRepository.save(userScreeningStatus);
-        	//lastAnswer.setQuestionId(Long(userScreeningStatus.getIndexValue()));
-        	screenTestData.setIsFinished(false);
-            screenTestData.setMessage("continue");
-        }else {
-        screenTestData.setIsFinished(false);
-        screenTestData.setMessage("continue");
-        }
-    }
-  
      if (lastAnswer.getIndexValue()==6) {
-        if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("")) {
+        if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("None of Above")) {
             screenTestData.setMessage("Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center");
-            screenTestData.setIsFinished(false);
+            screenTestData.setIsFinished(true);
         }
         else{
             screenTestData.setIsFinished(false);
             screenTestData.setMessage("continue");
         }
     }
-
         return screenTestData;
     }
-
-	private Long Long(int indexValue) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 }

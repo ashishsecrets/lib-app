@@ -166,9 +166,13 @@ public class AnswerSaveImpl implements AnswerSaveService {
             userScreeningStatusRepository.save(userScreeningStatus);
             return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
         }
-
-
-        ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue());
+        int indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue();
+        if(userScreeningStatus.getIndexValue() ==4) {
+        	 if(answerRequest.getAnswerDescription() != null && !answerRequest.getAnswerDescription().equals("Primary care doctor")) {
+        		 indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() +1;
+        	 }
+        }
+        ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(),indexValue);
         ScreeningAnswers sa = screeningAnswerRepository.findByQuestionIdAndAnsweredById(sc.getId(), user.getId());
 
         try {
