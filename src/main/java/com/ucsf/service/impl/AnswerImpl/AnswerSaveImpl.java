@@ -177,6 +177,8 @@ public class AnswerSaveImpl implements AnswerSaveService {
 			if (answerRequest.getAnswerDescription() != null
 					&& !answerRequest.getAnswerDescription().equals("Primary care doctor")) {
 				indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() + 1;
+				userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue()+1);
+				userScreeningStatusRepository.save(userScreeningStatus);
 			}
 		}
 		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(
