@@ -47,7 +47,7 @@ public class ScreeningTest {
      if (lastAnswer.getIndexValue()==6) {
         if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("None of Above")) {
             screenTestData.setMessage("Thank you for your interest in this study! We will review your answers and will follow up with you via email or phone to discuss in detail the study and your ability to participate.");
-            screenTestData.setIsFinished(true);
+            screenTestData.setIsFinished(false);
         }
         else{
             screenTestData.setMessage("Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center");
