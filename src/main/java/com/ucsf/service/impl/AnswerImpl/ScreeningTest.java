@@ -28,8 +28,7 @@ public class ScreeningTest {
             screenTestData.setMessage("Sorry, this study is only for individuals between the ages of 12 and 65!");
         }
         else{
-            screenTestData.setIsFinished(false);
-            screenTestData.setMessage("continue");
+            screenTestData = null;
         }
     }
      if (lastAnswer.getIndexValue()==2) {
@@ -39,10 +38,19 @@ public class ScreeningTest {
            // screenTestData.setMessage("");
         }
         else{
-            screenTestData.setIsFinished(false);
-            screenTestData.setMessage("continue");
+            screenTestData = null;
         }
     }
+
+        if (lastAnswer.getIndexValue()==3) {
+            if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
+                screenTestData.setMessage("");
+                screenTestData.setIsFinished(false);
+            }
+            else{
+                screenTestData = null;
+            }
+        }
     
      if (lastAnswer.getIndexValue()==6) {
         if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("None of Above")) {
