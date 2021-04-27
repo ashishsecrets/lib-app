@@ -212,7 +212,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
 							response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get()).isFinished);
 							userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
 						} else if(!screenTestData.isFinished)  {
-							if (screenAnswerOp.get().getIndexValue() == 3 && screenAnswerOp.get().getAnswerDescription().equals("Primary care doctor")) {
+							if (screenAnswerOp.get().getIndexValue() == 3) {
 									indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() + 1;
 									sc = screeningQuestionRepository.findByStudyIdAndIndexValue(
 											userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), indexValue);

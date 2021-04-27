@@ -43,7 +43,7 @@ public class ScreeningTest {
     }
 
         if (lastAnswer.getIndexValue()==3) {
-            if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
+            if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
                 screenTestData.setMessage("");
                 screenTestData.setIsFinished(false);
             }
