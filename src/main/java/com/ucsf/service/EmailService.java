@@ -25,14 +25,13 @@ public class EmailService {
 	@Value("${web.site.url}")
 	String webSiteUrl;
 
-	public void sendResetPasswordEmail(String from, String to, String subject, String name, String url) throws Exception {
+	public void sendResetPasswordEmail(String from, String to, String subject, String name, String url, String fileName) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-
 		helper.setTo(to);
 		helper.setFrom(from);
 		helper.setSubject(subject);
-		File file = ResourceUtils.getFile("classpath:template/passwordResetEmail.html");
+		File file = ResourceUtils.getFile(fileName);
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
 		body = body.replaceAll("\\{\\{url\\}\\}", url);

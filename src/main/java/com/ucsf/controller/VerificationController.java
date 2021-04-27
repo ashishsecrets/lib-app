@@ -1,8 +1,11 @@
 package com.ucsf.controller;
 
 import java.io.IOException;
+
+import com.ucsf.service.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,9 +27,6 @@ import com.ucsf.payload.request.VerifyRequest;
 import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.UserRepository;
-import com.ucsf.service.CustomUserDetailsService;
-import com.ucsf.service.LoggerService;
-import com.ucsf.service.VerificationService;
 
 @RestController
 @RequestMapping("/api")
@@ -43,6 +43,12 @@ public class VerificationController {
 
 	@Autowired
 	private CustomUserDetailsService userDetailsService;
+
+	@Autowired
+	EmailService emailService;
+
+	@Value("${spring.mail.from}")
+	String fromEmail;
 
 	@Autowired
 	JwtTokenUtil jwtTokenUtil;
@@ -89,6 +95,14 @@ public class VerificationController {
 				e.printStackTrace();
 			}
 		}
+
+		try {
+			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Welcome to Skintracker.",
+					user.getFirstName() + " " + user.getLastName(), user.getFirstName(), "classpath:template/signUpEmail.html");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		responseJson.put("data", new AuthResponse(userDetails,user, "User verified"));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 

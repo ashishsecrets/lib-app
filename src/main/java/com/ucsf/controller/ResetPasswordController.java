@@ -67,7 +67,7 @@ public class ResetPasswordController {
 		}
 		try {
 			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your UCSF account password",
-					user.getFirstName() + " " + user.getLastName(), passResetLinkService.createPasswordResetLink(user));
+					user.getFirstName() + " " + user.getLastName(), passResetLinkService.createPasswordResetLink(user), "classpath:template/passwordResetEmail.html");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
