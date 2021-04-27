@@ -99,8 +99,7 @@ public class VerificationController {
 			}
 		}
 
-		assert user != null;
-		if(user.getRoles().equals(RoleName.PRE_VERIFICATION_USER)) {
+		if(verifyRequest.getIsNew()) {
 			try {
 				emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Welcome to Skintracker.",
 						user.getFirstName() + " " + user.getLastName(), user.getFirstName(), "classpath:template/signUpEmail.html");
