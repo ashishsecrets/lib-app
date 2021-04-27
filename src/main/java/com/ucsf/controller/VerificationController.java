@@ -2,6 +2,8 @@ package com.ucsf.controller;
 
 import java.io.IOException;
 
+import com.twilio.rest.chat.v1.service.Role;
+import com.ucsf.auth.model.RoleName;
 import com.ucsf.service.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.jaas.AuthorityGranter;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -96,11 +99,14 @@ public class VerificationController {
 			}
 		}
 
-		try {
-			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Welcome to Skintracker.",
-					user.getFirstName() + " " + user.getLastName(), user.getFirstName(), "classpath:template/signUpEmail.html");
-		} catch (Exception e) {
-			e.printStackTrace();
+		assert user != null;
+		if(user.getRoles().equals(RoleName.PRE_VERIFICATION_USER)) {
+			try {
+				emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Welcome to Skintracker.",
+						user.getFirstName() + " " + user.getLastName(), user.getFirstName(), "classpath:template/signUpEmail.html");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		responseJson.put("data", new AuthResponse(userDetails,user, "User verified"));
