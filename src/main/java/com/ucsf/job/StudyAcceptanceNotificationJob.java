@@ -16,7 +16,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import com.google.gdata.data.dublincore.Date;
+import java.util.Date;
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;

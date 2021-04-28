@@ -1,9 +1,9 @@
-package com.ucsf.service.impl.AnswerImpl;
+package com.ucsf.payload.response;
 
 import lombok.Data;
 
 @Data
-public class ScreenTestData {
+public class StudyInfoData {
     //Data
     public String message;
     public Boolean isFinished;
