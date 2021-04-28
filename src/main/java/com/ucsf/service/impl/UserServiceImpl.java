@@ -1,11 +1,14 @@
 package com.ucsf.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
@@ -54,19 +57,17 @@ public class UserServiceImpl implements UserService {
 		newUser.setPhoneNumber(user.getPhone());
 		newUser.setPhoneCode(user.getPhoneCode());
 
-		//Add Role
-		if(user.getUserRoles() != null && user.getUserRoles().size() > 0) {
-			for(String role : user.getUserRoles()) {
-				if(role.equals("ADMIN")) {
+		// Add Role
+		if (user.getUserRoles() != null && user.getUserRoles().size() > 0) {
+			for (String role : user.getUserRoles()) {
+				if (role.equals("ADMIN")) {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
-				}
-				else{
+				} else {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
 				}
-				//newUser.addRole(new Role(role));
+				// newUser.addRole(new Role(role));
 			}
-		}
-		else {
+		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
 		}
 		newUser.setUserStatus(UserStatus.ACTIVE);
@@ -82,8 +83,8 @@ public class UserServiceImpl implements UserService {
 			metadata.setUserId(savedUser.getId());
 			metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
 			userMetaDataRepository.save(metadata);
-			//save metadata in metadatarepo
-			//newUser.setMetadata(metadata);
+			// save metadata in metadatarepo
+			// newUser.setMetadata(metadata);
 		}
 		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 		userScreeningStatus.setStudyId(1l);
@@ -93,4 +94,15 @@ public class UserServiceImpl implements UserService {
 		userScreeningStatusRepository.save(userScreeningStatus);
 		return savedUser;
 	}
+
+	@PostConstruct
+	public void saveRole() {
+		Role existed = roleRepository.findByName(RoleName.ADMIN);
+		if (existed == null) {
+			Role role = new Role();
+			role.setName(RoleName.ADMIN);
+			roleRepository.save(role);
+		}
+	}
+
 }
