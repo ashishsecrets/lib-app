@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-@Service("answerSaveService")
+@Service
 public class StudyAnswerImpl implements AnswerSaveService {
 
 	@Autowired
