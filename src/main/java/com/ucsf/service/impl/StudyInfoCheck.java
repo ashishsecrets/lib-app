@@ -14,12 +14,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StudyInfoCheck {
-
-	@Autowired
-	ScreeningQuestionRepository screeningQuestionRepository;
-	
-	@Autowired
-	UserScreeningStatusRepository userScreeningStatusRepository;
 	
     public StudyInfoData screenTest(ScreeningAnswers lastAnswer, int quesIncrement){
     	StudyInfoData screenTestData = new StudyInfoData();
@@ -29,8 +23,7 @@ public class StudyInfoCheck {
             screenTestData.setMessage("Sorry, this study is only for individuals between the ages of 12 and 65!");
         }
         else{
-            screenTestData.setIsFinished(false);
-            screenTestData.setMessage("");
+            screenTestData = null;
         }
     }
      if (lastAnswer.getIndexValue()==2) {
@@ -40,8 +33,8 @@ public class StudyInfoCheck {
            // screenTestData.setMessage("");
         }
         else{
-        	screenTestData.setIsFinished(false);
-            screenTestData.setMessage("");
+            screenTestData = null;
+
         }
     }
 
@@ -51,8 +44,8 @@ public class StudyInfoCheck {
                 screenTestData.setIsFinished(false);
             }
             else{
-            	screenTestData.setIsFinished(false);
-                screenTestData.setMessage("");
+                screenTestData = null;
+
             }
         }
 
@@ -62,8 +55,8 @@ public class StudyInfoCheck {
                 screenTestData.setIsFinished(false);
             }
             else{
-            	screenTestData.setIsFinished(false);
-                screenTestData.setMessage("");
+                screenTestData = null;
+
             }
         }
     
