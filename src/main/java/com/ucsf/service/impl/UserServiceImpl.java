@@ -1,5 +1,7 @@
 package com.ucsf.service.impl;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +14,14 @@ import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
+import com.ucsf.model.UcsfStudy;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.repository.RoleRepository;
+import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
@@ -28,6 +32,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	StudyRepository studyRepo;
 
 	@Autowired
 	private PasswordEncoder bcryptEncoder;
@@ -104,5 +111,8 @@ public class UserServiceImpl implements UserService {
 			roleRepository.save(role);
 		}
 	}
+	
+	
+	
 
 }
