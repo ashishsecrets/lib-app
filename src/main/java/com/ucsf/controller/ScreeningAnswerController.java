@@ -35,18 +35,25 @@ import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.service.LoggerService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import javax.transaction.Transactional;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/api/answers")
+@Api(tags = "Screening-Answer Controller")
 public class ScreeningAnswerController {
 
 	@Autowired
 	AnswerSaveService answerSaveService;
 
 	@Transactional
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Save answer", notes = "Save screening answer", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Answer saved successfully", response = ScreeningQuestionResponse.class) })
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public ResponseEntity<?> saveScreeningAnswers(@RequestBody ScreeningAnswerRequest answerRequest) throws Exception {
 

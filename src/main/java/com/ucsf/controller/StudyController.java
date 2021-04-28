@@ -46,9 +46,15 @@ import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.service.LoggerService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/study")
+@Api(tags = "Study Controller")
 public class StudyController {
 
 	@Autowired
@@ -78,6 +84,8 @@ public class StudyController {
 	private static Logger log = LoggerFactory.getLogger(StudyController.class);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Save study", notes = "Save study", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Study saved successfully", response = UcsfStudy.class) })
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public ResponseEntity<?> saveStudy(@RequestBody StudyRequest studyRequest) throws Exception {
 		loggerService.printLogs(log, "saveStudy", "Saving UCSF Study");
@@ -110,6 +118,8 @@ public class StudyController {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Get all studies", notes = "Get all studies", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all studies", response = StudyResponse.class) })
 	@RequestMapping(value = "/fetch", method = RequestMethod.GET)
 	public ResponseEntity<?> fetchAllStudies() throws Exception {
 		loggerService.printLogs(log, "saveStudy", "Saving UCSF Study");
@@ -155,6 +165,8 @@ public class StudyController {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Approve study", notes = "Approve study", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Study approved successfully", response = SuccessResponse.class) })
 	@RequestMapping(value = "/approveStudy", method = RequestMethod.POST)
 	public ResponseEntity<?> approveStudy(@PathVariable Long userId,@RequestParam String status) throws Exception {
 		loggerService.printLogs(log, "approveStudy", "approve UCSF Study");

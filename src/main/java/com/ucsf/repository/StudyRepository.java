@@ -1,9 +1,12 @@
 package com.ucsf.repository;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 
 import com.ucsf.model.UcsfStudy;
 
 public interface StudyRepository extends CrudRepository<UcsfStudy, Long> {
-	Iterable<UcsfStudy> findAll();
+	//Iterable<UcsfStudy> findAll();
+	List<UcsfStudy> findAll();
 }
