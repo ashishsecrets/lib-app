@@ -31,11 +31,17 @@ import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.CustomUserDetailsService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
 import com.ucsf.service.VerificationService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,6 +50,7 @@ import java.util.Set;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/auth")
+@Api(tags = "Ucsf-Authentication Controller")
 public class UcsfAuthenticationController {
 
 	@Autowired
@@ -66,6 +73,9 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	JwtConfig jwtConfig;
+	
+	@Autowired
+	StudyRepository studyRepository;
 
 	@Autowired
 	private LoggerService loggerService;
@@ -75,6 +85,8 @@ public class UcsfAuthenticationController {
 	private static Logger log = LoggerFactory.getLogger(UcsfAuthenticationController.class);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Authenticate user", notes = "Authenticate user with email and password", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "User authenticated successfully", response = User.class) })
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authenticationRequest)
 			throws Exception {
@@ -116,6 +128,8 @@ public class UcsfAuthenticationController {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Register user", notes = "Register user", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "User registered successfully", response = User.class) })
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public ResponseEntity<?> saveUser(@RequestBody SignUpRequest signUpRequest) throws Exception {
 		loggerService.printLogs(log, "saveUser", "Register User");
@@ -131,6 +145,12 @@ public class UcsfAuthenticationController {
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
 			responseJson.put("error",
 					new ErrorResponse(ErrorCodes.EMAIL_ALREADY_USED.code(), Constants.EMAIL_ALREADY_USED.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+		
+		if (studyRepository.findAll().size() < 1) {
+			responseJson.put("error",
+					new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(), Constants.NO_STUDY_FOUND.errordesc()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 

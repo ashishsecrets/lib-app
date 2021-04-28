@@ -64,8 +64,6 @@ public class AnswerSaveImpl implements AnswerSaveService {
 		Optional<ScreeningAnswers> screenAnswerOp = null;
 		Boolean isNewStatus = false;
 		Boolean isSuccess = false;
-		ScreeningQuestionResponse response = new ScreeningQuestionResponse();
-		int indexValue = 0;
 		int quesIncrement = 0;
 		if (answerRequest.getForward() == ScreeningAnswerRequest.ForwardStatus.FALSE) {
 			quesIncrement = -1;
@@ -154,7 +152,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
 			}
 			if (userScreeningStatus.getIndexValue() > 0) {
 				responseJson.remove("error");
-				response = new ScreeningQuestionResponse();
+				ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 				ScreeningQuestions sc = null;
 				ScreeningAnswers sa = null;
 				List<ScreeningAnsChoice> choices = null;
@@ -174,58 +172,44 @@ public class AnswerSaveImpl implements AnswerSaveService {
 			userScreeningStatusRepository.save(userScreeningStatus);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
-
-		indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue();
-
-
+		int indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue();
+		if (userScreeningStatus.getIndexValue() == 4) {
+			if (answerRequest.getAnswerDescription() != null
+					&& !answerRequest.getAnswerDescription().equals("Primary care doctor")) {
+				indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() + 1;
+				userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue()+1);
+				userScreeningStatusRepository.save(userScreeningStatus);
+			}
+		}
 		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(
 				userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), indexValue);
 		ScreeningAnswers sa = screeningAnswerRepository.findByQuestionIdAndAnsweredById(sc.getId(), user.getId());
 
 		try {
-			Boolean isLastQuestion = !Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent();
 			List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
+			ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 			response.setScreeningQuestions(sc);
 			if (sa == null) {
 				sa = new ScreeningAnswers();
 			}
 			response.setScreeningAnswers(sa);
 			response.setChoices(choices);
-			response.setIsLastQuestion(isLastQuestion);
+			response.setIsLastQuestion(!Optional.ofNullable(screeningQuestionRepository
+					.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1))
+					.isPresent());
 			response.setMessage("");
+			responseJson.put("data", response);
 			try {
 				if (screenAnswerOp != null) {
 					ScreenTestData screenTestData = screeningTest.screenTest(screenAnswerOp.get());
-					if(screenTestData == null){
-						response.setScreeningQuestions(sc);
-						response.setScreeningAnswers(sa);
-						response.setChoices(choices);
-						response.setIsLastQuestion(isLastQuestion);
-						response.setMessage("");
-					}
-					if (screenTestData != null) {
-						if (screenTestData.isFinished) {
-							response.setScreeningQuestions(new ScreeningQuestions());
-							response.setScreeningAnswers(new ScreeningAnswers());
-							response.setChoices(new ArrayList<>());
-							response.setMessage(screenTestData.getMessage());
-							response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get()).isFinished);
-							userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
-						} else if(!screenTestData.isFinished)  {
-							if (screenAnswerOp.get().getIndexValue() == 3) {
-									indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() + 1;
-									sc = screeningQuestionRepository.findByStudyIdAndIndexValue(
-											userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), indexValue);
-								    choices = choiceRepository.findByQuestionId(sc.getId());
-									response.setScreeningQuestions(sc);
-									response.setScreeningAnswers(sa);
-									response.setChoices(choices);
-									response.setIsLastQuestion(screenTestData.isFinished);
-									response.setMessage("");
-									userScreeningStatus.setIndexValue(indexValue);
-									userScreeningStatusRepository.save(userScreeningStatus);
-							}
-						}
+					if (screenTestData != null && screenTestData.isFinished) {
+						response.setScreeningQuestions(new ScreeningQuestions());
+						response.setScreeningAnswers(new ScreeningAnswers());
+						response.setChoices(new ArrayList<>());
+						response.setMessage(screeningTest.screenTest(screenAnswerOp.get()).getMessage());
+						response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get()).isFinished);
+						userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
+						responseJson.put("data", response);
 					}
 				}
 			} catch (NoSuchElementException e) {
@@ -234,10 +218,6 @@ public class AnswerSaveImpl implements AnswerSaveService {
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
-
-		responseJson.put("data", response);
-		userScreeningStatus.setIndexValue(indexValue);
-		userScreeningStatusRepository.save(userScreeningStatus);
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);
 	}

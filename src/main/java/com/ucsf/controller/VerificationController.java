@@ -30,9 +30,18 @@ import com.ucsf.payload.request.VerifyRequest;
 import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.UserRepository;
+import com.ucsf.service.CustomUserDetailsService;
+import com.ucsf.service.LoggerService;
+import com.ucsf.service.VerificationService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping("/api")
+@Api(tags = "Verification Controller")
 public class VerificationController {
 
 	@Autowired
@@ -63,6 +72,8 @@ public class VerificationController {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	//@PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
+	@ApiOperation(value = "Verify otp", notes = "Verify otp", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "User verified successfully", response = User.class) })
 	@RequestMapping(value = "/verifyOtp", method = RequestMethod.POST)
 	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
 

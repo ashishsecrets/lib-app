@@ -8,7 +8,11 @@ import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.ListAnswersFetchResponse;
 import com.ucsf.repository.ScreeningAnswerRepository;
 import com.ucsf.repository.ScreeningQuestionRepository;
-import com.ucsf.service.AnswerSaveService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +25,7 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/physician")
+@Api(tags = "List-Answers-Send Controller")
 public class ListAnswersSendController {
 
     @Autowired
@@ -32,6 +37,8 @@ public class ListAnswersSendController {
 
     @Transactional
     @SuppressWarnings({"unchecked", "rawtypes"})
+    @ApiOperation(value = "Send saves answers", notes = "Send saves answers", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Data fetched successfully", response = ListAnswersFetchResponse.class) })
     @RequestMapping(value = "/fetch", method = RequestMethod.POST)
     public ResponseEntity<?> sendSavedAnswers(@RequestBody ListAnswersFetchRequest fetchRequest) throws Exception {
 
