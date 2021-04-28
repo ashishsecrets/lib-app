@@ -14,9 +14,15 @@ import com.ucsf.auth.model.User;
 import com.ucsf.job.LoadScreeningQuestions;
 import com.ucsf.service.UserService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/users")
+@Api(tags = "User Controller")
 public class UserController {
 	
 	@Autowired
@@ -33,6 +39,8 @@ public class UserController {
 	}
 	
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@ApiOperation(value = "Get all users", notes = "Get all users", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all users", response = User.class) })
 	@RequestMapping(value = "/users/{page}/{size}", method = RequestMethod.GET)
 	public Page<User> getUsers(@PathVariable int page, @PathVariable int size) {
 		return userService.findAll(page, size);

@@ -29,9 +29,15 @@ import com.ucsf.repository.ScreeningQuestionRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.LoggerService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/questions")
+@Api(tags = "Screening-Question Controller")
 public class ScreeningQuestionController {
 
 	@Autowired
@@ -49,6 +55,8 @@ public class ScreeningQuestionController {
 	private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Fetch question", notes = "Fetch question", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Question fetched successfully", response = ScreeningQuestionResponse.class) })
 	@RequestMapping(value = "/question/{studyId}/{indexValue}", method = RequestMethod.GET)
 	public ResponseEntity<?> fetchQuestion(@PathVariable Long studyId, @PathVariable int indexValue)
 			throws Exception {

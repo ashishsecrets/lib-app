@@ -14,6 +14,11 @@ import com.ucsf.service.PasswordResetLinkService;
 import com.ucsf.service.ResetPassword;
 import com.ucsf.service.VerificationService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/password")
+@Api(tags = "Reset-Password Controller")
 public class ResetPasswordController {
 
 	@Autowired
@@ -52,6 +58,8 @@ public class ResetPasswordController {
 	private static Logger log = LoggerFactory.getLogger(ResetPasswordController.class);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Forgot password email", notes = "Send forgot password email", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Email sent successfully", response = SuccessResponse.class) })
 	@RequestMapping(value = "/forget-password", method = RequestMethod.POST)
 	public ResponseEntity<?> forgetPassword(@RequestParam String email) {
 		loggerService.printLogs(log, "forgetPassword", "Sending forget password email");
@@ -76,6 +84,8 @@ public class ResetPasswordController {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Reset password", notes = "Reset password", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Password reset successfully", response = SuccessResponse.class) })
 	@RequestMapping(value = "/reset-password", method = RequestMethod.POST)
 	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) throws Exception {
 		loggerService.printLogs(log, "resetPassword", "Reseting Password");
@@ -107,6 +117,8 @@ public class ResetPasswordController {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Resend code", notes = "Resend verification code", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Code sent successfully", response = SuccessResponse.class) })
 	@RequestMapping(value = "/resend-code", method = RequestMethod.POST)
 	public ResponseEntity<?> resendCode(@RequestParam String email) throws Exception {
 		loggerService.printLogs(log, "resendCode", "Resend Password");

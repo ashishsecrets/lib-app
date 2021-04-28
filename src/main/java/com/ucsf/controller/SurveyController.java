@@ -20,9 +20,15 @@ import com.ucsf.repository.SurveyRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.LoggerService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/survey")
+@Api(tags = "Survey Controller")
 public class SurveyController {
 
 	@Autowired
@@ -43,6 +49,8 @@ public class SurveyController {
 	private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Save survey", notes = "Save survey", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Survey saved successfully", response = UcsfSurvey.class) })
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody SurveyRequest surveyRequest)
 			throws Exception {
