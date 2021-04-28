@@ -62,7 +62,6 @@ public class AnswerSaveImpl implements AnswerSaveService {
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 		Optional<ScreeningAnswers> screenAnswerOp = null;
-		Boolean isNewStatus = false;
 		Boolean isSuccess = false;
 		ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 		int indexValue = 0;
@@ -98,22 +97,13 @@ public class AnswerSaveImpl implements AnswerSaveService {
 			userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS);
 			userScreeningStatus.setUserId(user.getId());
 			userScreeningStatus.setIndexValue(1);
-			quesIncrement = 1;
 			userScreeningStatusRepository.save(userScreeningStatus);
-			isNewStatus = true;
 			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
 		}
 
 		try {
 			if (!answerRequest.getAnswer().isEmpty()) {
-				screenAnswerOp = Optional
-						.ofNullable(
-								screeningAnswerRepository
-										.findByQuestionId(
-												(screeningQuestionRepository
-														.findByStudyIdAndIndexValue(answerRequest.getStudyId(),
-																userScreeningStatus.getIndexValue() - quesIncrement)
-														.getId())));
+				screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId())));
 				ScreeningAnswers screenAnswer;
 				if (screenAnswerOp.isPresent()) {
 					screenAnswer = screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
@@ -134,8 +124,6 @@ public class AnswerSaveImpl implements AnswerSaveService {
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
-		// responseJson.put("data", new SuccessResponse(isSuccess, "Screening answer
-		// saved successfully!")); }
 
 		Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository
 				.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
@@ -195,7 +183,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
 			response.setMessage("");
 			try {
 				if (screenAnswerOp != null) {
-					ScreenTestData screenTestData = screeningTest.screenTest(screenAnswerOp.get());
+					ScreenTestData screenTestData = screeningTest.screenTest(screenAnswerOp.get(), quesIncrement);
 					if(screenTestData == null){
 						response.setScreeningQuestions(sc);
 						response.setScreeningAnswers(sa);
@@ -209,11 +197,11 @@ public class AnswerSaveImpl implements AnswerSaveService {
 							response.setScreeningAnswers(new ScreeningAnswers());
 							response.setChoices(new ArrayList<>());
 							response.setMessage(screenTestData.getMessage());
-							response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get()).isFinished);
+							response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get(), quesIncrement).isFinished);
 							userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
 						} else if(!screenTestData.isFinished)  {
-							if (screenAnswerOp.get().getIndexValue() == 3) {
-									indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() + 1;
+							if (!Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), 3).getId()))).get().getAnswerDescription().equals("Primary care doctor")) {
+									indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() + quesIncrement;
 									sc = screeningQuestionRepository.findByStudyIdAndIndexValue(
 											userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), indexValue);
 								    choices = choiceRepository.findByQuestionId(sc.getId());

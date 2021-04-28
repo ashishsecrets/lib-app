@@ -20,7 +20,7 @@ public class ScreeningTest {
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
 	
-    public ScreenTestData screenTest(ScreeningAnswers lastAnswer){
+    public ScreenTestData screenTest(ScreeningAnswers lastAnswer, int quesIncrement){
         ScreenTestData screenTestData = new ScreenTestData();
     if (lastAnswer.getIndexValue()==1) {
         if (Integer.parseInt(lastAnswer.getAnswerDescription()) < 12 || Integer.parseInt(lastAnswer.getAnswerDescription()) > 65) {
@@ -43,6 +43,16 @@ public class ScreeningTest {
     }
 
         if (lastAnswer.getIndexValue()==3) {
+            if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
+                screenTestData.setMessage("");
+                screenTestData.setIsFinished(false);
+            }
+            else{
+                screenTestData = null;
+            }
+        }
+
+        if (lastAnswer.getIndexValue()==5 && quesIncrement == -1) {
             if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
                 screenTestData.setMessage("");
                 screenTestData.setIsFinished(false);
