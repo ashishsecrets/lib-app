@@ -1,9 +1,10 @@
-package com.ucsf.service.impl.AnswerImpl;
+package com.ucsf.service.impl;
 
 
 import com.ucsf.model.ScreeningAnswers;
 import com.ucsf.model.ScreeningQuestions;
 import com.ucsf.model.UserScreeningStatus;
+import com.ucsf.payload.response.StudyInfoData;
 import com.ucsf.repository.ScreeningAnswerRepository;
 import com.ucsf.repository.ScreeningQuestionRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
@@ -12,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ScreeningTest {
+public class StudyInfoCheck {
 
 	@Autowired
 	ScreeningQuestionRepository screeningQuestionRepository;
@@ -20,15 +21,16 @@ public class ScreeningTest {
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
 	
-    public ScreenTestData screenTest(ScreeningAnswers lastAnswer, int quesIncrement){
-        ScreenTestData screenTestData = new ScreenTestData();
+    public StudyInfoData screenTest(ScreeningAnswers lastAnswer, int quesIncrement){
+    	StudyInfoData screenTestData = new StudyInfoData();
     if (lastAnswer.getIndexValue()==1) {
         if (Integer.parseInt(lastAnswer.getAnswerDescription()) < 12 || Integer.parseInt(lastAnswer.getAnswerDescription()) > 65) {
             screenTestData.setIsFinished(true);
             screenTestData.setMessage("Sorry, this study is only for individuals between the ages of 12 and 65!");
         }
         else{
-            screenTestData = null;
+            screenTestData.setIsFinished(false);
+            screenTestData.setMessage("");
         }
     }
      if (lastAnswer.getIndexValue()==2) {
@@ -38,7 +40,8 @@ public class ScreeningTest {
            // screenTestData.setMessage("");
         }
         else{
-            screenTestData = null;
+        	screenTestData.setIsFinished(false);
+            screenTestData.setMessage("");
         }
     }
 
@@ -48,7 +51,8 @@ public class ScreeningTest {
                 screenTestData.setIsFinished(false);
             }
             else{
-                screenTestData = null;
+            	screenTestData.setIsFinished(false);
+                screenTestData.setMessage("");
             }
         }
 
@@ -58,7 +62,8 @@ public class ScreeningTest {
                 screenTestData.setIsFinished(false);
             }
             else{
-                screenTestData = null;
+            	screenTestData.setIsFinished(false);
+                screenTestData.setMessage("");
             }
         }
     

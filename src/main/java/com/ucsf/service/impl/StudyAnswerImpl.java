@@ -1,4 +1,4 @@
-package com.ucsf.service.impl.AnswerImpl;
+package com.ucsf.service.impl;
 
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
@@ -11,6 +11,7 @@ import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.request.ScreeningAnswerRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
+import com.ucsf.payload.response.StudyInfoData;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.*;
 import com.ucsf.service.AnswerSaveService;
@@ -31,7 +32,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service("answerSaveService")
-public class AnswerSaveImpl implements AnswerSaveService {
+public class StudyAnswerImpl implements AnswerSaveService {
 
 	@Autowired
 	ScreeningAnswerRepository screeningAnswerRepository;
@@ -52,7 +53,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
 	ChoiceRepository choiceRepository;
 
 	@Autowired
-	ScreeningTest screeningTest;
+	StudyInfoCheck screeningTest;
 
 	private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
@@ -186,7 +187,7 @@ public class AnswerSaveImpl implements AnswerSaveService {
 			response.setMessage("");
 			try {
 				if (screenAnswerOp != null) {
-					ScreenTestData screenTestData = screeningTest.screenTest(screenAnswerOp.get(), quesIncrement);
+					StudyInfoData screenTestData = screeningTest.screenTest(screenAnswerOp.get(), quesIncrement);
 					if(screenTestData == null){
 						response.setScreeningQuestions(sc);
 						response.setScreeningAnswers(sa);
