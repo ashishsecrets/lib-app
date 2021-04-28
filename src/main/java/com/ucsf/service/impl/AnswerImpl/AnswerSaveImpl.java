@@ -121,6 +121,9 @@ public class AnswerSaveImpl implements AnswerSaveService {
 				screeningAnswerRepository.save(screenAnswer);
 				isSuccess = true;
 			}
+			else{
+				screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId())));
+			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}

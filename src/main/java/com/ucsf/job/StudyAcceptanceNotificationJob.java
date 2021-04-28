@@ -3,6 +3,7 @@ package com.ucsf.job;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +17,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import com.google.gdata.data.dublincore.Date;
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
