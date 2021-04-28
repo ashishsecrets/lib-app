@@ -23,6 +23,7 @@ import com.ucsf.model.ScreeningAnsChoice;
 import com.ucsf.model.ScreeningQuestions;
 import com.ucsf.payload.response.ApiError;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
+import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.ChoiceRepository;
 import com.ucsf.repository.ScreeningQuestionRepository;
 import com.ucsf.repository.UserRepository;
@@ -49,7 +50,7 @@ public class ScreeningQuestionController {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/question/{studyId}/{indexValue}", method = RequestMethod.GET)
-	public ResponseEntity<?> createAuthenticationToken(@PathVariable Long studyId, @PathVariable int indexValue)
+	public ResponseEntity<?> fetchQuestion(@PathVariable Long studyId, @PathVariable int indexValue)
 			throws Exception {
 		
 		User user = null;
@@ -72,6 +73,7 @@ public class ScreeningQuestionController {
 		ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 		response.setScreeningQuestions(sc);
 		response.setChoices(choices);
-		return new ResponseEntity(response, HttpStatus.OK);
+		responseJson.put("data", response);
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 	}
 }

@@ -22,10 +22,12 @@ import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
 import com.ucsf.config.JwtConfig;
 import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.repository.RoleRepository;
+import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
 
@@ -40,14 +42,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
 	RoleRepository roleRepository;
 
+	@Autowired
+	UserMetaDataRepository userMetaDataRepository;
+
 	private static String ROLE_PREFIX = "ROLE_";
 
 	@Autowired
 	JwtConfig jwtConfig;
-	
+
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
-
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -61,7 +65,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 		if (user == null) {
 			UserDetails userDetails = null;
 			return userDetails;
-			//throw new UsernameNotFoundException("User not found with username: " + username);
+			// throw new UsernameNotFoundException("User not found with username: " +
+			// username);
 		}
 
 		if (user.getUserStatus() != null && user.getUserStatus() == UserStatus.ACTIVE) {
@@ -69,9 +74,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		} else {
 			isEnable = false;
 		}
-		if (user.getIsVerified()) {
-			jwtConfig.setTwoFa(false);
-		}
+
 		if (!jwtConfig.getTwoFa()) {
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
@@ -83,7 +86,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
 	}
 
-	public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException{
+	public UserDetails loadUserByEmail(String email, Boolean isVerified) throws UsernameNotFoundException {
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		boolean isEnable = true;
 		boolean isUserNotExpired = true;
@@ -99,10 +102,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 		} else {
 			isEnable = false;
 		}
-		if (user.getIsVerified()) {
-			jwtConfig.setTwoFa(false);
+		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+			if (role.getName().toString().equals("ADMIN")) {
+				isVerified = true;
+			}
 		}
-		if (!jwtConfig.getTwoFa()) {
+
+		if (!jwtConfig.getTwoFa() || isVerified ) {
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
 			}
@@ -111,47 +117,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 		}
 		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), isEnable,
 				isUserNotExpired, isCredentialNotExpired, isAccountNotLocked, grantedAuthorities);
-	}
-
-	public User save(SignUpRequest user) {
-		User newUser = new User();
-		newUser.setFirstName(user.getFirstName());
-		newUser.setLastName(user.getLastName());
-		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-		newUser.setEmail(user.getEmail());
-		newUser.setPhoneNumber(user.getPhone());
-		newUser.setPhoneCode(user.getPhoneCode());
-		newUser.setIsVerified(false);
-
-		Role existed = roleRepository.findByName(RoleName.PATIENT);
-		if (existed == null) {
-			Role role = new Role();
-			role.setName(RoleName.PATIENT);
-			roleRepository.save(role);
-		}
-		// Set initial role
-		Role userRole = roleRepository.findByName(RoleName.PATIENT);
-		// .orElseThrow(() -> new AppException("User Role not set."));
-		newUser.setRoles(Collections.singleton(userRole));
-
-		newUser.setUserStatus(UserStatus.ACTIVE);
-		UserMetadata metadata = new UserMetadata();
-		if (user.getUserMetadata() != null) {
-			metadata.setAge(user.getUserMetadata().getAge());
-			metadata.setRace(user.getUserMetadata().getRace());
-			metadata.setZipCode(user.getUserMetadata().getZipCode());
-			metadata.setPhone(user.getUserMetadata().getPhone());
-			// metadata.setAcceptanceDate(new Date());
-			metadata.setConsentAccepted(true);
-			newUser.setMetadata(metadata);
-		}
-		User savedUser = userRepository.save(newUser);
-		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
-		userScreeningStatus.setStudyId(1l);
-		userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
-		userScreeningStatus.setUserId(savedUser.getId());
-		userScreeningStatusRepository.save(userScreeningStatus);
-		return savedUser;
 	}
 
 	@PostConstruct

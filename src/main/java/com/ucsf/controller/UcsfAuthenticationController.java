@@ -1,5 +1,6 @@
 package com.ucsf.controller;
 
+import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -28,12 +29,15 @@ import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
 import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
+import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.CustomUserDetailsService;
 import com.ucsf.service.LoggerService;
+import com.ucsf.service.UserService;
 import com.ucsf.service.VerificationService;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,6 +54,9 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	private CustomUserDetailsService userDetailsService;
+
+	@Autowired
+	UserService userService;
 
 	@Autowired
 	UserRepository userRepository;
@@ -80,7 +87,7 @@ public class UcsfAuthenticationController {
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
-		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail());
+		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), false);
 
 		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
 
@@ -88,16 +95,23 @@ public class UcsfAuthenticationController {
 
 		user.setAuthToken(token);
 
-		userRepository.save(user);
+		user = userRepository.save(user);
 
-		if (jwtConfig.getTwoFa()) {
-			verificationService.sendVerificationCode(user);
+		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+			if (role.getName().toString().equals("ADMIN")) {
+				jwtConfig.setTwoFa(false);
+			}
 		}
 		if (jwtConfig.getTwoFa()) {
-			responseJson.put("data", user);
+			JSONObject jsonObject = null;
+			jsonObject = verificationService.sendVerificationCode(user);
+			loggerService.printLogs(log, "send otp while authenticate() " + jsonObject.toString(), user.getEmail());
+		}
+		if (jwtConfig.getTwoFa()) {
+			responseJson.put("data", new AuthResponse(userDetails, user, "You have to be vrified by 2FA"));
 			return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 		}
-		responseJson.put("data", user);
+		responseJson.put("data", new AuthResponse(userDetails, user, "User Authenticated Successfully!"));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
@@ -105,6 +119,13 @@ public class UcsfAuthenticationController {
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public ResponseEntity<?> saveUser(@RequestBody SignUpRequest signUpRequest) throws Exception {
 		loggerService.printLogs(log, "saveUser", "Register User");
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+		String message = "User Registered";
+		boolean isEnable = true;
+		boolean isUserNotExpired = true;
+		boolean isCredentialNotExpired = true;
+		boolean isAccountNotLocked = true;
+		jwtConfig.setTwoFa(true);
 
 		JSONObject responseJson = new JSONObject();
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
@@ -113,28 +134,30 @@ public class UcsfAuthenticationController {
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
-		User user = userDetailsService.save(signUpRequest);
+		User user = userService.save(signUpRequest);
 
-		if (jwtConfig.getTwoFa()) {
-			verificationService.sendVerificationCode(user);
+		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+			if (role.getName().toString().equals("ADMIN")) {
+				jwtConfig.setTwoFa(false);
+				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+			}
 		}
-
-		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-		boolean isEnable = true;
-		boolean isUserNotExpired = true;
-		boolean isCredentialNotExpired = true;
-		boolean isAccountNotLocked = true;
-		jwtConfig.setTwoFa(true);
-		grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
+		
+		if (jwtConfig.getTwoFa()) {
+			JSONObject jsonObject = null;
+			jsonObject = verificationService.sendVerificationCode(user);
+			loggerService.printLogs(log, "send otp while saveUser() " + jsonObject.toString(), user.getEmail());
+			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
+			message = "Otp Sent for verification";
+		}
 
 		UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
 				user.getPassword(), isEnable, isUserNotExpired, isCredentialNotExpired, isAccountNotLocked,
 				grantedAuthorities);
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
-
 		user.setAuthToken(token);
-		responseJson.put("data", user);
+		responseJson.put("data", new AuthResponse(userDetails, user, message));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 

@@ -6,7 +6,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.util.*;
 
+import lombok.Data;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -21,51 +23,83 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import com.opencsv.CSVReader;
-import com.ucsf.model.ScreeningAnsChoice;
-import com.ucsf.model.ScreeningQuestions;
-import com.ucsf.repository.ChoiceRepository;
-import com.ucsf.repository.ScreeningQuestionRepository;
+import com.ucsf.model.SurveyAnswerChoice;
+import com.ucsf.model.SurveyQuestion;
+import com.ucsf.repository.SurveyChoiceRepository;
+import com.ucsf.repository.SurveyQuestionRepository;
 
 @EnableAutoConfiguration
 @EnableScheduling
 @Service
-public class LoadScreeningQuestions {
+public class LoadSurveyQuestions {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 
 	@Autowired
-	ChoiceRepository choiceRepository;
+	SurveyChoiceRepository surveyChoiceRepository;
 
 	@Autowired
-	ScreeningQuestionRepository questionRepository;
+	SurveyQuestionRepository surveyRepository;
 
-	@Value("${screening-questions-file}")
+	//@Value("${survey-patient-questions-file}")
 	private String filePath;
+
+	//@Value("${survey-dermatology-questions-file}")
+	private String filePath2;
+
+	//@Value("${survey-itch-questions-file}")
+	private String filePath3;
+
+	private class Sheet {
+		String id;
+		String sheetName;
+		public Sheet(String id, String sheetName) {
+			this.id = id;
+			this.sheetName = sheetName;
+		}
+	}
 
 	// @Scheduled(cron="0 */1 * * * *")
 	public void loadSheetContent() throws ClientProtocolException, IOException, GeneralSecurityException {
 		// clear all previous data
 		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
-		jdbcTemplate.update("TRUNCATE TABLE questions");
-		jdbcTemplate.update("TRUNCATE TABLE screening_ans_choice");
+		jdbcTemplate.update("TRUNCATE TABLE survey_questions");
+		jdbcTemplate.update("TRUNCATE TABLE survey_ans_choice");
 		jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
-		String id = "1UhvTWTf_xp1NHm8VcVgFXxpxzAy8IOzWhWod1s_PqYU";
 
-		filePath = downloadSheetData(id, "screening");
-		try {
-			readDownloadedContentCsvData(filePath);
-		} catch (Exception e) {
-			e.printStackTrace();
+		Map<String, Sheet> sheetName = new HashMap();
+		List<Sheet> list = new ArrayList<>();
+		list.add(new Sheet("12Q-7nq9fhUM8BeEBWrn8hy26eLdDjx9g3R_ZeixjRVw", "patient"));
+		list.add(new Sheet("1MK20TCV04yCB_md1JV-OL0QyZkkXI6b8LrO4zvHW8dk", "dermatology"));
+		list.add(new Sheet("1DoSxuwLDnqzYHIzsCbi85I1KMS8yfmjv4s1vJRbUtnw", "itch"));
+		sheetName.put("patient", list.get(0));
+		sheetName.put("dermatology", list.get(1));
+		sheetName.put("itch", list.get(2));
+		for(Map.Entry<String, Sheet> sheet : sheetName.entrySet()) {
+			filePath = downloadSheetData(sheet.getValue().id, sheet.getValue().sheetName);
+			try {
+				readDownloadedContentCsvData(filePath);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public String downloadSheetData(String id, String sheetName) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
-		String filePath = sheetName+".csv";
+		String filePath = sheetName + ".csv";
 		int gid = 0;
-
 		try {
+			if (filePath.contains("patient")) {
+				gid = 923230846;
+			}
+			if (filePath.contains("dermatology")) {
+				gid = 578148417;
+			}
+			if (filePath.contains("itch")) {
+				gid = 902091073;
+			}
 			HttpGet request = new HttpGet("https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=out:csv&sheet="
 					+ filePath + "&gid=" + gid);
 			CloseableHttpResponse response = httpClient.execute(request);
@@ -102,7 +136,7 @@ public class LoadScreeningQuestions {
 			int counter = 0;
 			while ((eczemaDataArray = reader.readNext()) != null) {
 				if (counter > 0) {
-					ScreeningQuestions sc = new ScreeningQuestions();
+					SurveyQuestion sc = new SurveyQuestion();
 					String questionDescription2 = eczemaDataArray[0].replaceAll("\"", "");
 					questionDescription = (questionDescription2 == null || questionDescription2.equals(""))
 							? questionDescription
@@ -114,17 +148,24 @@ public class LoadScreeningQuestions {
 					sc.setDescription(questionDescription);
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
-					sc.setStudyId(1l);//repo
-					//sc.setIndexValue(questionRepository.findFirstByStudyIdOrderByIndexValueDesc(1l).getIndexValue());
+					/*if (csvFile.contains("patient")) {
+						sc.setSurveyId(null);// repo
+					}
+					if (csvFile.contains("dermatology")) {
+						sc.setSurveyId(null);// repo
+					}
+					if (csvFile.contains("itch")) {
+						sc.setSurveyId(null);// repo
+					}*/
 					sc.setIndexValue(counter);
-					questionRepository.save(sc);
+					surveyRepository.save(sc);
 					if (choices != null && !choices.equals("")) {
 						String[] split = choices.split("//");
 						for (String c : split) {
-							ScreeningAnsChoice choice = new ScreeningAnsChoice();
+							SurveyAnswerChoice choice = new SurveyAnswerChoice();
 							choice.setChoice(c);
 							choice.setQuestionId(sc.getId());
-							choiceRepository.save(choice);
+							surveyChoiceRepository.save(choice);
 						}
 					}
 				}
@@ -134,4 +175,6 @@ public class LoadScreeningQuestions {
 			e.printStackTrace();
 		}
 	}
+
+
 }

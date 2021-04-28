@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 public class UserScreeningStatus {
 
 	public enum UserScreenStatus {
-		NEWLY_ADDED, INPROGRESS,COMPLETED
+		NEWLY_ADDED,INPROGRESS,UNDER_REVIEW, ENROLLED, AVAILABLE
 	}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +43,9 @@ public class UserScreeningStatus {
 
 	@Column(name = "user_id")
 	private Long userId;
+	
+	@Column(name = "index_value")
+	private int indexValue;
 
 	@ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", insertable = false, updatable = false)

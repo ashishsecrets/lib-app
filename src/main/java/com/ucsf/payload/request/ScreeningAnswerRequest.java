@@ -2,12 +2,17 @@ package com.ucsf.payload.request;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ScreeningAnswerRequest {
 
-	private Long questionId;
+    public enum ForwardStatus {
+        FALSE, TRUE, NONE
+    }
+
     private Long studyId;
-    private int indexValue;
     private String answer;
     private String answerDescription;
+    private ForwardStatus forward;
 }

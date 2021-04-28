@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,12 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ucsf.model.UserDiseaseInfo;
-import com.ucsf.model.UserMetadata;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,26 +34,21 @@ public class User {
 	@Column(name = "user_id")
 	private Long id;
 
-	@Column
+	@Column(name = "first_name")
 	private String firstName;
 	
-	@Column
+	@Column(name = "last_name")
 	private String lastName;
 
-	@Column
 	private String email;
 
-	@Column
 	@JsonIgnore
 	private String password;
 
-	@Column
+	@Column(name = "phone_number")
 	private String phoneNumber;
 
-	@Column
-	private Boolean isVerified;
-
-	@Column
+	@Column(name = "phone_code")
 	private String phoneCode;
 
 	@Column(name = "user_status")
@@ -70,17 +60,27 @@ public class User {
 	private Date createdDate;
 
 	private Date lastModifiedDate;
-
-	@ManyToOne(targetEntity = UserMetadata.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
-	@JoinColumn(name = "metadata_id")
-	private UserMetadata metadata;
-
-	@ManyToOne(targetEntity = UserDiseaseInfo.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
-	@JoinColumn(name = "disease_info_id")
-	private UserDiseaseInfo userDiseaseInfo;
+	
+	@Column(name = "device_id", columnDefinition = "TEXT")
+	private String devideId;
 
 	@JsonIgnore
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
+	
+	public void addRole(Role userRole) {
+		if(this.roles == null)		{
+			this.roles = new HashSet<>();
+		}
+		for(Role role : this.roles) {
+			if(role.getName().equals(userRole.getName())){
+				return;
+			}
+		}
+		if(userRole != null && userRole.getName() != null) {
+			this.roles.add(userRole);	
+		}
+		
+	}
 }

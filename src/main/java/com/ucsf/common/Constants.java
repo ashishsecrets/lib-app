@@ -10,7 +10,8 @@ public enum Constants {
 	QUESTION_NOT_FOUND("Question not found"),
 	PASSWORD_NOT_MATCHING("Password and confirm password not matching"),
 	LINK_EXPIRED("User not found or Link expired"),
-	USER_NOT_FOUND("User not existed");
+	INVALID_CREDENTIALS("Invalid UserName/Password"),
+	USER_NOT_FOUND("User not existed"),CODE_NOT_SENT("OTP not Sent");
 	
 		private Constants(String value) { 
 	    this.errordesc = value; 
