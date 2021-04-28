@@ -156,13 +156,21 @@ public class UcsfAuthenticationController {
 
 		User user = userService.save(signUpRequest);
 
-		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
-			if (role.getName().toString().equals("ADMIN")) {
-				jwtConfig.setTwoFa(false);
-				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+		try
+		  {
+			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+				if (role.getName().toString().equals("")) {
+					jwtConfig.setTwoFa(true);
+				}
+				else if (role.getName().toString().equals("ADMIN")) {
+					jwtConfig.setTwoFa(false);
+					grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+				}
 			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
-		
+
 		if (jwtConfig.getTwoFa()) {
 			JSONObject jsonObject = null;
 			jsonObject = verificationService.sendVerificationCode(user);
