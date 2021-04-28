@@ -136,9 +136,9 @@ public class StudyAcceptanceNotificationJob {
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
 					userMetaDataRepository.save(metaData);
 					loggerService.printLogs(log, "sendNotifications",
-							"Study approval SMS sent to user: " + approvedUser.getEmail()
-									+ "phoneNumber: " + approvedUser.getPhoneCode() + approvedUser.getPhoneNumber()
-									+ "At: " + new Date());
+							"Study approval SMS sent to user: " + approvedUser.getEmail() + "phoneNumber: "
+									+ approvedUser.getPhoneCode() + approvedUser.getPhoneNumber() + "At: "
+									+ new Date());
 				} catch (Exception e) {
 					loggerService.printErrorLogs(log, "sendNotifications",
 							"Error while sending study approval SMS to user: " + approvedUser.getEmail()
@@ -147,7 +147,7 @@ public class StudyAcceptanceNotificationJob {
 				}
 			}
 		}
-		
+
 		List<UserMetadata> userMetaData2 = userMetaDataRepository.findByStudyStatus("disapproved");
 		if (userMetaData2 != null && userMetaData2.size() > 0) {
 			for (UserMetadata metaData : userMetaData2) {
@@ -191,17 +191,21 @@ public class StudyAcceptanceNotificationJob {
 
 						service = APNS.newService().withCert(inputStream, "123456").withSandboxDestination().build();
 					}
-					String payload = APNS.newPayload().customField("customData", "").alertBody("Hi "+disApprovedUser.getFirstName()+" Your UCSF study has been disapproved").alertTitle("UCSF Study Status").build();
+					String payload = APNS.newPayload().customField("customData", "")
+							.alertBody("Hi " + disApprovedUser.getFirstName() + " Your UCSF study has been disapproved")
+							.alertTitle("UCSF Study Status").build();
 
 					ApnsNotification apns = service.push(disApprovedUser.getDevideId(), payload);
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
 					userMetaDataRepository.save(metaData);
-					loggerService.printLogs(log, "sendNotifications", "Study disApproval push notification sent to user: "
-							+ disApprovedUser.getEmail() + "At: " + new Date());
+					loggerService.printLogs(log, "sendNotifications",
+							"Study disApproval push notification sent to user: " + disApprovedUser.getEmail() + "At: "
+									+ new Date());
 				} catch (Exception e) {
 					loggerService.printErrorLogs(log, "sendNotifications",
-							"Error while sending study disApproval push notification to user: " + disApprovedUser.getEmail()
-									+ "At: " + new Date());
+							"Error while sending study disApproval push notification to user: "
+									+ disApprovedUser.getEmail() + "At: " + new Date());
+					System.out.println("1111");
 				}
 				// Notify by SMS
 				try {
@@ -211,14 +215,14 @@ public class StudyAcceptanceNotificationJob {
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
 					userMetaDataRepository.save(metaData);
 					loggerService.printLogs(log, "sendNotifications",
-							"Study disApproval SMS sent to user: " + disApprovedUser.getEmail()
-									+ "phoneNumber: " + disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber()
-									+ "At: " + new Date());
+							"Study disApproval SMS sent to user: " + disApprovedUser.getEmail() + "phoneNumber: "
+									+ disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber() + "At: "
+									+ new Date());
 				} catch (Exception e) {
 					loggerService.printErrorLogs(log, "sendNotifications",
 							"Error while sending study disApproval SMS to user: " + disApprovedUser.getEmail()
-									+ "phoneNumber: " + disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber()
-									+ "At: " + new Date());
+									+ "phoneNumber: " + disApprovedUser.getPhoneCode()
+									+ disApprovedUser.getPhoneNumber() + "At: " + new Date());
 				}
 			}
 		}
