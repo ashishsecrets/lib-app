@@ -144,42 +144,47 @@ public class StudyAnswerImpl implements AnswerSaveService {
 			response = studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
 
 			try {
-				/*if (lastSavedAnswer.isPresent()) {*/
+				if (lastSavedAnswer != null) {
 					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
-					if(screenTestData == null){
+					if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
 
 						studyAbstractCall.setQuestionToDisplayToUser(current);
 
 						response = studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
 
 					}
-					if (screenTestData != null) {
-						if (screenTestData.isFinished) {
+						if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
 
 							response = studyAbstractCall.displayNullQuesNAns(screenTestData.getMessage());
 
-							response.setIsLastQuestion(screeningTest.screenTest(lastSavedAnswer.get(), questionDirection).isFinished);
+							if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE){
+							response.setIsLastQuestion(true);}
+							else if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.FALSE){
+								response.setIsLastQuestion(false);
+							}
+
 							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
 
 
-						} else if(!screenTestData.isFinished)  {
+						} else if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.FALSE)  {
 
 							if (!studyAbstractCall.findAnswerByIndex(3).getAnswerDescription().equals("Primary care doctor")) {
 
 
-								//indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() + questionDirection;
+								if((questionDirection == 1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 4) || questionDirection == -1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 6) {
 
-								questionToDisplayToUser = studyAbstractCall.getQuestionToDisplayToUser(next);
-								answerToDisplayToUser = studyAbstractCall.getAnswerToDisplayToUser(questionToDisplayToUser.getId());
+									questionToDisplayToUser = studyAbstractCall.getQuestionToDisplayToUser(next);
+									answerToDisplayToUser = studyAbstractCall.getAnswerToDisplayToUser(questionToDisplayToUser.getId());
 
 									studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
 
 									studyAbstractCall.userScreeningStatus.setIndexValue(next);
 									userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+								}
 							}
 						}
-					}
-				//}
+
+				}
 			} catch (NoSuchElementException e) {
 				e.printStackTrace();
 			}
