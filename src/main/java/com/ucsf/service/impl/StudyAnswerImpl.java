@@ -151,6 +151,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 						studyAbstractCall.setQuestionToDisplayToUser(current);
 
 						response = studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
+						studyAbstractCall.userScreeningStatus.setIndexValue(current);
+						userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
 
 					}
 						if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
@@ -164,14 +166,15 @@ public class StudyAnswerImpl implements AnswerSaveService {
 							}
 
 							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
-
+							studyAbstractCall.userScreeningStatus.setIndexValue(current);
+							userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
 
 						} else if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.FALSE)  {
 
 							if (!studyAbstractCall.findAnswerByIndex(3).getAnswerDescription().equals("Primary care doctor")) {
 
 
-								if((questionDirection == 1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 4) || questionDirection == -1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 6) {
+								if((questionDirection == 1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 4) || (questionDirection == -1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 4)) {
 
 									questionToDisplayToUser = studyAbstractCall.getQuestionToDisplayToUser(next);
 									answerToDisplayToUser = studyAbstractCall.getAnswerToDisplayToUser(questionToDisplayToUser.getId());
@@ -194,12 +197,6 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		responseJson.put("data", response);
 
-		try {
-			studyAbstractCall.userScreeningStatus.setIndexValue(indexValue);
-			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-		}
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);
 	}
 }
