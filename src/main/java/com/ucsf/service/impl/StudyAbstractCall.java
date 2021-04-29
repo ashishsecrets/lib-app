@@ -21,13 +21,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 @Data
 public class StudyAbstractCall {
 
@@ -47,16 +48,11 @@ public class StudyAbstractCall {
     StudyInfoCheck screeningTest;
 
     @Autowired
-    StudyInfoData screenTestData;
-
-    @Autowired
     ChoiceRepository choiceRepository;
 
     @Autowired
     private LoggerService loggerService;
 
-    ScreeningAnswers answerToDisplayToUser;
-    ScreeningQuestions questionToDisplayToUser;
 
     private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
@@ -66,30 +62,20 @@ public class StudyAbstractCall {
 
     int quesIncrement = 0;
 
+    ScreeningQuestions questionToDisplayToUser;
+
     ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 
-    User user = getUserDetails();
+    User user = null;
 
-    public StudyAbstractCall(ScreeningAnswerRequest answerRequest) {
-        this.answerRequest = answerRequest;
-    }
+    ScreeningAnswerRequest answerRequest = new ScreeningAnswerRequest();
 
-    UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 
+    public User getUserDetails(String email){
 
-    private ScreeningAnswerRequest answerRequest;
-
-    public UserScreeningStatus getUserScreeningStatus() {
-        return userScreeningStatus;
-    }
-
-    UserScreeningStatus userScreeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
-
-    public User getUserDetails(){
-        if (userDetail != null && userDetail.getUsername() != null) {
-            String email = userDetail.getUsername();
             user = userRepository.findByEmail(email);
-        }
+
         return user;
     }
 
@@ -111,6 +97,14 @@ public class StudyAbstractCall {
             userScreeningStatus.setIndexValue(newIndex);
             userScreeningStatusRepository.save(userScreeningStatus);
         }
+    }
+
+    public UserScreeningStatus getUserScreeningStatus(){
+        return userScreeningStatus;
+    }
+
+    public void setUserScreeningStatus(UserScreeningStatus userScreeningStatus){
+        userScreeningStatus = userScreeningStatus;
     }
 
     public Optional<ScreeningAnswers> getLastSavedAnswer(){
@@ -135,9 +129,9 @@ public class StudyAbstractCall {
                 screeningAnswerRepository.save(screenAnswer);
                 isSuccess = true;
             }
-            else{
+            /*else{
                 screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId())));
-            }
+            }*/
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -146,50 +140,54 @@ public class StudyAbstractCall {
     }
 
     public int getIndexValue(){
-        return userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue();
+        int indexValue = userScreeningStatus.getIndexValue();
+
+        return indexValue;
     }
 
-    public ResponseEntity catchQuestionAnswerError() {
-
-        ResponseEntity responseEntity = null;
+    public JSONObject catchQuestionAnswerError(Long studyId, int index) {
 
         Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository
-                .findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
-        if (sq.isPresent()) {
-            if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
-                responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
-                        Constants.INVALID_INDEXVALUE.errordesc()));
-                responseEntity = new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-            }
-        } else {
-            responseJson.put("error",
-                    new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
-            String string = "";
-            if (isSuccess) {
-                string = "Last question saved";
-            }
-            if (userScreeningStatus.getIndexValue() > 0) {
-                responseJson.remove("error");
-                response = new ScreeningQuestionResponse();
-                ScreeningQuestions sc = null;
-                ScreeningAnswers sa = null;
-                List<ScreeningAnsChoice> choices = null;
-                response.setScreeningQuestions(sc);
-                response.setScreeningAnswers(sa);
-                response.setChoices(choices);
-                response.setIsLastQuestion(true);
-                responseJson.put("data", response);
-                userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
-            } else if (userScreeningStatus.getIndexValue() <= 0) {
+                .findByStudyIdAndIndexValue(studyId, index));
+
+        JSONObject responseEntity = null;
+
+            if (sq.isPresent()) {
+                if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
+                    responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
+                            Constants.INVALID_INDEXVALUE.errordesc()));
+                    responseEntity = responseJson;
+                }
+            } else {
                 responseJson.put("error",
-                        new ErrorResponse(200, "Cannot go further back! Answer first question" + " " + string));
-                userScreeningStatus.setIndexValue(-1);
+                        new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
+                String string = "";
+                if (isSuccess) {
+                    string = "Last question saved";
+                }
+                if (userScreeningStatus.getIndexValue() > 0) {
+                    responseJson.remove("error");
+                    response = new ScreeningQuestionResponse();
+                    ScreeningQuestions sc = null;
+                    ScreeningAnswers sa = null;
+                    List<ScreeningAnsChoice> choices = null;
+                    response.setScreeningQuestions(sc);
+                    response.setScreeningAnswers(sa);
+                    response.setChoices(choices);
+                    response.setIsLastQuestion(true);
+                    responseJson.put("data", response);
+                    userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
+                } else if (userScreeningStatus.getIndexValue() <= 0) {
+                    responseJson.put("error",
+                            new ErrorResponse(200, "Cannot go further back! Answer first question" + " " + string));
+                    userScreeningStatus.setIndexValue(-1);
+                    userScreeningStatusRepository.save(userScreeningStatus);
+                }
+                userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
                 userScreeningStatusRepository.save(userScreeningStatus);
+                responseEntity = responseJson;
             }
-            userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
-            userScreeningStatusRepository.save(userScreeningStatus);
-            responseEntity = new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-        }
+
         return responseEntity;
     }
 
@@ -201,19 +199,24 @@ public class StudyAbstractCall {
 
     public void setQuestionToDisplayToUser(int index) {
 
-        questionToDisplayToUser = screeningQuestionRepository.findByStudyIdAndIndexValue(
+      questionToDisplayToUser = screeningQuestionRepository.findByStudyIdAndIndexValue(
                 userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), index);
     }
 
-    public ScreeningAnswers getAnswerToDisplayToUser(int index) {
-        return screeningAnswerRepository.findByQuestionIdAndAnsweredById(questionToDisplayToUser.getId(), user.getId());
+    public ScreeningAnswers getAnswerToDisplayToUser(Long index) {
+        return screeningAnswerRepository.findByQuestionIdAndAnsweredById(index, user.getId());
     }
 
     public Boolean getIsLastQuestionBool() {
-        return !Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent();
+        Boolean value = false;
+
+        value = !Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent();
+
+        return value;
     }
 
-    public ScreeningQuestionResponse displayQuesNAns() {
+    public ScreeningQuestionResponse displayQuesNAns(ScreeningQuestions questionToDisplayToUser, ScreeningAnswers answerToDisplayToUser) {
+
         List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(questionToDisplayToUser.getId());
         response.setScreeningQuestions(questionToDisplayToUser);
         if (answerToDisplayToUser == null) {
@@ -227,12 +230,12 @@ public class StudyAbstractCall {
         return response;
     }
 
-    public ScreeningQuestionResponse displayNullQuesNAns() {
+    public ScreeningQuestionResponse displayNullQuesNAns(String message) {
 
         response.setScreeningQuestions(new ScreeningQuestions());
         response.setScreeningAnswers(new ScreeningAnswers());
         response.setChoices(new ArrayList<>());
-        response.setMessage(screenTestData.getMessage());
+        response.setMessage(message);
 
         return response;
     }
