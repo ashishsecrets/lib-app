@@ -18,6 +18,7 @@ public class AuthResponse implements Serializable {
 	private final String email;
 	private final String firstName;
 	private final String lastName;
+	private final String phoneNumber;
 	private final Set authority;
 
 	public AuthResponse(UserDetails userDetail, User user, String message) {
@@ -27,6 +28,7 @@ public class AuthResponse implements Serializable {
 		this.email = userDetail.getUsername();
 		this.firstName = user.getFirstName();
 		this.lastName = user.getLastName();
+		this.phoneNumber = user.getPhoneNumber();
 
 	}
 }

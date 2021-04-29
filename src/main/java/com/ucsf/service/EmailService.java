@@ -25,7 +25,8 @@ public class EmailService {
 	@Value("${web.site.url}")
 	String webSiteUrl;
 
-	public void sendResetPasswordEmail(String from, String to, String subject, String name, String url, String fileName) throws Exception {
+	public void sendResetPasswordEmail(String from, String to, String subject, String name, String url, String fileName)
+			throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
 		helper.setTo(to);
@@ -35,12 +36,12 @@ public class EmailService {
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
 		body = body.replaceAll("\\{\\{url\\}\\}", url);
-		String redirectUrl = webSiteUrl+"?token="+url;
+		String redirectUrl = webSiteUrl + "?token=" + url;
 		body = body.replaceAll("\\{\\{webSiteUrl\\}\\}", redirectUrl);
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
-	
+
 	public void sendStudyApprovalEmail(String from, String to, String subject, String name) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
@@ -53,7 +54,7 @@ public class EmailService {
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
-	
+
 	public void sendStudyDisApprovalEmail(String from, String to, String subject, String name) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
@@ -63,6 +64,20 @@ public class EmailService {
 		File file = ResourceUtils.getFile("classpath:template/studyDisApprovalEmail.html");
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
+
+	public void sendOtpEmail(String from, String to, String subject, String name, String otp) throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(from);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/otpEmail.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		body = body.replaceAll("\\{\\{otp\\}\\}", otp);
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}

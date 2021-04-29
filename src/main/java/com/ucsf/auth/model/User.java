@@ -50,7 +50,7 @@ public class User {
 
 	@Column(name = "phone_code")
 	private String phoneCode;
-
+	
 	@Column(name = "user_status")
 	private UserStatus userStatus;
 
