@@ -49,6 +49,8 @@ public class StudyInfoCheck {
             }
         }
 
+        //check if user goes backwards
+
         if (lastAnswer.getIndexValue()==5 && quesIncrement == -1) {
             if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
                 screenTestData.setMessage("");

@@ -25,7 +25,7 @@ public class StudyInformative extends Auditable<String> implements Serializable 
     private String infoDescription;
 
     /*@Column(name = "question_id")
-    private Long questionId;*/
+    private Long questionId;*/ // question id not required its index clashes with index_value no 0 question id
 
     @Column(name = "study_id")
     private Long studyId;

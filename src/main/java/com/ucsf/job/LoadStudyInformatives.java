@@ -50,6 +50,7 @@ public class LoadStudyInformatives {
         jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
         String id = "1TujH7L0WsnZvq7md-nE78vffB7TwaeeBsKHMNIZJUz4";
 
+        //google sheet link for informatives
         //https://docs.google.com/spreadsheets/d/1TujH7L0WsnZvq7md-nE78vffB7TwaeeBsKHMNIZJUz4/edit#gid=0
 
         filePath = downloadSheetData(id, "informatives");

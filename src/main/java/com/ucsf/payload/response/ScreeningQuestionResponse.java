@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class ScreeningQuestionResponse {
 
+	//response sent to user in ans save api
 	ScreeningQuestions screeningQuestions;
 	ScreeningAnswers screeningAnswers;
 	List<ScreeningAnsChoice> choices;

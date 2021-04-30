@@ -8,9 +8,7 @@ import java.util.List;
 public interface InformativeRepository extends CrudRepository<StudyInformative, Long> {
 
     StudyInformative findByIndexValueAndStudyId(int indexValue, Long studyId);
-    /*ScreeningAnswers findByQuestionId(Long questionId);
-    ScreeningAnswers deleteByQuestionId(Long id);
-    List<ScreeningAnswers> findByStudyIdAndAnsweredById(Long userId, Long studyId);
-    ScreeningAnswers findByQuestionIdAndAnsweredById(Long quesId, Long userId);*/
+
+    //Informative Repo
 
 }

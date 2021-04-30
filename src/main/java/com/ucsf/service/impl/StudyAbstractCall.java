@@ -198,7 +198,7 @@ public class StudyAbstractCall {
                 userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
                 userScreeningStatusRepository.save(userScreeningStatus);
             }
-
+        //returning responseJson
         return responseEntity;
     }
 
