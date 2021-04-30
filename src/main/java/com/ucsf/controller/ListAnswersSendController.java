@@ -48,7 +48,7 @@ public class ListAnswersSendController {
             if (fetchRequest.getType().equals("screening")) {
 
                 List<?> questionsList = screeningQuestionRepository.findByStudyId(fetchRequest.getStudyId());
-                List<?> answersList = screeningAnswerRepository.findByStudyId(fetchRequest.getStudyId());
+                List<?> answersList = screeningAnswerRepository.findByStudyIdAndAnsweredById(fetchRequest.getUserId(), fetchRequest.getStudyId());
                 response.setQuestions(questionsList);
                 response.setAnswers(answersList);
             } else {
