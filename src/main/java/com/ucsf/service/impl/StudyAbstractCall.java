@@ -53,6 +53,9 @@ public class StudyAbstractCall {
     @Autowired
     private LoggerService loggerService;
 
+    @Autowired
+    InformativeRepository informativeRepository;
+
 
     private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
@@ -145,10 +148,10 @@ public class StudyAbstractCall {
         return indexValue;
     }
 
-    public JSONObject catchQuestionAnswerError(Long studyId, int index) {
+    public JSONObject catchQuestionAnswerError(Long studyId, int indexValue) {
 
         Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository
-                .findByStudyIdAndIndexValue(studyId, index));
+                .findByStudyIdAndIndexValue(studyId, indexValue));
 
         JSONObject responseEntity = null;
 
@@ -156,15 +159,10 @@ public class StudyAbstractCall {
                 if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
                     responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
                             Constants.INVALID_INDEXVALUE.errordesc()));
-                    responseEntity = responseJson;
                 }
             } else {
-                responseJson.put("error",
-                        new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
-                String string = "";
-                if (isSuccess) {
-                    string = "Last question saved";
-                }
+                /*responseJson.put("error",
+                        new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));*/
                 if (userScreeningStatus.getIndexValue() > 0) {
                     responseJson.remove("error");
                     response = new ScreeningQuestionResponse();
@@ -174,18 +172,31 @@ public class StudyAbstractCall {
                     response.setScreeningQuestions(sc);
                     response.setScreeningAnswers(sa);
                     response.setChoices(choices);
+                    response.setMessage("Screening complete.");
                     response.setIsLastQuestion(true);
+                    response.setInformation("");
                     responseJson.put("data", response);
+                    responseEntity = responseJson;
                     userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
                 } else if (userScreeningStatus.getIndexValue() <= 0) {
-                    responseJson.put("error",
-                            new ErrorResponse(200, "Cannot go further back! Answer first question" + " " + string));
+                    responseJson.remove("error");
+                    response = new ScreeningQuestionResponse();
+                    ScreeningQuestions sc = null;
+                    ScreeningAnswers sa = null;
+                    List<ScreeningAnsChoice> choices = null;
+                    response.setScreeningQuestions(sc);
+                    response.setScreeningAnswers(sa);
+                    response.setChoices(choices);
+                    response.setMessage("Please go forward and answer first question.");
+                    response.setInformation(informativeRepository.findByIndexValueAndStudyId(0, 1l).getInfoDescription());
+                    response.setIsLastQuestion(false);
+                    responseJson.put("data", response);
+                    responseEntity = responseJson;
                     userScreeningStatus.setIndexValue(-1);
                     userScreeningStatusRepository.save(userScreeningStatus);
                 }
                 userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
                 userScreeningStatusRepository.save(userScreeningStatus);
-                responseEntity = responseJson;
             }
 
         return responseEntity;
@@ -226,6 +237,12 @@ public class StudyAbstractCall {
         response.setChoices(choices);
         response.setIsLastQuestion(getIsLastQuestionBool());
         response.setMessage("");
+        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l) != null){
+            response.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l).getInfoDescription());
+        }
+        else{
+            response.setInformation("");
+        }
 
         return response;
     }
@@ -236,7 +253,13 @@ public class StudyAbstractCall {
         response.setScreeningAnswers(new ScreeningAnswers());
         response.setChoices(new ArrayList<>());
         response.setMessage(message);
-
+        response.setMessage("");
+        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l) != null){
+            response.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l).getInfoDescription());
+        }
+        else{
+            response.setInformation("");
+        }
         return response;
     }
 

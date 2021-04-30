@@ -1,5 +1,6 @@
 package com.ucsf.controller;
 
+import com.ucsf.job.LoadStudyInformatives;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +31,16 @@ public class UserController {
 	
 	@Autowired
 	LoadScreeningQuestions loadScreeningQuestions;
+
+	@Autowired
+	LoadStudyInformatives loadStudyInformatives;
 	
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllUsers() throws Exception {
 		loadScreeningQuestions.loadSheetContent();
 		System.out.println("1111111111");
+		loadStudyInformatives.loadSheetContent();
+		System.out.println("2222222222");
 		return ResponseEntity.ok("success");
 	}
 	

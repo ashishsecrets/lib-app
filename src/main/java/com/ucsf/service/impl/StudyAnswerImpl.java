@@ -81,24 +81,38 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		//Getting user Details from Auth Token;
 
+		try {
 			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
 			if (userDetail != null && userDetail.getUsername() != null) {
 				String email = userDetail.getUsername();
 				user = userRepository.findByEmail(email);
 				studyAbstractCall.user = user;
+				isSuccess = true;
+			} else {
+				loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
+				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+						Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+				return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 			}
-			else {
-					loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
-					responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
-							Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
-					return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
-				}
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+		}
+
+		if(!isSuccess){
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 
 
-		studyAbstractCall.userScreeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+     try {
+		 studyAbstractCall.userScreeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+	 } catch (NullPointerException e) {
+		 e.printStackTrace();
+	 }
 
-
-    try {
+		try {
 		//Updating screeningStatus to In Progress and setting index so next question is displayed.
 		studyAbstractCall.updateUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS, studyAbstractCall.userScreeningStatus.getIndexValue() + questionDirection);
 	} catch (NullPointerException e) {
@@ -111,10 +125,9 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		Optional<ScreeningAnswers> lastSavedAnswer = studyAbstractCall.getLastSavedAnswer();
 
     	// CHecking for any errors:
-
 		try {
 			if (studyAbstractCall.catchQuestionAnswerError(answerRequest.getStudyId(), studyAbstractCall.userScreeningStatus.getIndexValue()) != null) {
-				return new ResponseEntity(studyAbstractCall.catchQuestionAnswerError(answerRequest.getStudyId(), studyAbstractCall.userScreeningStatus.getIndexValue()).toMap(), HttpStatus.BAD_REQUEST);
+				return new ResponseEntity(studyAbstractCall.catchQuestionAnswerError(answerRequest.getStudyId(), studyAbstractCall.userScreeningStatus.getIndexValue()).toMap(), HttpStatus.ACCEPTED);
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -131,14 +144,14 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		int next = indexValue + questionDirection;
 		int current = indexValue;
 
-
+		try {
 		ScreeningQuestions questionToDisplayToUser = studyAbstractCall.getQuestionToDisplayToUser(current);
 		ScreeningAnswers answerToDisplayToUser = studyAbstractCall.getAnswerToDisplayToUser(questionToDisplayToUser.getId());
 
 
 		// Below section helps put the response used to display question/answer & choices to user.
 
-		try {
+
 			Boolean isLastQuestion = studyAbstractCall.getIsLastQuestionBool();
 
 			response = studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
