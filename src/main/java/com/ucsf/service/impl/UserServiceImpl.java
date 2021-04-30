@@ -1,15 +1,20 @@
 package com.ucsf.service.impl;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
+import com.ucsf.model.UcsfStudy;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
@@ -75,18 +80,23 @@ public class UserServiceImpl implements UserService {
 		newUser.setUserStatus(UserStatus.ACTIVE);
 		User savedUser = userRepository.save(newUser);
 		UserMetadata metadata = new UserMetadata();
-		metadata.setConsentAccepted(false);
-		metadata.setStudyStatus("newlyAdded");
-		metadata.setUserId(savedUser.getId());
-		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
-		userMetaDataRepository.save(metadata);
-		// save metadata in metadatarepo
-		// newUser.setMetadata(metadata);
-
+		if (user.getUserMetadata() != null) {
+			metadata.setAge(user.getUserMetadata().getAge());
+			metadata.setRace(user.getUserMetadata().getRace());
+			metadata.setZipCode(user.getUserMetadata().getZipCode());
+			// metadata.setAcceptanceDate(new Date());
+			metadata.setConsentAccepted(false);
+			metadata.setStudyStatus("newlyAdded");
+			metadata.setUserId(savedUser.getId());
+			metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
+			userMetaDataRepository.save(metadata);
+			// save metadata in metadatarepo
+			// newUser.setMetadata(metadata);
+		}
 		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 		userScreeningStatus.setStudyId(1l);
 		userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
-		userScreeningStatus.setIndexValue(1);
+		userScreeningStatus.setIndexValue(0); // sending user to user index initially/
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
 		return savedUser;
@@ -101,4 +111,8 @@ public class UserServiceImpl implements UserService {
 			roleRepository.save(role);
 		}
 	}
+
+
+
+
 }
