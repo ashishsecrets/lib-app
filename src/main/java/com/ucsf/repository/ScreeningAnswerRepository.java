@@ -9,6 +9,6 @@ import java.util.List;
 public interface ScreeningAnswerRepository extends CrudRepository< ScreeningAnswers, Long> {
 	ScreeningAnswers findByQuestionId(Long questionId);
 	ScreeningAnswers deleteByQuestionId(Long id);
-	List<ScreeningAnswers> findByStudyId(Long studyId);
+	List<ScreeningAnswers> findByStudyIdAndAnsweredById(Long userId, Long studyId);
 	ScreeningAnswers findByQuestionIdAndAnsweredById(Long quesId, Long userId);
 }

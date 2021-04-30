@@ -5,7 +5,12 @@ import lombok.Data;
 @Data
 public class StudyInfoData {
     //Data
+
+    public enum StudyInfoSatus {
+        TRUE, FALSE, NONE
+    }
+
     public String message;
-    public Boolean isFinished;
+    public StudyInfoSatus isFinished;
 
 }

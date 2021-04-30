@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
 		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 		userScreeningStatus.setStudyId(1l);
 		userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
-		userScreeningStatus.setIndexValue(1);
+		userScreeningStatus.setIndexValue(0);
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
 		return savedUser;

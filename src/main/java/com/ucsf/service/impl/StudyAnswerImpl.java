@@ -12,10 +12,12 @@ import com.ucsf.payload.request.ScreeningAnswerRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
 import com.ucsf.payload.response.StudyInfoData;
-import com.ucsf.payload.response.SuccessResponse;
-import com.ucsf.repository.*;
+import com.ucsf.repository.ScreeningQuestionRepository;
+import com.ucsf.repository.UserRepository;
+import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.service.AnswerSaveService;
 import com.ucsf.service.LoggerService;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -34,11 +35,6 @@ import java.util.Optional;
 @Service
 public class StudyAnswerImpl implements AnswerSaveService {
 
-	@Autowired
-	ScreeningAnswerRepository screeningAnswerRepository;
-
-	@Autowired
-	ScreeningQuestionRepository screeningQuestionRepository;
 
 	@Autowired
 	private LoggerService loggerService;
@@ -47,178 +43,163 @@ public class StudyAnswerImpl implements AnswerSaveService {
 	UserScreeningStatusRepository userScreeningStatusRepository;
 
 	@Autowired
-	UserRepository userRepository;
-
-	@Autowired
-	ChoiceRepository choiceRepository;
+	ScreeningQuestionRepository screeningQuestionRepository;
 
 	@Autowired
 	StudyInfoCheck screeningTest;
+
+	@Autowired
+	UserRepository userRepository;
+
+	@Autowired
+	StudyAbstractCall studyAbstractCall;
+
 
 	private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
 	@Override
 	public ResponseEntity saveAnswer(ScreeningAnswerRequest answerRequest) {
-		loggerService.printLogs(log, "saveScreeningAnswers", "Saving screening Answers");
+
 		User user = null;
-		JSONObject responseJson = new JSONObject();
-		Optional<ScreeningAnswers> screenAnswerOp = null;
+
+		//Enabling logging;
+
+		loggerService.printLogs(log, "saveScreeningAnswers", "Saving screening Answers");
+
+		//Calling studyAbstract's member to pass request
+		studyAbstractCall.answerRequest = answerRequest;
+
 		Boolean isSuccess = false;
+
 		ScreeningQuestionResponse response = new ScreeningQuestionResponse();
-		int indexValue = 0;
-		int quesIncrement = 0;
-		if (answerRequest.getForward() == ScreeningAnswerRequest.ForwardStatus.FALSE) {
-			quesIncrement = -1;
-		} else if (answerRequest.getForward() == ScreeningAnswerRequest.ForwardStatus.TRUE) {
-			quesIncrement = 1;
-		} else if (answerRequest.getForward() == ScreeningAnswerRequest.ForwardStatus.NONE) {
-			quesIncrement = 0;
-		}
-		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (userDetail != null && userDetail.getUsername() != null) {
-			String email = userDetail.getUsername();
-			user = userRepository.findByEmail(email);
-		} else {
-			loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
-			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
-					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
-			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
-		}
 
-		UserScreeningStatus userScreeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+		JSONObject responseJson = new JSONObject();
 
-		if (userScreeningStatus != null) {
-			userScreeningStatus.setStudyId(answerRequest.getStudyId());
-			userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS);
-			userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue() + quesIncrement);
-			userScreeningStatusRepository.save(userScreeningStatus);
-		} else {
-			userScreeningStatus = new UserScreeningStatus();
-			userScreeningStatus.setStudyId(answerRequest.getStudyId());
-			userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS);
-			userScreeningStatus.setUserId(user.getId());
-			userScreeningStatus.setIndexValue(1);
-			userScreeningStatusRepository.save(userScreeningStatus);
-			loggerService.printLogs(log, "saveScreeningAnswers", "UserScreen Status updated");
-		}
+		int indexValue;
+
+		int questionDirection = studyAbstractCall.getQuestionDirection();
+
+		//Getting user Details from Auth Token;
 
 		try {
-			if (!answerRequest.getAnswer().isEmpty()) {
-				screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId())));
-				ScreeningAnswers screenAnswer;
-				if (screenAnswerOp.isPresent()) {
-					screenAnswer = screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
-				} else {
-					screenAnswer = new ScreeningAnswers();
-				}
-				screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription().toString());
-				screenAnswer.setAnswerChoice(answerRequest.getAnswer());
-				screenAnswer.setQuestionId(
-						(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(),
-								userScreeningStatus.getIndexValue() - quesIncrement).getId()));
-				screenAnswer.setStudyId(answerRequest.getStudyId());
-				screenAnswer.setAnsweredById(user.getId());
-				screenAnswer.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
-				screeningAnswerRepository.save(screenAnswer);
+			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+			if (userDetail != null && userDetail.getUsername() != null) {
+				String email = userDetail.getUsername();
+				user = userRepository.findByEmail(email);
+				studyAbstractCall.user = user;
 				isSuccess = true;
+			} else {
+				loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
+				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+						Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+				return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 			}
-			else{
-				screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId())));
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+		}
+
+		if(!isSuccess){
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+
+
+     try {
+		 studyAbstractCall.userScreeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+	 } catch (NullPointerException e) {
+		 e.printStackTrace();
+	 }
+
+		try {
+		//Updating screeningStatus to In Progress and setting index so next question is displayed.
+		studyAbstractCall.updateUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS, studyAbstractCall.userScreeningStatus.getIndexValue() + questionDirection);
+	} catch (NullPointerException e) {
+		e.printStackTrace();
+	}
+
+		//Getting lastSaved Answer below ;;
+
+
+		Optional<ScreeningAnswers> lastSavedAnswer = studyAbstractCall.getLastSavedAnswer();
+
+    	// CHecking for any errors:
+		try {
+			if (studyAbstractCall.catchQuestionAnswerError(answerRequest.getStudyId(), studyAbstractCall.userScreeningStatus.getIndexValue()) != null) {
+				return new ResponseEntity(studyAbstractCall.catchQuestionAnswerError(answerRequest.getStudyId(), studyAbstractCall.userScreeningStatus.getIndexValue()).toMap(), HttpStatus.ACCEPTED);
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 
-		Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository
-				.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
-		if (sq.isPresent()) {
-			if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
-				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
-						Constants.INVALID_INDEXVALUE.errordesc()));
-				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-			}
-		} else {
-			responseJson.put("error",
-					new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));
-			String string = "";
-			if (isSuccess) {
-				string = "Last question saved";
-			}
-			if (userScreeningStatus.getIndexValue() > 0) {
-				responseJson.remove("error");
-				response = new ScreeningQuestionResponse();
-				ScreeningQuestions sc = null;
-				ScreeningAnswers sa = null;
-				List<ScreeningAnsChoice> choices = null;
-				response.setScreeningQuestions(sc);
-				response.setScreeningAnswers(sa);
-				response.setChoices(choices);
-				response.setIsLastQuestion(true);
-				responseJson.put("data", response);
-				userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
-			} else if (userScreeningStatus.getIndexValue() <= 0) {
-				responseJson.put("error",
-						new ErrorResponse(200, "Cannot go further back! Answer first question" + " " + string));
-				userScreeningStatus.setIndexValue(-1);
-				userScreeningStatusRepository.save(userScreeningStatus);
-			}
-			userScreeningStatus.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
-			userScreeningStatusRepository.save(userScreeningStatus);
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-		}
 
-		indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue();
+		// You will get previous question or answer if you do index - questionDirection and next by index + questionDirection
+		// It does not matter whether you are going forward or backward questionDirection takes care of that.
 
+		indexValue = studyAbstractCall.getIndexValue();
 
-		ScreeningQuestions sc = screeningQuestionRepository.findByStudyIdAndIndexValue(
-				userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), indexValue);
-		ScreeningAnswers sa = screeningAnswerRepository.findByQuestionIdAndAnsweredById(sc.getId(), user.getId());
+		// Therefore, here we create two new ints for going next or previous question/answer --
+		int previous = indexValue - questionDirection;
+		int next = indexValue + questionDirection;
+		int current = indexValue;
 
 		try {
-			Boolean isLastQuestion = !Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent();
-			List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(sc.getId());
-			response.setScreeningQuestions(sc);
-			if (sa == null) {
-				sa = new ScreeningAnswers();
-			}
-			response.setScreeningAnswers(sa);
-			response.setChoices(choices);
-			response.setIsLastQuestion(isLastQuestion);
-			response.setMessage("");
+		ScreeningQuestions questionToDisplayToUser = studyAbstractCall.getQuestionToDisplayToUser(current);
+		ScreeningAnswers answerToDisplayToUser = studyAbstractCall.getAnswerToDisplayToUser(questionToDisplayToUser.getId());
+
+
+		// Below section helps put the response used to display question/answer & choices to user.
+
+
+			Boolean isLastQuestion = studyAbstractCall.getIsLastQuestionBool();
+
+			response = studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
+
 			try {
-				if (screenAnswerOp != null) {
-					StudyInfoData screenTestData = screeningTest.screenTest(screenAnswerOp.get(), quesIncrement);
-					if(screenTestData == null){
-						response.setScreeningQuestions(sc);
-						response.setScreeningAnswers(sa);
-						response.setChoices(choices);
-						response.setIsLastQuestion(isLastQuestion);
-						response.setMessage("");
+				if (lastSavedAnswer != null) {
+					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
+					if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
+
+						studyAbstractCall.setQuestionToDisplayToUser(current);
+
+						response = studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
+						studyAbstractCall.userScreeningStatus.setIndexValue(current);
+						userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+
 					}
-					if (screenTestData != null) {
-						if (screenTestData.isFinished) {
-							response.setScreeningQuestions(new ScreeningQuestions());
-							response.setScreeningAnswers(new ScreeningAnswers());
-							response.setChoices(new ArrayList<>());
-							response.setMessage(screenTestData.getMessage());
-							response.setIsLastQuestion(screeningTest.screenTest(screenAnswerOp.get(), quesIncrement).isFinished);
-							userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
-						} else if(!screenTestData.isFinished)  {
-							if (!Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), 3).getId()))).get().getAnswerDescription().equals("Primary care doctor")) {
-									indexValue = userScreeningStatusRepository.findByUserId(user.getId()).getIndexValue() + quesIncrement;
-									sc = screeningQuestionRepository.findByStudyIdAndIndexValue(
-											userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), indexValue);
-								    choices = choiceRepository.findByQuestionId(sc.getId());
-									response.setScreeningQuestions(sc);
-									response.setScreeningAnswers(sa);
-									response.setChoices(choices);
-									response.setIsLastQuestion(screenTestData.isFinished);
-									response.setMessage("");
-									userScreeningStatus.setIndexValue(indexValue);
-									userScreeningStatusRepository.save(userScreeningStatus);
+						if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
+
+							response = studyAbstractCall.displayNullQuesNAns(screenTestData.getMessage());
+
+							if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE){
+							response.setIsLastQuestion(true);}
+							else if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.FALSE){
+								response.setIsLastQuestion(false);
+							}
+
+							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
+							studyAbstractCall.userScreeningStatus.setIndexValue(current);
+							userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+
+						} else if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.FALSE)  {
+
+							if (!studyAbstractCall.findAnswerByIndex(3).getAnswerDescription().equals("Primary care doctor")) {
+
+
+								if((questionDirection == 1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 4) || (questionDirection == -1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 4)) {
+
+									questionToDisplayToUser = studyAbstractCall.getQuestionToDisplayToUser(next);
+									answerToDisplayToUser = studyAbstractCall.getAnswerToDisplayToUser(questionToDisplayToUser.getId());
+
+									studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
+
+									studyAbstractCall.userScreeningStatus.setIndexValue(next);
+									userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+								}
 							}
 						}
-					}
+
 				}
 			} catch (NoSuchElementException e) {
 				e.printStackTrace();
@@ -228,8 +209,6 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		}
 
 		responseJson.put("data", response);
-		userScreeningStatus.setIndexValue(indexValue);
-		userScreeningStatusRepository.save(userScreeningStatus);
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);
 	}
