@@ -33,10 +33,17 @@ public class UcsfRequestFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 
 		final String requestTokenHeader = request.getHeader("Authorization");
+		final String url = request.getRequestURL().toString();
+		
 		String username = null;
 		String jwtToken = null;
+		Boolean isVerified = true;
 		// JWT Token is in the form "Bearer token". Remove Bearer word and get only the
 		// Token
+		
+		if(url.contains("/api/otp")) {
+			isVerified = false;
+		}
 		if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
 			jwtToken = requestTokenHeader.substring(7);
 			try {
@@ -53,7 +60,7 @@ public class UcsfRequestFilter extends OncePerRequestFilter {
 		// Once we get the token validate it.
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-			UserDetails userDetails = this.customUserDetailsService.loadUserByEmail(username,true);
+			UserDetails userDetails = this.customUserDetailsService.loadUserByEmail(username,isVerified);
 
 			// if token is valid configure Spring Security to manually set authentication
 			if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {

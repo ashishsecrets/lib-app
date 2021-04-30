@@ -73,7 +73,7 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	JwtConfig jwtConfig;
-	
+
 	@Autowired
 	StudyRepository studyRepository;
 
@@ -86,20 +86,25 @@ public class UcsfAuthenticationController {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ApiOperation(value = "Authenticate user", notes = "Authenticate user with email and password", code = 200, httpMethod = "POST", produces = "application/json")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "User authenticated successfully", response = User.class) })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "User authenticated successfully", response = User.class) })
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authenticationRequest)
 			throws Exception {
 		loggerService.printLogs(log, "createAuthenticationToken", "Start user login and create auth token");
 		JSONObject responseJson = new JSONObject();
+		String message = "";
 		User user = userRepository.findByEmail(authenticationRequest.getEmail());
 		if (user == null) {
 			responseJson.put("error",
 					new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
-
-		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), false);
+		//To Do
+       //is verified false after 2fa intergration in signin
+		jwtConfig.setTwoFa(false);
+		//UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), false);
+		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), true);
 
 		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
 
@@ -115,15 +120,13 @@ public class UcsfAuthenticationController {
 			}
 		}
 		if (jwtConfig.getTwoFa()) {
-			JSONObject jsonObject = null;
-			jsonObject = verificationService.sendVerificationCode(user);
-			loggerService.printLogs(log, "send otp while authenticate() " + jsonObject.toString(), user.getEmail());
-		}
-		if (jwtConfig.getTwoFa()) {
-			responseJson.put("data", new AuthResponse(userDetails, user, "You have to be vrified by 2FA"));
+			message = "You have to be verified by 2FA";
+			responseJson.put("data", new AuthResponse(userDetails, user, message));
 			return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
+		} else {
+			message = "User Authenticated Successfully!";
 		}
-		responseJson.put("data", new AuthResponse(userDetails, user, "User Authenticated Successfully!"));
+		responseJson.put("data", new AuthResponse(userDetails, user, message));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
@@ -134,7 +137,7 @@ public class UcsfAuthenticationController {
 	public ResponseEntity<?> saveUser(@RequestBody SignUpRequest signUpRequest) throws Exception {
 		loggerService.printLogs(log, "saveUser", "Register User");
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-		String message = "User Registered";
+		String message = "";
 		boolean isEnable = true;
 		boolean isUserNotExpired = true;
 		boolean isCredentialNotExpired = true;
@@ -147,7 +150,7 @@ public class UcsfAuthenticationController {
 					new ErrorResponse(ErrorCodes.EMAIL_ALREADY_USED.code(), Constants.EMAIL_ALREADY_USED.errordesc()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
-		
+
 		if (studyRepository.findAll().size() < 1) {
 			responseJson.put("error",
 					new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(), Constants.NO_STUDY_FOUND.errordesc()));
@@ -162,12 +165,12 @@ public class UcsfAuthenticationController {
 				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
 			}
 		}
+		
 		if (jwtConfig.getTwoFa()) {
-			JSONObject jsonObject = null;
-			jsonObject = verificationService.sendVerificationCode(user);
-			loggerService.printLogs(log, "send otp while saveUser() " + jsonObject.toString(), user.getEmail());
 			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
-			message = "Otp Sent for verification";
+			message = "You have to be verified by 2FA";
+		} else {
+			message = "User Registered Succcessfully!";
 		}
 
 		UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
