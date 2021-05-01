@@ -126,8 +126,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
     	// CHecking for any errors:
 		try {
-			if (studyAbstractCall.catchQuestionAnswerError(answerRequest.getStudyId(), studyAbstractCall.userScreeningStatus.getIndexValue()) != null) {
-				return new ResponseEntity(studyAbstractCall.catchQuestionAnswerError(answerRequest.getStudyId(), studyAbstractCall.userScreeningStatus.getIndexValue()).toMap(), HttpStatus.ACCEPTED);
+			if (studyAbstractCall.catchQuestionAnswerError() != null) {
+				return new ResponseEntity(studyAbstractCall.catchQuestionAnswerError().toMap(), HttpStatus.ACCEPTED);
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -152,7 +152,6 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		// Below section helps put the response used to display question/answer & choices to user.
 
 
-			Boolean isLastQuestion = studyAbstractCall.getIsLastQuestionBool();
 
 			response = studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
 
@@ -206,6 +205,18 @@ public class StudyAnswerImpl implements AnswerSaveService {
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
+		}
+
+		Boolean isLastQuestion = studyAbstractCall.getIsLastQuestionBool();
+
+		if(isLastQuestion){
+			studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
+			studyAbstractCall.userScreeningStatus.setIndexValue(studyAbstractCall.userScreeningStatus.getIndexValue());
+			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+		}
+		else{
+			studyAbstractCall.userScreeningStatus.setIndexValue(studyAbstractCall.userScreeningStatus.getIndexValue());
+			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
 		}
 
 		responseJson.put("data", response);

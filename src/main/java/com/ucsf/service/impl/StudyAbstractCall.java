@@ -148,10 +148,10 @@ public class StudyAbstractCall {
         return indexValue;
     }
 
-    public JSONObject catchQuestionAnswerError(Long studyId, int indexValue) {
+    public JSONObject catchQuestionAnswerError() {
 
         Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository
-                .findByStudyIdAndIndexValue(studyId, indexValue));
+                .findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
 
         JSONObject responseEntity = null;
 
@@ -163,7 +163,7 @@ public class StudyAbstractCall {
             } else {
                 /*responseJson.put("error",
                         new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));*/
-                if (userScreeningStatus.getIndexValue() > 0) {
+                if (userScreeningStatus.getIndexValue() > 0 && getIsLastQuestionBool()) {
                     responseJson.remove("error");
                     response = new ScreeningQuestionResponse();
                     ScreeningQuestions sc = null;
