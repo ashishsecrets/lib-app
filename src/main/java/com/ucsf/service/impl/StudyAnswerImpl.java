@@ -126,9 +126,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
     	// CHecking for any errors:
 		try {
-			if (studyAbstractCall.catchQuestionAnswerError() != null) {
 				return new ResponseEntity(studyAbstractCall.catchQuestionAnswerError().toMap(), HttpStatus.ACCEPTED);
-			}
+
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}

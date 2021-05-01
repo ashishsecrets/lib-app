@@ -163,7 +163,7 @@ public class StudyAbstractCall {
             } else {
                 /*responseJson.put("error",
                         new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));*/
-                if (userScreeningStatus.getIndexValue() > 0 && getIsLastQuestionBool()) {
+                if (getIsLastQuestionBool()) {
                     responseJson.remove("error");
                     response = new ScreeningQuestionResponse();
                     ScreeningQuestions sc = null;
@@ -219,7 +219,7 @@ public class StudyAbstractCall {
     }
 
     public Boolean getIsLastQuestionBool() {
-        Boolean value = false;
+        Boolean value;
 
         value = !Optional.ofNullable(screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() + 1)).isPresent();
 
