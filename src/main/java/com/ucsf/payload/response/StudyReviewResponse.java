@@ -6,6 +6,5 @@ import java.util.List;
 @Data
 public class StudyReviewResponse {
 
-	private List<?> questions;
-	private List<?> answers;
+	private List<StudyReviewData> list;
 }

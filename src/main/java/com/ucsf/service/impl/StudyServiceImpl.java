@@ -1,11 +1,10 @@
 package com.ucsf.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import com.ucsf.model.ScreeningAnswers;
+import com.ucsf.model.ScreeningQuestions;
+import com.ucsf.payload.response.StudyReviewData;
 import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,11 +105,28 @@ public class StudyServiceImpl implements StudyService {
 		if (reviewStudy != null) {
 			if (reviewStudy.getType().equals("screening")) {
 
-				List<?> questionsList = screeningQuestionRepository.findByStudyId(reviewStudy.getStudyId());
-				List<?> answersList = screeningAnswerRepository.findByStudyIdAndAnsweredById(reviewStudy.getStudyId(),
-						reviewStudy.getUserId());
-				response.setQuestions(questionsList);
-				response.setAnswers(answersList);
+				List<ScreeningQuestions> questionsList = screeningQuestionRepository.findByStudyId(reviewStudy.getStudyId());
+
+				ScreeningAnswers answer;
+
+				List<StudyReviewData> newList = new ArrayList<>();
+				for(ScreeningQuestions question : questionsList ){
+					if(screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId()) == null){
+						answer = new ScreeningAnswers();
+						answer.setStudyId(reviewStudy.getStudyId());
+						answer.setIndexValue(question.getIndexValue());
+						answer.setAnsweredById(reviewStudy.getUserId());
+						answer.setAnswerChoice("user did not fill answer");
+						answer.setAnswerDescription("user did not fill answer");
+					}
+					else{
+						answer = screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId());
+					}
+					newList.add(new StudyReviewData(question, answer));
+				}
+				//response.setQuestions(questionsList);
+				//response.setAnswers(answersList);
+				response.setList(newList);
 			} else {
 				responseJson.put("error",
 						new ErrorResponse(ErrorCodes.INVALID_STUDY.code(), Constants.INVALID_STUDY.errordesc()));
