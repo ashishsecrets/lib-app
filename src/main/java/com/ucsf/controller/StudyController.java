@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import com.ucsf.payload.response.*;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,6 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UcsfStudy;
 import com.ucsf.payload.request.StudyRequest;
 import com.ucsf.payload.request.StudyReviewRequest;
-import com.ucsf.payload.response.ErrorResponse;
-import com.ucsf.payload.response.StudyResponse;
-import com.ucsf.payload.response.StudyReviewResponse;
-import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.StudyService;
 import com.ucsf.service.UserService;
@@ -201,6 +198,7 @@ public class StudyController {
 	public ResponseEntity<?> fetchApprovedPatients() throws Exception {
 
 		JSONObject responseJson = new JSONObject();
+		StudyApprovedPatientsResponse response = new StudyApprovedPatientsResponse();
 		User user = null;
 		List<User> approvedPatients = new ArrayList<User>();
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -216,12 +214,13 @@ public class StudyController {
 		}
 		try {
 			approvedPatients = studyService.getApprovedPatients();
+			response.setList(approvedPatients);
 			loggerService.printLogs(log, "fetchApprovedPatients", "Approved patients fetched Successfully for Physicain "+user.getEmail());
-			responseJson.put("data", approvedPatients);
+			responseJson.put("data", response);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		} catch (Exception e) {
 			loggerService.printErrorLogs(log, "fetchApprovedPatients", "Error while fetching approved patients fetched  for Physicain "+user.getEmail());
-			responseJson.put("data", approvedPatients);
+			responseJson.put("data", response);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		}
 	}

@@ -2,9 +2,9 @@ package com.ucsf.service.impl;
 
 import java.util.*;
 
-import com.ucsf.model.ScreeningAnswers;
-import com.ucsf.model.ScreeningQuestions;
+import com.ucsf.model.*;
 import com.ucsf.payload.response.StudyReviewData;
+import com.ucsf.repository.*;
 import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +14,13 @@ import org.springframework.stereotype.Service;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
-import com.ucsf.model.UcsfStudy;
 import com.ucsf.model.UcsfStudy.StudyFrequency;
-import com.ucsf.model.UserMetadata;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.StudyRequest;
 import com.ucsf.payload.request.StudyReviewRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.StudyResponse;
 import com.ucsf.payload.response.StudyReviewResponse;
-import com.ucsf.repository.ScreeningAnswerRepository;
-import com.ucsf.repository.ScreeningQuestionRepository;
-import com.ucsf.repository.StudyRepository;
-import com.ucsf.repository.UserMetaDataRepository;
-import com.ucsf.repository.UserRepository;
 import com.ucsf.service.StudyService;
 
 @Service("studyService")
@@ -50,6 +43,9 @@ public class StudyServiceImpl implements StudyService {
 
 	@Autowired
 	ScreeningAnswerRepository screeningAnswerRepository;
+
+	@Autowired
+	UserScreeningStatusRepository userScreeningStatusRepository;
 
 	@Override
 	public void save(StudyRequest studyRequest) {
@@ -119,8 +115,6 @@ public class StudyServiceImpl implements StudyService {
 					}
 					newList.add(new StudyReviewData(question.getDescription(), answer));
 				}
-				//response.setQuestions(questionsList);
-				//response.setAnswers(answersList);
 				response.setList(newList);
 			} else {
 				responseJson.put("error",
@@ -138,7 +132,7 @@ public class StudyServiceImpl implements StudyService {
 	public List<User> getApprovedPatients() {
 		Optional<User> user = null;
 		List<User> approvedUsers = new ArrayList<User>();
-		List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus("approved");
+		/*List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus("approved");
 		if (userMetaData != null && userMetaData.size() > 0) {
 			for (UserMetadata metaData : userMetaData) {
 				user = userRepository.findById(metaData.getUserId());
@@ -148,7 +142,16 @@ public class StudyServiceImpl implements StudyService {
 					//approvedUsers.add(approvedUser);
 				}
 			}
+		}*/
+
+		List<UserScreeningStatus> list = userScreeningStatusRepository.findByStudyId(1l);
+
+		for(UserScreeningStatus status: list){
+			if(status.getUserScreeningStatus() == UserScreenStatus.ENROLLED){
+				approvedUsers.add(userRepository.findById(status.getUserId()).get());
+			}
 		}
+
 		return approvedUsers;
 	}
 }
