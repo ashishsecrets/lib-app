@@ -8,10 +8,10 @@ import java.util.List;
 @Data
 public class StudyReviewData {
 
-    private ScreeningQuestions question;
-    private ScreeningAnswers answer;
+    private String question;
+    private String answer;
 
-    public StudyReviewData(ScreeningQuestions question, ScreeningAnswers answer) {
+    public StudyReviewData(String question, String answer) {
         this.question = question;
         this.answer = answer;
     }

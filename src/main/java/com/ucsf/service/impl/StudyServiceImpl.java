@@ -107,22 +107,17 @@ public class StudyServiceImpl implements StudyService {
 
 				List<ScreeningQuestions> questionsList = screeningQuestionRepository.findByStudyId(reviewStudy.getStudyId());
 
-				ScreeningAnswers answer;
+				String answer;
 
 				List<StudyReviewData> newList = new ArrayList<>();
 				for(ScreeningQuestions question : questionsList ){
 					if(screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId()) == null){
-						answer = new ScreeningAnswers();
-						answer.setStudyId(reviewStudy.getStudyId());
-						answer.setIndexValue(question.getIndexValue());
-						answer.setAnsweredById(reviewStudy.getUserId());
-						answer.setAnswerChoice("user did not fill answer");
-						answer.setAnswerDescription("user did not fill answer");
+						answer = "User did not enter answer";
 					}
 					else{
-						answer = screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId());
+						answer = screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId()).getAnswerDescription();
 					}
-					newList.add(new StudyReviewData(question, answer));
+					newList.add(new StudyReviewData(question.getDescription(), answer));
 				}
 				//response.setQuestions(questionsList);
 				//response.setAnswers(answersList);
