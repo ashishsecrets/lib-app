@@ -80,23 +80,18 @@ public class UserServiceImpl implements UserService {
 		newUser.setUserStatus(UserStatus.ACTIVE);
 		User savedUser = userRepository.save(newUser);
 		UserMetadata metadata = new UserMetadata();
-		if (user.getUserMetadata() != null) {
-			metadata.setAge(user.getUserMetadata().getAge());
-			metadata.setRace(user.getUserMetadata().getRace());
-			metadata.setZipCode(user.getUserMetadata().getZipCode());
-			// metadata.setAcceptanceDate(new Date());
-			metadata.setConsentAccepted(false);
-			metadata.setStudyStatus("newlyAdded");
-			metadata.setUserId(savedUser.getId());
-			metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
-			userMetaDataRepository.save(metadata);
-			// save metadata in metadatarepo
-			// newUser.setMetadata(metadata);
-		}
+		metadata.setConsentAccepted(false);
+		metadata.setStudyStatus("newlyAdded");
+		metadata.setUserId(savedUser.getId());
+		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
+		userMetaDataRepository.save(metadata);
+		// save metadata in metadatarepo
+		// newUser.setMetadata(metadata);
+
 		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 		userScreeningStatus.setStudyId(1l);
 		userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
-		userScreeningStatus.setIndexValue(0); // sending user to user index initially/
+		userScreeningStatus.setIndexValue(0);
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
 		return savedUser;
@@ -112,7 +107,8 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-
-
-
+	@Override
+	public User findByEmail(String email) {
+		return userRepository.findByEmail(email);
+	}
 }

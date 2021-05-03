@@ -8,4 +8,5 @@ import com.ucsf.payload.request.SignUpRequest;
 public interface UserService {
 	Page<User> findAll(int page, int size);
 	User save(SignUpRequest signUpRequest);
+	User findByEmail(String email);
 }

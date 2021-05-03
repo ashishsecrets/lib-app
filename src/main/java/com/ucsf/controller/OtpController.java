@@ -157,7 +157,7 @@ public class OtpController {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	// @PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
+    @PreAuthorize("hasRole('PRE_VERIFICATION_USER')")
 	@ApiOperation(value = "Verify otp", notes = "Verify otp", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "User verified successfully", response = User.class) })
 	@RequestMapping(value = "/verifyOtp", method = RequestMethod.POST)

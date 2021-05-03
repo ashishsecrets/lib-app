@@ -85,6 +85,7 @@ public class StudyAcceptanceNotificationJob {
 							"Study Approval From UCSF Team",
 							approvedUser.getFirstName() + " " + approvedUser.getLastName());
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
+					metaData.setStudyStatus("enrolled");
 					userMetaDataRepository.save(metaData);
 					loggerService.printLogs(log, "sendNotifications",
 							"Study approval mail sent to user: " + approvedUser.getEmail() + "At: " + new Date());
@@ -120,6 +121,7 @@ public class StudyAcceptanceNotificationJob {
 
 					ApnsNotification apns = service.push(approvedUser.getDevideId(), payload);
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
+					metaData.setStudyStatus("enrolled");
 					userMetaDataRepository.save(metaData);
 					loggerService.printLogs(log, "sendNotifications", "Study approval push notification sent to user: "
 							+ approvedUser.getEmail() + "At: " + new Date());
@@ -134,6 +136,7 @@ public class StudyAcceptanceNotificationJob {
 					Message.creator(new PhoneNumber(approvedUser.getPhoneCode() + approvedUser.getPhoneNumber()),
 							new PhoneNumber(twilioNumber), "Your UCSF study approved").create();
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
+					metaData.setStudyStatus("enrolled");
 					userMetaDataRepository.save(metaData);
 					loggerService.printLogs(log, "sendNotifications",
 							"Study approval SMS sent to user: " + approvedUser.getEmail() + "phoneNumber: "
@@ -161,6 +164,7 @@ public class StudyAcceptanceNotificationJob {
 							"Study DisApproval From UCSF Team",
 							disApprovedUser.getFirstName() + " " + disApprovedUser.getLastName());
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
+					metaData.setStudyStatus("unQualified");
 					userMetaDataRepository.save(metaData);
 					loggerService.printLogs(log, "sendNotifications",
 							"Study approval mail sent to user: " + disApprovedUser.getEmail() + "At: " + new Date());
@@ -197,6 +201,7 @@ public class StudyAcceptanceNotificationJob {
 
 					ApnsNotification apns = service.push(disApprovedUser.getDevideId(), payload);
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
+					metaData.setStudyStatus("unQualified");
 					userMetaDataRepository.save(metaData);
 					loggerService.printLogs(log, "sendNotifications",
 							"Study disApproval push notification sent to user: " + disApprovedUser.getEmail() + "At: "
@@ -213,6 +218,7 @@ public class StudyAcceptanceNotificationJob {
 					Message.creator(new PhoneNumber(disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber()),
 							new PhoneNumber(twilioNumber), "Your UCSF study disApproved").create();
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
+					metaData.setStudyStatus("unQualified");
 					userMetaDataRepository.save(metaData);
 					loggerService.printLogs(log, "sendNotifications",
 							"Study disApproval SMS sent to user: " + disApprovedUser.getEmail() + "phoneNumber: "
@@ -226,6 +232,7 @@ public class StudyAcceptanceNotificationJob {
 				}
 			}
 		}
+
 	}
 
 }
