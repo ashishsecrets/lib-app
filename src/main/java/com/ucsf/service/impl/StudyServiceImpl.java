@@ -132,25 +132,25 @@ public class StudyServiceImpl implements StudyService {
 	public List<User> getApprovedPatients() {
 		Optional<User> user = null;
 		List<User> approvedUsers = new ArrayList<User>();
-		/*List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus("approved");
+		List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus("approved");
 		if (userMetaData != null && userMetaData.size() > 0) {
 			for (UserMetadata metaData : userMetaData) {
 				user = userRepository.findById(metaData.getUserId());
 				if (user.isPresent()) {
-					//User approvedUser = userRepository.findByEmail(user.get().getEmail());
-					//approvedUsers.add(user.get());
-					//approvedUsers.add(approvedUser);
+					User approvedUser = userRepository.findByEmail(user.get().getEmail());
+					approvedUsers.add(user.get());
+					approvedUsers.add(approvedUser);
 				}
 			}
-		}*/
+		}
 
-		List<UserScreeningStatus> list = userScreeningStatusRepository.findByStudyId(1l);
+		/*List<UserScreeningStatus> list = userScreeningStatusRepository.findByStudyId(1l);
 
 		for(UserScreeningStatus status: list){
 			if(status.getUserScreeningStatus() == UserScreenStatus.ENROLLED){
 				approvedUsers.add(userRepository.findById(status.getUserId()).get());
 			}
-		}
+		}*/
 
 		return approvedUsers;
 	}

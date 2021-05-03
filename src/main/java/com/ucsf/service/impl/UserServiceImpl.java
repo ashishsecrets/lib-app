@@ -78,6 +78,7 @@ public class UserServiceImpl implements UserService {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
 		}
 		newUser.setUserStatus(UserStatus.ACTIVE);
+		newUser.setDevideId(user.getDeviceId());
 		User savedUser = userRepository.save(newUser);
 		UserMetadata metadata = new UserMetadata();
 		metadata.setConsentAccepted(false);

@@ -17,6 +17,7 @@ public class SignUpRequest {
     private String password;
     private String phone;
     private String phoneCode;
+    private String deviceId;
 	List<String> userRoles;
 	private UserMetadataRequest userMetadata;
 }

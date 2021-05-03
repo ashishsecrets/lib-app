@@ -94,24 +94,31 @@ public class UcsfAuthenticationController {
 		loggerService.printLogs(log, "createAuthenticationToken", "Start user login and create auth token");
 		JSONObject responseJson = new JSONObject();
 		String message = "";
+		Boolean isVerified = false;
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		User user = userRepository.findByEmail(authenticationRequest.getEmail());
 		if (user == null) {
 			responseJson.put("error",
 					new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
-		//To Do
-       //is verified false after 2fa intergration in signin
-		jwtConfig.setTwoFa(false);
-		//UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), false);
-		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), true);
+		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+			if (role.getName().toString().equals("ADMIN")) {
+				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+				isVerified = true;
+				jwtConfig.setTwoFa(false);
+			}
+		}
+
+
+		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), isVerified);
 
 		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
 		user.setAuthToken(token);
-
+		user.setDevideId(authenticationRequest.getDeviceId());
 		user = userRepository.save(user);
 
 		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
