@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -124,7 +123,9 @@ public class ConsentController {
 			
 			UserConsent userConsent = new UserConsent();
 			userConsent.setUserId(user.getId());
+			userConsent.setDate(consent.getDate());
 			if(userMetadata.getAge() < 18) {
+				
 				userConsent.setAdolescentName(consent.getAdoloscentName());
 				userConsent.setParentName(consent.getParentName());
 				if(userMetadata.isConsentAccepted()) {
@@ -145,6 +146,7 @@ public class ConsentController {
 			
 			userMetaDataRepository.save(userMetadata);
 			userConsentRepository.save(userConsent);
+			
 			responseJson.put("data", new SuccessResponse(true, "User consent saved successfully."));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 

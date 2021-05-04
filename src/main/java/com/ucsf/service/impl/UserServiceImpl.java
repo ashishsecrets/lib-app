@@ -66,10 +66,10 @@ public class UserServiceImpl implements UserService {
 			for (String role : user.getUserRoles()) {
 				if (role.equals("ADMIN")) {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
-				} else {
-					newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
-				}
-				// newUser.addRole(new Role(role));
+				} /*
+					 * else { newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT)); }
+					 * newUser.addRole(roleRepository.findByName(RoleName.PATIENT));
+					 */
 			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
@@ -97,6 +97,32 @@ public class UserServiceImpl implements UserService {
 		return savedUser;
 	}
 
+	@Override
+	public User addUser(SignUpRequest user) {
+		User newUser = new User();
+		newUser.setFirstName(user.getFirstName());
+		newUser.setLastName(user.getLastName());
+		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+		newUser.setEmail(user.getEmail());
+		newUser.setPhoneNumber(user.getPhone());
+		newUser.setPhoneCode(user.getPhoneCode());
+
+		// Add Role
+		if (user.getUserRoles() != null && user.getUserRoles().size() > 0) {
+			for (String role : user.getUserRoles()) {
+				if (role.equals("ADMIN")) {
+					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
+				}
+			}
+		} else {
+			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
+		}
+		newUser.setUserStatus(UserStatus.ACTIVE);
+		newUser.setDevideId(user.getDeviceId());
+		User savedUser = userRepository.save(newUser);
+		return savedUser;
+	}
+
 	@PostConstruct
 	public void saveRole() {
 		Role existed = roleRepository.findByName(RoleName.ADMIN);
@@ -104,6 +130,9 @@ public class UserServiceImpl implements UserService {
 			Role role = new Role();
 			role.setName(RoleName.ADMIN);
 			roleRepository.save(role);
+			Role role2 = new Role();
+			role2.setName(RoleName.PATIENT);
+			roleRepository.save(role2);
 		}
 	}
 

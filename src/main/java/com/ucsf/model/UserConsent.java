@@ -6,6 +6,8 @@ import com.ucsf.model.ConsentForms.ConsentType;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 import javax.persistence.*;
 
 @Entity
@@ -34,6 +36,9 @@ public class UserConsent extends Auditable<String> {
 	
 	@Column(name = "user_id")
 	private Long userId;
+	
+	@Column(name = "date")
+	private Date date;
 
 	@OneToOne(targetEntity = User.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinColumn(name = "user_id", insertable = false, updatable = false)

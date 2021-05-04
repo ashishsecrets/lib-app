@@ -9,4 +9,5 @@ public interface UserService {
 	Page<User> findAll(int page, int size);
 	User save(SignUpRequest signUpRequest);
 	User findByEmail(String email);
+	User addUser(SignUpRequest user);
 }

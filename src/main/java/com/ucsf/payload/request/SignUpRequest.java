@@ -1,10 +1,6 @@
 package com.ucsf.payload.request;
 
 import java.util.List;
-import java.util.Set;
-
-import com.ucsf.auth.model.Role;
-import com.ucsf.auth.model.RoleName;
 
 import lombok.Data;
 @Data
