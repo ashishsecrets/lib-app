@@ -110,7 +110,6 @@ public class UcsfAuthenticationController {
 			}
 		}
 
-
 		UserDetails userDetails = userDetailsService.loadUserByEmail(authenticationRequest.getEmail(), isVerified);
 
 		authenticate(userDetails.getUsername(), authenticationRequest.getPassword());
@@ -172,7 +171,7 @@ public class UcsfAuthenticationController {
 				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
 			}
 		}
-		
+
 		if (jwtConfig.getTwoFa()) {
 			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + RoleName.PRE_VERIFICATION_USER.toString()));
 			message = "You have to be verified by 2FA";

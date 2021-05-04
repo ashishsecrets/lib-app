@@ -1,23 +1,19 @@
 package com.ucsf.service.impl;
 
-import java.util.Optional;
-
 import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
-import com.ucsf.model.UcsfStudy;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
+import com.ucsf.model.UserMetadata.StudyStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.repository.RoleRepository;
@@ -82,7 +78,7 @@ public class UserServiceImpl implements UserService {
 		User savedUser = userRepository.save(newUser);
 		UserMetadata metadata = new UserMetadata();
 		metadata.setConsentAccepted(false);
-		metadata.setStudyStatus("newlyAdded");
+		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
 		metadata.setUserId(savedUser.getId());
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
 		userMetaDataRepository.save(metadata);

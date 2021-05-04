@@ -15,6 +15,7 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UcsfStudy.StudyFrequency;
+import com.ucsf.model.UserMetadata.StudyStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.StudyRequest;
 import com.ucsf.payload.request.StudyReviewRequest;
@@ -88,8 +89,14 @@ public class StudyServiceImpl implements StudyService {
 	public void updateStudyStatus(Long userId, String status) {
 		UserMetadata metaData = userMetaDataRepository.findByUserId(userId);
 		if (metaData != null) {
-			metaData.setStudyStatus(status);
-			userMetaDataRepository.save(metaData);
+			if(status != null && status.equals("approved")) {
+				metaData.setStudyStatus(StudyStatus.APPROVED);
+				userMetaDataRepository.save(metaData);
+			}
+			if(status != null && status.equals("disApproved")) {
+				metaData.setStudyStatus(StudyStatus.DISAPPROVED);
+				userMetaDataRepository.save(metaData);
+			}
 		}
 
 	}
@@ -132,7 +139,8 @@ public class StudyServiceImpl implements StudyService {
 	public List<User> getApprovedPatients() {
 		Optional<User> user = null;
 		List<User> approvedUsers = new ArrayList<User>();
-		List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus("approved");
+		//Need to get enrolled patients bcoz status updated after approval notification
+		List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus(StudyStatus.APPROVED);
 		if (userMetaData != null && userMetaData.size() > 0) {
 			for (UserMetadata metaData : userMetaData) {
 				user = userRepository.findById(metaData.getUserId());
@@ -143,15 +151,6 @@ public class StudyServiceImpl implements StudyService {
 				}
 			}
 		}
-
-		/*List<UserScreeningStatus> list = userScreeningStatusRepository.findByStudyId(1l);
-
-		for(UserScreeningStatus status: list){
-			if(status.getUserScreeningStatus() == UserScreenStatus.ENROLLED){
-				approvedUsers.add(userRepository.findById(status.getUserId()).get());
-			}
-		}*/
-
 		return approvedUsers;
 	}
 }

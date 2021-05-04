@@ -5,8 +5,9 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserMetadata.StudyStatus;
 
 public interface UserMetaDataRepository extends CrudRepository<UserMetadata, Long> {
-	List<UserMetadata> findByStudyStatus(String status);
+	List<UserMetadata> findByStudyStatus(StudyStatus status);
 	UserMetadata findByUserId(Long userId);
 }

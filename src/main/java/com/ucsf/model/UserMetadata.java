@@ -26,6 +26,10 @@ public class UserMetadata extends Auditable<String> {
 		NOT_APPROVED,NOTIFIED_BY_EMAIL,NOTIFIED_BY_SMS, NOTIFIED_BY_PUSH
 	}
 
+	public enum StudyStatus {
+		NEWLY_ADDED,APPROVED,DISAPPROVED, ENROLLED,DISQUALIFIED
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "metadata_id")
@@ -50,7 +54,7 @@ public class UserMetadata extends Auditable<String> {
 	private StudyAcceptanceNotification notifiedBy;
 
 	@Column(name = "study_status")
-	private String studyStatus;
+	private StudyStatus studyStatus;
 	
 	@Column(name = "user_id")
 	private Long userId;

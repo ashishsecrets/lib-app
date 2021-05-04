@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+//import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +21,7 @@ import com.ucsf.UcsfMainApplication;
 import com.ucsf.payload.request.Note;
 import com.ucsf.service.PushNotificationService;
 
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
 @SpringBootTest(classes = UcsfMainApplication.class)
 public class TestClass {
 
