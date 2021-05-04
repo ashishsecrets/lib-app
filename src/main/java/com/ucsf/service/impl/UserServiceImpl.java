@@ -22,6 +22,7 @@ import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.service.UserService;
+import com.ucsf.util.AppUtil;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
@@ -81,6 +82,8 @@ public class UserServiceImpl implements UserService {
 		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
 		metadata.setUserId(savedUser.getId());
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
+		metadata.setDateOfBith(user.getUserMetadata().getDateOfBirth());
+		metadata.setAge(AppUtil.getAge(user.getUserMetadata().getDateOfBirth()));
 		userMetaDataRepository.save(metadata);
 		// save metadata in metadatarepo
 		// newUser.setMetadata(metadata);

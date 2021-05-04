@@ -39,10 +39,13 @@ public class UserMetadata extends Auditable<String> {
 	private String race;
 
 	@Column
-	private String age;
+	private Long age;
 
 	@Column(name = "zip_code")
 	private String zipCode;
+	
+	@Column(name = "date_of_birth")
+	private String dateOfBith;
 
 	@Column(name = "is_consent_accepted")
 	private boolean isConsentAccepted;

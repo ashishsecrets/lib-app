@@ -1,5 +1,8 @@
 package com.ucsf.util;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
 public class AppUtil {
@@ -14,5 +17,19 @@ public class AppUtil {
 			otp[i] = numbers.charAt(rndm_method.nextInt(numbers.length()));
 		}
 		return String.valueOf(otp);
+	}
+	
+	public static Long getAge(String birthDate) {
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			LocalDate localDate = LocalDate.parse(birthDate, formatter);
+			
+			LocalDate now = LocalDate.now();
+			long years = ChronoUnit.YEARS.between(localDate, now);
+			return years;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
