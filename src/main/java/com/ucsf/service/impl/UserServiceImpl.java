@@ -1,6 +1,8 @@
 package com.ucsf.service.impl;
 
 import javax.annotation.PostConstruct;
+
+import com.ucsf.model.StudyImages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -91,6 +93,10 @@ public class UserServiceImpl implements UserService {
 		userScreeningStatus.setIndexValue(1);
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
+
+		/*StudyImages studyImages = new StudyImages();
+		studyImages.setDescription("");*/
+
 		return savedUser;
 	}
 
