@@ -93,7 +93,7 @@ public class StudyServiceImpl implements StudyService {
 				metaData.setStudyStatus(StudyStatus.APPROVED);
 				userMetaDataRepository.save(metaData);
 			}
-			if(status != null && status.equals("disApproved")) {
+			if(status != null && status.equals("disapproved")) {
 				metaData.setStudyStatus(StudyStatus.DISAPPROVED);
 				userMetaDataRepository.save(metaData);
 			}

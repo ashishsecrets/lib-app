@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -62,6 +63,8 @@ public class StudyController {
 	@ApiOperation(value = "Save study", notes = "Save study", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Study saved successfully", response = UcsfStudy.class) })
+	@PreAuthorize("hasRole('PATIENT')")
+
 	@RequestMapping(value = "/saveStudy", method = RequestMethod.POST)
 	public ResponseEntity<?> saveStudy(@RequestBody StudyRequest studyRequest) throws Exception {
 		User user = null;
@@ -94,6 +97,7 @@ public class StudyController {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ApiOperation(value = "Get all studies", notes = "Get all studies", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all studies", response = StudyResponse.class) })
+	@PreAuthorize("hasRole('PATIENT')")
 	@RequestMapping(value = "/fetchStudies", method = RequestMethod.GET)
 	public ResponseEntity<?> fetchAllStudies() throws Exception {
 		loggerService.printLogs(log, "saveStudy", "Fetch UCSF Studies");
@@ -129,6 +133,7 @@ public class StudyController {
 	@ApiOperation(value = "Update Study Status", notes = "Approve study", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Study Status Updated successfully", response = SuccessResponse.class) })
+	@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping(value = "/updateStudyStatus/{userId}", method = RequestMethod.POST)
 	public ResponseEntity<?> updateStudyStatus(@PathVariable Long userId, @RequestParam String status)
 			throws Exception {
@@ -152,9 +157,11 @@ public class StudyController {
 			responseJson.put("data", new SuccessResponse(true, "Study " + status));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			loggerService.printErrorLogs(log, "updateStudyStatus",
 					"Error while updating Study " + status + "  for user with id " + userId);
-			responseJson.put("data", new SuccessResponse(true, "Study " + status));
+			responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
+					Constants.USER_NOT_FOUND.errordesc()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		}
 	}

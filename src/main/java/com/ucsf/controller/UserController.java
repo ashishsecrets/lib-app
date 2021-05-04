@@ -50,6 +50,7 @@ public class UserController {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all users", response = User.class) })
 	@RequestMapping(value = "/users/{page}/{size}", method = RequestMethod.GET)
 	public Page<User> getUsers(@PathVariable int page, @PathVariable int size) {
+		//Todo get only patients not admin
 		return userService.findAll(page, size);
 	}
 
