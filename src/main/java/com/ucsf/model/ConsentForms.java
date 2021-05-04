@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class ConsentForms extends Auditable<String> {
 
 	public enum ConsentType {
-		ASSENT_FORM, CONSENT_FORM
+		ASSENT_FORM, CONSENT_FORM_FOR_BELOW_18, CONSENT_FORM_FOR_ABOVE_18
 	}
 
 	@Id
@@ -28,6 +28,7 @@ public class ConsentForms extends Auditable<String> {
 	@Column(name = "consent_type")
 	private ConsentType consentType;
 
+	@Lob
 	@Column(name = "content")
 	private String content;
 

@@ -8,18 +8,18 @@ import org.springframework.stereotype.Service;
 import com.ucsf.model.ConsentForms;
 import com.ucsf.model.UserConsent;
 import com.ucsf.payload.request.ConsentRequest;
+import com.ucsf.repository.UserConsentRepository;
 import com.ucsf.repository.ConsentFormRepository;
-import com.ucsf.repository.ConsentFormsRepository;
 import com.ucsf.service.ConsentService;
 
 @Service("consentService")
 public class ConsentFormImpl implements ConsentService{
 
 	@Autowired
-	ConsentFormRepository consentFormRepository;
+	UserConsentRepository consentFormRepository;
 	
 	@Autowired
-	ConsentFormsRepository consentFormsRepository;
+	ConsentFormRepository consentFormsRepository;
 	
 	@Override
 	public void save(ConsentRequest consent) {

@@ -18,6 +18,10 @@ public class ConsentSection extends Auditable<String> {
 	@Column(name = "file_path")
 	private String filePath;
 
+	@Lob
 	@Column(name = "content")
 	private String content;
+	
+	@Column(name = "consent_form_id")
+	private Long consentFormId;
 }
