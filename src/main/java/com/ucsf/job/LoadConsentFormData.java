@@ -12,7 +12,6 @@ import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.ucsf.model.ConsentForms;
@@ -27,7 +26,7 @@ public class LoadConsentFormData {
 	@Autowired ConsentFormRepository consentFormRepository;
 	@Autowired ConsentSectionRepository consentSectionRepository;
 
-	//@Scheduled(cron="0 */1 * * * *") //please run this job first
+	//@Scheduled(cron="0 */5 * * * *") //please run this job first
 	public void loadFormContent() {
 
 		try {
@@ -53,6 +52,7 @@ public class LoadConsentFormData {
 			}
 			consentFormRepository.saveAll(forms);
 			System.out.println("done");
+			loadSectionContent();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -82,6 +82,21 @@ public class EmailService {
 		javaMailSender.send(msg);
 	}
 
+	public void sendCredsToUsersAddedByAdmin(String from, String to, String subject, String name, String password) throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(from);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/addUser.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		body = body.replaceAll("\\{\\{email\\}\\}", to);
+		body = body.replaceAll("\\{\\{password\\}\\}", password);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
+
 	private String readFromInputStream(InputStream inputStream) throws IOException {
 		StringBuilder resultStringBuilder = new StringBuilder();
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {

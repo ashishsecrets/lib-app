@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucsf.auth.model.User;
+import com.ucsf.job.LoadConsentFormData;
 import com.ucsf.job.LoadScreeningQuestions;
 import com.ucsf.service.UserService;
 
@@ -35,12 +36,16 @@ public class UserController {
 	@Autowired
 	LoadStudyInformatives loadStudyInformatives;
 	
+	@Autowired
+	LoadConsentFormData loadConsentFormData;
+	
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllUsers() throws Exception {
 		loadScreeningQuestions.loadSheetContent();
 		System.out.println("1111111111");
 		//loading informatives
-		loadStudyInformatives.loadSheetContent();
+		//loadStudyInformatives.loadSheetContent();
+		loadConsentFormData.loadFormContent();
 		System.out.println("2222222222");
 		return ResponseEntity.ok("success");
 	}

@@ -23,7 +23,9 @@ import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
+import com.ucsf.service.EmailService;
 import com.ucsf.service.UserService;
+import com.ucsf.util.AppUtil;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
@@ -42,6 +44,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserMetaDataRepository userMetaDataRepository;
+	
+	@Autowired
+	EmailService emailService;
 
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
@@ -67,10 +72,10 @@ public class UserServiceImpl implements UserService {
 			for (String role : user.getUserRoles()) {
 				if (role.equals("ADMIN")) {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
-				} else {
-					newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
-				}
-				// newUser.addRole(new Role(role));
+				} /*
+					 * else { newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT)); }
+					 * newUser.addRole(roleRepository.findByName(RoleName.PATIENT));
+					 */
 			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
@@ -83,6 +88,8 @@ public class UserServiceImpl implements UserService {
 		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
 		metadata.setUserId(savedUser.getId());
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
+		metadata.setDateOfBith(user.getDateOfBirth());
+		metadata.setAge(AppUtil.getAge(user.getDateOfBirth()));
 		userMetaDataRepository.save(metadata);
 		// save metadata in metadatarepo
 		// newUser.setMetadata(metadata);
@@ -100,12 +107,60 @@ public class UserServiceImpl implements UserService {
 		return savedUser;
 	}
 
+	@Override
+	public User addUser(SignUpRequest user) {
+		User newUser = new User();
+		newUser.setFirstName(user.getFirstName());
+		newUser.setLastName(user.getLastName());
+		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+		newUser.setEmail(user.getEmail());
+		newUser.setPhoneNumber(user.getPhone());
+		newUser.setPhoneCode(user.getPhoneCode());
+
+		// Add Role
+		if (user.getUserRoles() != null && user.getUserRoles().size() > 0) {
+			for (String role : user.getUserRoles()) {
+				if (role.equals("PHYSICIAN")) {
+					newUser.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
+				}
+				if (role.equals("STUDYTEAM")) {
+					newUser.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
+				}
+			}
+		} else {
+			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
+		}
+		newUser.setUserStatus(UserStatus.ACTIVE);
+		newUser.setDevideId(user.getDeviceId());
+		User savedUser = userRepository.save(newUser);
+
+		return savedUser;
+	}
+
 	@PostConstruct
 	public void saveRole() {
-		Role existed = roleRepository.findByName(RoleName.ADMIN);
-		if (existed == null) {
+		Role admin = roleRepository.findByName(RoleName.ADMIN);
+		if (admin == null) {
 			Role role = new Role();
 			role.setName(RoleName.ADMIN);
+			roleRepository.save(role);
+		}
+		Role patient = roleRepository.findByName(RoleName.PATIENT);
+		if (patient == null) {
+			Role role = new Role();
+			role.setName(RoleName.PATIENT);
+			roleRepository.save(role);
+		}
+		Role physian = roleRepository.findByName(RoleName.PHYSICIAN);
+		if (physian == null) {
+			Role role = new Role();
+			role.setName(RoleName.PHYSICIAN);
+			roleRepository.save(role);
+		}
+		Role studyTeam = roleRepository.findByName(RoleName.STUDY_TEAM);
+		if (studyTeam == null) {
+			Role role = new Role();
+			role.setName(RoleName.STUDY_TEAM);
 			roleRepository.save(role);
 		}
 	}

@@ -16,7 +16,8 @@ public enum Constants {
 	OTP_NOT_VERIFIED("Otp expired or wrong otp"),
 	OTP_EXPIRED("Otp has been Expired"),
 	INVALID_STUDY("Invalid Study"),
-	OTP_INCORRECT("Invalid Otp");
+	OTP_INCORRECT("Invalid Otp"), 
+	USER_AGE_NOT_SPECIFIED("Please add user age");
 		private Constants(String value) { 
 	    this.errordesc = value; 
 	    }

@@ -34,7 +34,7 @@ public class TestClass {
 	@Test
 	public void awsPutObject() {
 		try {
-			String file_path = "/home/arshdeep/Pictures/256*256.png";
+			String file_path = "/home/rbpcadmin/Pictures/h.jpeg";
 			String key_name = Paths.get(file_path).getFileName().toString();
 
 			s3client.putObject(bucketName, key_name, new File(file_path));
