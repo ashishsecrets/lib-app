@@ -15,5 +15,5 @@ public class SignUpRequest {
     private String phoneCode;
     private String deviceId;
 	List<String> userRoles;
-	private UserMetadataRequest userMetadata;
+	private String dateOfBirth;
 }

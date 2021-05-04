@@ -39,43 +39,50 @@ public class ConsentController {
 
 	@Autowired
 	ConsentService consentService;
-	
-	@Autowired UserService userService;
-	@Autowired private LoggerService loggerService;
-	@Autowired private UserMetaDataRepository userMetaDataRepository;
-	@Autowired private UserConsentRepository userConsentRepository;
-	
+
+	@Autowired
+	UserService userService;
+	@Autowired
+	private LoggerService loggerService;
+	@Autowired
+	private UserMetaDataRepository userMetaDataRepository;
+	@Autowired
+	private UserConsentRepository userConsentRepository;
+
 	private static Logger log = LoggerFactory.getLogger(ConsentController.class);
 
 	@GetMapping(value = "/getConsentForm")
 	@ResponseBody
 	public ResponseEntity<?> getConsentForm(HttpServletResponse response) {
-		
+
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 		try {
-			
-			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+					.getPrincipal();
 			if (userDetail != null && userDetail.getUsername() != null) {
 				user = userService.findByEmail(userDetail.getUsername());
 				loggerService.printLogs(log, "getConsentForm", "Getting user consent form for user " + user.getId());
 			} else {
 				loggerService.printLogs(log, "getConsentForm", "Invalid JWT signature.");
-				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(), Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+						Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 				return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 			}
-			
+
 			UserMetadata userMetadata = userMetaDataRepository.findByUserId(user.getId());
-			
-			if(userMetadata.getAge() == null && userMetadata.getAge() < 1) {
+
+			if (userMetadata.getAge() == null && userMetadata.getAge() < 1) {
 				loggerService.printLogs(log, "getConsentForm", "User age not specified.");
-				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_AGE_NOT_SPECIFIED.code(), Constants.USER_AGE_NOT_SPECIFIED.errordesc()));
+				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_AGE_NOT_SPECIFIED.code(),
+						Constants.USER_AGE_NOT_SPECIFIED.errordesc()));
 				return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
 			}
-			
+
 			ConsentForms consentForm = null;
-			if(userMetadata.getAge() < 18) {
-				if(userMetadata.isConsentAccepted()) {
+			if (userMetadata.getAge() < 18) {
+				if (userMetadata.isConsentAccepted()) {
 					consentForm = consentService.getConsentFormByConsentType(ConsentType.ASSENT_FORM);
 				} else {
 					consentForm = consentService.getConsentFormByConsentType(ConsentType.CONSENT_FORM_FOR_BELOW_18);
@@ -102,33 +109,36 @@ public class ConsentController {
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 		try {
-			
-			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+					.getPrincipal();
 			if (userDetail != null && userDetail.getUsername() != null) {
 				user = userService.findByEmail(userDetail.getUsername());
 				loggerService.printLogs(log, "saveUserConsent", "Saving user consent for user " + user.getId());
 			} else {
 				loggerService.printLogs(log, "saveUserConsent", "Invalid JWT signature.");
-				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(), Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+						Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 				return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 			}
-			
+
 			UserMetadata userMetadata = userMetaDataRepository.findByUserId(user.getId());
-			
-			if(userMetadata.getAge() == null && userMetadata.getAge() < 1) {
+
+			if (userMetadata.getAge() == null && userMetadata.getAge() < 1) {
 				loggerService.printLogs(log, "saveUserConsent", "User age not specified.");
-				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_AGE_NOT_SPECIFIED.code(), Constants.USER_AGE_NOT_SPECIFIED.errordesc()));
+				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_AGE_NOT_SPECIFIED.code(),
+						Constants.USER_AGE_NOT_SPECIFIED.errordesc()));
 				return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
 			}
-			
+
 			UserConsent userConsent = new UserConsent();
 			userConsent.setUserId(user.getId());
 			userConsent.setDate(consent.getDate());
-			if(userMetadata.getAge() < 18) {
-				
+			if (userMetadata.getAge() < 18) {
+
 				userConsent.setAdolescentName(consent.getAdoloscentName());
 				userConsent.setParentName(consent.getParentName());
-				if(userMetadata.isConsentAccepted()) {
+				if (userMetadata.isConsentAccepted()) {
 					userConsent.setConsentType(ConsentType.ASSENT_FORM);
 					userConsent.setType(FormType.ASSENT);
 				} else {
@@ -136,17 +146,17 @@ public class ConsentController {
 					userConsent.setType(FormType.CONSENT);
 					userMetadata.setConsentAccepted(true);
 				}
-								
+
 			} else {
 				userConsent.setPatientName(consent.getPatientName());
 				userConsent.setConsentType(ConsentType.CONSENT_FORM_FOR_ABOVE_18);
 				userConsent.setType(FormType.CONSENT);
 				userMetadata.setConsentAccepted(true);
 			}
-			
+
 			userMetaDataRepository.save(userMetadata);
 			userConsentRepository.save(userConsent);
-			
+
 			responseJson.put("data", new SuccessResponse(true, "User consent saved successfully."));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 
@@ -157,7 +167,7 @@ public class ConsentController {
 			return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	@GetMapping(value = "/getConsent")
 	@ResponseBody
 	public ResponseEntity<?> getConsent() {

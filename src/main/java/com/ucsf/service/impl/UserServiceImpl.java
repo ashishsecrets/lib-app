@@ -21,6 +21,7 @@ import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
+import com.ucsf.service.EmailService;
 import com.ucsf.service.UserService;
 import com.ucsf.util.AppUtil;
 
@@ -41,6 +42,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserMetaDataRepository userMetaDataRepository;
+	
+	@Autowired
+	EmailService emailService;
 
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
@@ -82,8 +86,8 @@ public class UserServiceImpl implements UserService {
 		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
 		metadata.setUserId(savedUser.getId());
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
-		metadata.setDateOfBith(user.getUserMetadata().getDateOfBirth());
-		metadata.setAge(AppUtil.getAge(user.getUserMetadata().getDateOfBirth()));
+		metadata.setDateOfBith(user.getDateOfBirth());
+		metadata.setAge(AppUtil.getAge(user.getDateOfBirth()));
 		userMetaDataRepository.save(metadata);
 		// save metadata in metadatarepo
 		// newUser.setMetadata(metadata);
@@ -110,8 +114,11 @@ public class UserServiceImpl implements UserService {
 		// Add Role
 		if (user.getUserRoles() != null && user.getUserRoles().size() > 0) {
 			for (String role : user.getUserRoles()) {
-				if (role.equals("ADMIN")) {
-					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
+				if (role.equals("PHYSICIAN")) {
+					newUser.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
+				}
+				if (role.equals("STUDYTEAM")) {
+					newUser.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
 				}
 			}
 		} else {
@@ -120,19 +127,35 @@ public class UserServiceImpl implements UserService {
 		newUser.setUserStatus(UserStatus.ACTIVE);
 		newUser.setDevideId(user.getDeviceId());
 		User savedUser = userRepository.save(newUser);
+
 		return savedUser;
 	}
 
 	@PostConstruct
 	public void saveRole() {
-		Role existed = roleRepository.findByName(RoleName.ADMIN);
-		if (existed == null) {
+		Role admin = roleRepository.findByName(RoleName.ADMIN);
+		if (admin == null) {
 			Role role = new Role();
 			role.setName(RoleName.ADMIN);
 			roleRepository.save(role);
-			Role role2 = new Role();
-			role2.setName(RoleName.PATIENT);
-			roleRepository.save(role2);
+		}
+		Role patient = roleRepository.findByName(RoleName.PATIENT);
+		if (patient == null) {
+			Role role = new Role();
+			role.setName(RoleName.PATIENT);
+			roleRepository.save(role);
+		}
+		Role physian = roleRepository.findByName(RoleName.PHYSICIAN);
+		if (physian == null) {
+			Role role = new Role();
+			role.setName(RoleName.PHYSICIAN);
+			roleRepository.save(role);
+		}
+		Role studyTeam = roleRepository.findByName(RoleName.STUDY_TEAM);
+		if (studyTeam == null) {
+			Role role = new Role();
+			role.setName(RoleName.STUDY_TEAM);
+			roleRepository.save(role);
 		}
 	}
 
