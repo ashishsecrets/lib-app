@@ -28,9 +28,11 @@ import com.ucsf.model.UserMetadata;
 import com.ucsf.payload.request.ConsentRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
+import com.ucsf.repository.ConsentFormRepository;
 import com.ucsf.repository.UserConsentRepository;
 import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.service.ConsentService;
+import com.ucsf.service.EmailService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
 
@@ -49,6 +51,10 @@ public class ConsentController {
 	private UserMetaDataRepository userMetaDataRepository;
 	@Autowired
 	private UserConsentRepository userConsentRepository;
+	@Autowired
+	ConsentFormRepository consentFormRepository;
+	@Autowired
+	EmailService emailService;
 
 	private static Logger log = LoggerFactory.getLogger(ConsentController.class);
 
@@ -131,32 +137,42 @@ public class ConsentController {
 						Constants.USER_AGE_NOT_SPECIFIED.errordesc()));
 				return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
 			}
-
+			
+			ConsentForms consentForm = null;
 			UserConsent userConsent = new UserConsent();
 			userConsent.setUserId(user.getId());
 			userConsent.setDate(consent.getDate());
+			userConsent.setPatientName(consent.getPatientName());
 			if (userMetadata.getAge() < 18) {
-
-				userConsent.setAdolescentName(consent.getParentName());
 				userConsent.setParentName(consent.getParentName());
 				if (userMetadata.isConsentAccepted()) {
 					userConsent.setConsentType(ConsentType.ASSENT_FORM);
 					userConsent.setType(FormType.ASSENT);
+					consentForm = consentFormRepository.getConsentFormByConsentType(ConsentType.ASSENT_FORM);
 				} else {
 					userConsent.setConsentType(ConsentType.CONSENT_FORM_FOR_BELOW_18);
 					userConsent.setType(FormType.CONSENT);
 					userMetadata.setConsentAccepted(true);
+					consentForm = consentFormRepository.getConsentFormByConsentType(ConsentType.CONSENT_FORM_FOR_BELOW_18);
 				}
 
 			} else {
-				userConsent.setPatientName(consent.getPatientName());
 				userConsent.setConsentType(ConsentType.CONSENT_FORM_FOR_ABOVE_18);
 				userConsent.setType(FormType.CONSENT);
 				userMetadata.setConsentAccepted(true);
+				consentForm = consentFormRepository.getConsentFormByConsentType(ConsentType.CONSENT_FORM_FOR_ABOVE_18);
 			}
+
+			//File patientSignature = new File("patientSignature.jpeg");
+			//byte[] decodedBytes = Base64.decodeBase64(consent.getPatientSignature());
+			//FileUtils.writeByteArrayToFile(patientSignature, decodedBytes);
+			
 			userConsentRepository.save(userConsent);
 			userMetaDataRepository.save(userMetadata);
-
+					
+			//send consent email to user
+			//emailService.sendUserConsentEmail(user.getEmail(), "UCSF Consent", user.getFirstName()+" "+user.getLastName(), consentForm.getFilePath(), userConsent);
+			
 			responseJson.put("data", new SuccessResponse(true, "User consent saved successfully."));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 

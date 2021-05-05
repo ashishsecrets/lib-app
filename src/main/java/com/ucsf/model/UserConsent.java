@@ -28,11 +28,14 @@ public class UserConsent extends Auditable<String> {
 	@Column(name = "parent_name")
 	private String parentName;
 	
-	@Column(name = "adolescent_name")
-	private String adolescentName;
+	@Column(name = "parent_signature")
+	private String parentSignature;
 	
 	@Column(name = "patient_name")
 	private String patientName;
+	
+	@Column(name = "patient_signature")
+	private String patientSignature;
 	
 	@Column(name = "user_id")
 	private Long userId;
