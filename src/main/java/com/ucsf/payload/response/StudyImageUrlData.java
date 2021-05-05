@@ -5,14 +5,14 @@ import lombok.Data;
     @Data
     public class StudyImageUrlData {
 
-        private int id;
+        private Long id;
         private String name;
-        private String description;
+        private int count;
 
-        public StudyImageUrlData(int id, String name, String description) {
+        public StudyImageUrlData(Long id, String name, int count) {
             this.id = id;
             this.name = name;
-            this.description = description;
+            this.count = count;
         }
 
     }

@@ -6,6 +6,7 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.StudyImages;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.StudyBodyPartsResponse;
+import com.ucsf.payload.response.StudyImageUrlData;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.ImageUrlService;
 import com.ucsf.service.LoggerService;
@@ -23,6 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -73,8 +75,18 @@ public class StudyImageController {
 
         List<StudyImages> list =  imageUrlService.getImageUrls(studyId, user.getId());
 
-        if(!list.isEmpty()){
-        responseJson.put("data", list);
+        List<StudyImageUrlData> newList = new ArrayList<>();
+
+        if(list != null){
+            for(StudyImages item : list){
+                StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount());
+                newList.add(data);
+            }
+        }
+
+        if(!newList.isEmpty()){
+            response.setList(newList);
+        responseJson.put("data", response);
         }
         else{
             responseJson.put("error", new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(), Constants.NO_STUDY_FOUND.errordesc()));
