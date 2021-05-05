@@ -29,7 +29,7 @@ public class StudyImages extends Auditable<String> implements Serializable {
     private Long userId;
 
     @Column(name = "count")
-    private Long count;
+    private int count;
 
     @Column(name = "name")
     private String name;

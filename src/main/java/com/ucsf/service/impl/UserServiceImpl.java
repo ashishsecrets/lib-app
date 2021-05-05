@@ -124,7 +124,7 @@ public class UserServiceImpl implements UserService {
 		upper_front.setStudyId(1l);
 		upper_front.setImageUrl("body_parts/upper_front");
 		upper_front.setUserId(savedUser.getId());
-		upper_front.setCount(0l);
+		upper_front.setCount(0);
 		imageRepository.save(upper_front);
 
 		StudyImages upper_back = new StudyImages();
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
 		upper_back.setStudyId(1l);
 		upper_back.setImageUrl("body_parts/upper_back");
 		upper_back.setUserId(savedUser.getId());
-		upper_back.setCount(0l);
+		upper_back.setCount(0);
 		imageRepository.save(upper_back);
 
 		StudyImages lower_front = new StudyImages();
@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
 		lower_front.setStudyId(1l);
 		lower_front.setImageUrl("body_parts/lower_front");
 		lower_front.setUserId(savedUser.getId());
-		lower_front.setCount(0l);
+		lower_front.setCount(0);
 		imageRepository.save(lower_front);
 
 		StudyImages lower_back = new StudyImages();
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
 		lower_back.setStudyId(1l);
 		lower_back.setImageUrl("body_parts/lower_back");
 		lower_back.setUserId(savedUser.getId());
-		lower_back.setCount(0l);
+		lower_back.setCount(0);
 		imageRepository.save(lower_back);
 
 		StudyImages full_back = new StudyImages();
@@ -160,7 +160,7 @@ public class UserServiceImpl implements UserService {
 		full_back.setStudyId(1l);
 		full_back.setImageUrl("body_parts/full_back");
 		full_back.setUserId(savedUser.getId());
-		full_back.setCount(0l);
+		full_back.setCount(0);
 		imageRepository.save(full_back);
 
 		StudyImages special_areas = new StudyImages();
@@ -169,7 +169,7 @@ public class UserServiceImpl implements UserService {
 		special_areas.setStudyId(1l);
 		special_areas.setImageUrl("body_parts/special_areas");
 		special_areas.setUserId(savedUser.getId());
-		special_areas.setCount(0l);
+		special_areas.setCount(0);
 		imageRepository.save(special_areas);
 
 
