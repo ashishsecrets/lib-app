@@ -4,7 +4,9 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import com.ucsf.model.StudyImages;
 import org.json.JSONObject;
+import com.ucsf.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +65,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
 
+	@Autowired
+	ImageRepository imageRepository;
+
 	@Override
 	public Page<User> findAll(int page, int size) {
 		Page<User> users = userRepository.findAll(PageRequest.of(page, size));
@@ -113,9 +118,55 @@ public class UserServiceImpl implements UserService {
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
 
-		/*
-		 * StudyImages studyImages = new StudyImages(); studyImages.setDescription("");
-		 */
+		StudyImages upper_front = new StudyImages();
+		upper_front.setName("upper_front");
+		upper_front.setDescription("");
+		upper_front.setStudyId(1l);
+		upper_front.setUserId(savedUser.getId());
+		upper_front.setIndexId(1l);
+		imageRepository.save(upper_front);
+
+		StudyImages upper_back = new StudyImages();
+		upper_back.setName("upper_back");
+		upper_back.setDescription("");
+		upper_back.setStudyId(1l);
+		upper_back.setUserId(savedUser.getId());
+		upper_back.setIndexId(1l);
+		imageRepository.save(upper_back);
+
+		StudyImages lower_front = new StudyImages();
+		lower_front.setName("lower_front");
+		lower_front.setDescription("");
+		lower_front.setStudyId(1l);
+		lower_front.setUserId(savedUser.getId());
+		lower_front.setIndexId(1l);
+		imageRepository.save(lower_front);
+
+		StudyImages lower_back = new StudyImages();
+		lower_back.setName("Lower_back");
+		lower_back.setDescription("");
+		lower_back.setStudyId(1l);
+		lower_back.setUserId(savedUser.getId());
+		lower_back.setIndexId(1l);
+		imageRepository.save(lower_back);
+
+		StudyImages full_back = new StudyImages();
+		full_back.setName("full_back");
+		full_back.setDescription("");
+		full_back.setStudyId(1l);
+		full_back.setUserId(savedUser.getId());
+		full_back.setIndexId(1l);
+		imageRepository.save(full_back);
+
+		StudyImages special_areas = new StudyImages();
+		special_areas.setName("special_areas");
+		special_areas.setDescription("");
+		special_areas.setStudyId(1l);
+		special_areas.setUserId(savedUser.getId());
+		special_areas.setIndexId(1l);
+		imageRepository.save(special_areas);
+
+
 
 		return savedUser;
 	}

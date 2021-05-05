@@ -28,8 +28,11 @@ public class StudyImages extends Auditable<String> implements Serializable {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "index_id")
+    private Long indexId;
+
     @Column(name = "name")
-    private Long name;
+    private String name;
 
     @Column(name = "study_id")
     private Long studyId;
