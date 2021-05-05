@@ -8,5 +8,6 @@ import java.util.List;
 public class StudyBodyPartsResponse {
 
     private List<StudyImageUrlData> list;
+    private int totalCount;
 
 }

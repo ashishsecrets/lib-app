@@ -54,7 +54,11 @@ public class StudyImageController {
 
         JSONObject responseJson = new JSONObject();
 
+        Boolean isSuccess = false;
+
         User user = null;
+
+        int totalCount = 0;
 
         try {
             UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -62,6 +66,7 @@ public class StudyImageController {
             if (userDetail != null && userDetail.getUsername() != null) {
                 String email = userDetail.getUsername();
                 user = userRepository.findByEmail(email);
+                isSuccess = true;
 
             } else {
                 loggerService.printLogs(log, "imageUrlService", "Invalid User");
@@ -73,19 +78,34 @@ public class StudyImageController {
             e.printStackTrace();
         }
 
-        List<StudyImages> list =  imageUrlService.getImageUrls(studyId, user.getId());
+        if(!isSuccess){
+            responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+                    Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+            return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+        }
 
-        List<StudyImageUrlData> newList = new ArrayList<>();
+        List<StudyImageUrlData> newList = null;
+
+        try {
+            List<StudyImages> list = imageUrlService.getImageUrls(studyId, user.getId());
+
+
+        newList = new ArrayList<>();
 
         if(list != null){
             for(StudyImages item : list){
                 StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount());
+                totalCount += item.getCount();
                 newList.add(data);
             }
         }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 
-        if(!newList.isEmpty()){
+        if(newList != null){
             response.setList(newList);
+            response.setTotalCount(totalCount);
         responseJson.put("data", response);
         }
         else{
