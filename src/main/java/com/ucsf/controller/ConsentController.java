@@ -99,7 +99,7 @@ public class ConsentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			loggerService.printErrorLogs(log, "getConsentForm", "Error while getting consent form. ");
-			responseJson.put("data", new SuccessResponse(false, "Error while getting consent form."));
+			responseJson.put("error", new ErrorResponse(116, e.getMessage()));
 			return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -154,9 +154,8 @@ public class ConsentController {
 				userConsent.setType(FormType.CONSENT);
 				userMetadata.setConsentAccepted(true);
 			}
-
-			userMetaDataRepository.save(userMetadata);
 			userConsentRepository.save(userConsent);
+			userMetaDataRepository.save(userMetadata);
 
 			responseJson.put("data", new SuccessResponse(true, "User consent saved successfully."));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
@@ -165,7 +164,7 @@ public class ConsentController {
 			e.printStackTrace();
 			loggerService.printErrorLogs(log, "saveUserConsent", "Error while saving user consent.");
 			responseJson.put("data", new SuccessResponse(false, "Error while saving user consent."));
-			return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
