@@ -1,7 +1,5 @@
 package com.ucsf.payload.request;
 
-import java.util.Date;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,8 +7,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ConsentRequest {
 	private String parentName;
-    private String adoloscentName;
     private String patientName;
-    private Date date;
+    private String date;
+    private String parentSignature;
+    private String patientSignature;
    
 }
