@@ -163,7 +163,7 @@ public class ConsentController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			loggerService.printErrorLogs(log, "saveUserConsent", "Error while saving user consent.");
-			responseJson.put("data", new SuccessResponse(false, "Error while saving user consent."));
+			responseJson.put("error", new ErrorResponse(116, e.getMessage()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
