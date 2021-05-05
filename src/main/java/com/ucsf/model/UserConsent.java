@@ -38,7 +38,7 @@ public class UserConsent extends Auditable<String> {
 	private Long userId;
 	
 	@Column(name = "date")
-	private Date date;
+	private String date;
 
 	@OneToOne(targetEntity = User.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinColumn(name = "user_id", insertable = false, updatable = false)

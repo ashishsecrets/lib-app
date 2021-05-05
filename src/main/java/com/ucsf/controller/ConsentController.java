@@ -136,7 +136,7 @@ public class ConsentController {
 			userConsent.setDate(consent.getDate());
 			if (userMetadata.getAge() < 18) {
 
-				userConsent.setAdolescentName(consent.getAdoloscentName());
+				userConsent.setAdolescentName(consent.getParentName());
 				userConsent.setParentName(consent.getParentName());
 				if (userMetadata.isConsentAccepted()) {
 					userConsent.setConsentType(ConsentType.ASSENT_FORM);
