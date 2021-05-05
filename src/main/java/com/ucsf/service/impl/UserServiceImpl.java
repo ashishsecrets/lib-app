@@ -1,23 +1,35 @@
 package com.ucsf.service.impl;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
-import com.ucsf.model.StudyImages;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.amazonaws.services.identitymanagement.model.UpdateUserRequest;
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
+import com.ucsf.common.Constants;
+import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
 import com.ucsf.model.UserMetadata.StudyStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
+import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.SignUpRequest;
+import com.ucsf.payload.request.UserUpdateRequest;
+import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserMetaDataRepository;
@@ -44,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserMetaDataRepository userMetaDataRepository;
-	
+
 	@Autowired
 	EmailService emailService;
 
@@ -101,14 +113,15 @@ public class UserServiceImpl implements UserService {
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
 
-		/*StudyImages studyImages = new StudyImages();
-		studyImages.setDescription("");*/
+		/*
+		 * StudyImages studyImages = new StudyImages(); studyImages.setDescription("");
+		 */
 
 		return savedUser;
 	}
 
 	@Override
-	public User addUser(SignUpRequest user) {
+	public User addUser(AddUserRequest user) {
 		User newUser = new User();
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
@@ -131,9 +144,7 @@ public class UserServiceImpl implements UserService {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
 		}
 		newUser.setUserStatus(UserStatus.ACTIVE);
-		newUser.setDevideId(user.getDeviceId());
 		User savedUser = userRepository.save(newUser);
-
 		return savedUser;
 	}
 
@@ -169,4 +180,34 @@ public class UserServiceImpl implements UserService {
 	public User findByEmail(String email) {
 		return userRepository.findByEmail(email);
 	}
+
+	@Override
+	public User updateUser(Long userId, UserUpdateRequest updateRequest) {
+		// TODO Auto-generated method stub
+		Optional<User> existed = userRepository.findById(userId);
+		User user = null;
+		if (existed.isEmpty()) {
+			return user;
+		} else {
+			user = existed.get();
+			user.setEmail(updateRequest.getEmail());
+			user.setFirstName(updateRequest.getFirstName());
+			user.setLastName(updateRequest.getLastName());
+			if (updateRequest.getUserRoles() != null && updateRequest.getUserRoles().size() > 0) {
+				for (String role : updateRequest.getUserRoles()) {
+					if (role.equals("PHYSICIAN")) {
+						user.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
+					}
+					if (role.equals("STUDYTEAM")) {
+						user.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
+					}
+				}
+			}
+			user.setPassword(bcryptEncoder.encode(updateRequest.getPassword()));
+			user.setPhoneNumber(updateRequest.getPhone());
+			userRepository.save(user);
+			return user;
+		}
+	}
+
 }

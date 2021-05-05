@@ -11,6 +11,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,8 @@ public class EmailService {
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
+	
+	
 
 	public void sendStudyApprovalEmail(String from, String to, String subject, String name) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
@@ -92,7 +95,6 @@ public class EmailService {
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
 		body = body.replaceAll("\\{\\{email\\}\\}", to);
-		body = body.replaceAll("\\{\\{password\\}\\}", password);
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
@@ -107,4 +109,5 @@ public class EmailService {
 		}
 		return resultStringBuilder.toString();
 	}
+	
 }

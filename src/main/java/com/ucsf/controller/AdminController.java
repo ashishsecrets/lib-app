@@ -3,11 +3,11 @@ package com.ucsf.controller;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,17 +22,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucsf.auth.model.Role;
-import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
-import com.ucsf.payload.request.SignUpRequest;
+import com.ucsf.payload.request.AddUserRequest;
+import com.ucsf.payload.request.UserUpdateRequest;
 import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
+import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -45,33 +47,38 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/api/admin")
 @Api(tags = "Admin Controller")
 public class AdminController {
-	
+
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	EmailService emailService;
-	
+
 	@Autowired
 	JwtConfig jwtConfig;
-	
+
 	@Autowired
 	UserRepository userRepository;
-	
+
 	private static String ROLE_PREFIX = "ROLE_";
-	
+
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
-	
+
+	@Autowired
+	LoggerService loggerService;
+
 	@Value("${spring.mail.from}")
 	String fromEmail;
 
+	private static Logger log = LoggerFactory.getLogger(ConsentController.class);
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ApiOperation(value = "add users", notes = "add users", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Add users", response = User.class) })
-    @PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping(value = "/addUsers", method = RequestMethod.POST)
-	public ResponseEntity<?> getUsers(@RequestBody SignUpRequest signUpRequest) {
+	public ResponseEntity<?> addUsers(@RequestBody AddUserRequest signUpRequest) {
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		String message = "User Registered by Admin";
 		boolean isEnable = true;
@@ -89,7 +96,7 @@ public class AdminController {
 
 		User user = userService.addUser(signUpRequest);
 		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
-				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+			grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
 		}
 
 		UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
@@ -99,7 +106,8 @@ public class AdminController {
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		user.setAuthToken(token);
 		try {
-			emailService.sendCredsToUsersAddedByAdmin(fromEmail,user.getEmail(),"User Registered",user.getFirstName(),user.getPassword());
+			emailService.sendCredsToUsersAddedByAdmin(fromEmail, user.getEmail(), "User Registered",
+					user.getFirstName(), user.getPassword());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -108,4 +116,32 @@ public class AdminController {
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@ApiOperation(value = "Update users", notes = "Update users", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Update users", response = SuccessResponse.class) })
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/updateUser/{userId}", method = RequestMethod.POST)
+	public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody UserUpdateRequest updateUser) {
+		User user = null;
+		JSONObject responseJson = new JSONObject();
+
+		try {
+			user = userService.updateUser(userId, updateUser);
+			if (user == null) {
+				responseJson.put("error",
+						new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+			} else {
+				responseJson.put("data", new SuccessResponse(true, "User updated successfully!"));
+				loggerService.printLogs(log, "updateUser",
+						"User Updated succseefully with request " + updateUser.toString() + "of UserId " + userId);
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			}
+
+		} catch (Exception e) {
+			loggerService.printErrorLogs(log, "updateUser",
+					"Error while updating user with request " + updateUser.toString() + "of UserId " + userId);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
 }
