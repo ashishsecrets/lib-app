@@ -122,48 +122,54 @@ public class UserServiceImpl implements UserService {
 		upper_front.setName("upper_front");
 		upper_front.setDescription("");
 		upper_front.setStudyId(1l);
+		upper_front.setImageUrl("body_parts/upper_front");
 		upper_front.setUserId(savedUser.getId());
-		upper_front.setCount(1l);
+		upper_front.setCount(0l);
 		imageRepository.save(upper_front);
 
 		StudyImages upper_back = new StudyImages();
 		upper_back.setName("upper_back");
 		upper_back.setDescription("");
 		upper_back.setStudyId(1l);
+		upper_back.setImageUrl("body_parts/upper_back");
 		upper_back.setUserId(savedUser.getId());
-		upper_back.setCount(1l);
+		upper_back.setCount(0l);
 		imageRepository.save(upper_back);
 
 		StudyImages lower_front = new StudyImages();
 		lower_front.setName("lower_front");
 		lower_front.setDescription("");
 		lower_front.setStudyId(1l);
+		lower_front.setImageUrl("body_parts/lower_front");
 		lower_front.setUserId(savedUser.getId());
-		lower_front.setCount(1l);
+		lower_front.setCount(0l);
 		imageRepository.save(lower_front);
 
 		StudyImages lower_back = new StudyImages();
-		lower_back.setName("Lower_back");
+		lower_back.setName("lower_back");
 		lower_back.setDescription("");
 		lower_back.setStudyId(1l);
+		lower_back.setImageUrl("body_parts/lower_back");
 		lower_back.setUserId(savedUser.getId());
-		lower_back.setCount(1l);
+		lower_back.setCount(0l);
 		imageRepository.save(lower_back);
 
 		StudyImages full_back = new StudyImages();
 		full_back.setName("full_back");
 		full_back.setDescription("");
 		full_back.setStudyId(1l);
+		full_back.setImageUrl("body_parts/full_back");
 		full_back.setUserId(savedUser.getId());
-		full_back.setCount(1l);
+		full_back.setCount(0l);
 		imageRepository.save(full_back);
 
 		StudyImages special_areas = new StudyImages();
 		special_areas.setName("special_areas");
 		special_areas.setDescription("");
 		special_areas.setStudyId(1l);
+		special_areas.setImageUrl("body_parts/special_areas");
 		special_areas.setUserId(savedUser.getId());
-		special_areas.setCount(1l);
+		special_areas.setCount(0l);
 		imageRepository.save(special_areas);
 
 
