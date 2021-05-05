@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
 		upper_front.setDescription("");
 		upper_front.setStudyId(1l);
 		upper_front.setUserId(savedUser.getId());
-		upper_front.setIndexId(1l);
+		upper_front.setCount(1l);
 		imageRepository.save(upper_front);
 
 		StudyImages upper_back = new StudyImages();
@@ -131,7 +131,7 @@ public class UserServiceImpl implements UserService {
 		upper_back.setDescription("");
 		upper_back.setStudyId(1l);
 		upper_back.setUserId(savedUser.getId());
-		upper_back.setIndexId(1l);
+		upper_back.setCount(1l);
 		imageRepository.save(upper_back);
 
 		StudyImages lower_front = new StudyImages();
@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService {
 		lower_front.setDescription("");
 		lower_front.setStudyId(1l);
 		lower_front.setUserId(savedUser.getId());
-		lower_front.setIndexId(1l);
+		lower_front.setCount(1l);
 		imageRepository.save(lower_front);
 
 		StudyImages lower_back = new StudyImages();
@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
 		lower_back.setDescription("");
 		lower_back.setStudyId(1l);
 		lower_back.setUserId(savedUser.getId());
-		lower_back.setIndexId(1l);
+		lower_back.setCount(1l);
 		imageRepository.save(lower_back);
 
 		StudyImages full_back = new StudyImages();
@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
 		full_back.setDescription("");
 		full_back.setStudyId(1l);
 		full_back.setUserId(savedUser.getId());
-		full_back.setIndexId(1l);
+		full_back.setCount(1l);
 		imageRepository.save(full_back);
 
 		StudyImages special_areas = new StudyImages();
@@ -163,7 +163,7 @@ public class UserServiceImpl implements UserService {
 		special_areas.setDescription("");
 		special_areas.setStudyId(1l);
 		special_areas.setUserId(savedUser.getId());
-		special_areas.setIndexId(1l);
+		special_areas.setCount(1l);
 		imageRepository.save(special_areas);
 
 
