@@ -90,6 +90,9 @@ public class UserServiceImpl implements UserService {
 				if (role.equals("ADMIN")) {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
 				}
+				else {
+					newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
+				}
 			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
