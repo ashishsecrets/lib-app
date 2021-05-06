@@ -1,27 +1,25 @@
 package com.ucsf.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
 import com.ucsf.model.StudyImages;
-import org.json.JSONObject;
 import com.ucsf.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.identitymanagement.model.UpdateUserRequest;
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
-import com.ucsf.common.Constants;
-import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
@@ -30,8 +28,7 @@ import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
-import com.ucsf.payload.response.ErrorResponse;
-import com.ucsf.payload.response.SuccessResponse;
+import com.ucsf.payload.response.StudyResponse;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserMetaDataRepository;
@@ -68,6 +65,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	ImageRepository imageRepository;
 
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+
 	@Override
 	public Page<User> findAll(int page, int size) {
 		Page<User> users = userRepository.findAll(PageRequest.of(page, size));
@@ -89,10 +89,7 @@ public class UserServiceImpl implements UserService {
 			for (String role : user.getUserRoles()) {
 				if (role.equals("ADMIN")) {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
-				} /*
-					 * else { newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT)); }
-					 * newUser.addRole(roleRepository.findByName(RoleName.PATIENT));
-					 */
+				}
 			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
@@ -171,8 +168,6 @@ public class UserServiceImpl implements UserService {
 		special_areas.setUserId(savedUser.getId());
 		special_areas.setCount(0);
 		imageRepository.save(special_areas);
-
-
 
 		return savedUser;
 	}
@@ -267,4 +262,23 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
+	@Override
+	public List<User> getPatients() {
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("select * from user_roles where role_id = 2");
+		List<User> patients = new ArrayList<User>();
+		Long userId = 0l;
+		Optional<User> user = null;
+		User patient = null;
+		for (Map<String, Object> map : patientList) {
+			if (map.get("user_id") != null) {
+				userId = Long.parseLong(map.get("user_id").toString());
+				user = userRepository.findById(userId);
+				if (user.isPresent()) {
+					patient = user.get();
+					patients.add(patient);
+				}
+			}
+		}
+		return patients;
+	}
 }

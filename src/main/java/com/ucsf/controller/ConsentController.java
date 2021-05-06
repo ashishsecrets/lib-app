@@ -58,6 +58,7 @@ public class ConsentController {
 
 	private static Logger log = LoggerFactory.getLogger(ConsentController.class);
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@GetMapping(value = "/getConsentForm")
 	@ResponseBody
 	public ResponseEntity<?> getConsentForm(HttpServletResponse response) {
@@ -110,6 +111,7 @@ public class ConsentController {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@PostMapping(value = "/saveUserConsent")
 	@ResponseBody
 	public ResponseEntity<?> saveUserConsent(@RequestBody ConsentRequest consent) {
@@ -126,7 +128,7 @@ public class ConsentController {
 				loggerService.printLogs(log, "saveUserConsent", "Invalid JWT signature.");
 				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 						Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
-				return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
 			}
 
 			UserMetadata userMetadata = userMetaDataRepository.findByUserId(user.getId());
@@ -135,7 +137,7 @@ public class ConsentController {
 				loggerService.printLogs(log, "saveUserConsent", "User age not specified.");
 				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_AGE_NOT_SPECIFIED.code(),
 						Constants.USER_AGE_NOT_SPECIFIED.errordesc()));
-				return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 			}
 			
 			ConsentForms consentForm = null;

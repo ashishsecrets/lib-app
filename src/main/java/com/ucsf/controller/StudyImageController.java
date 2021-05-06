@@ -44,7 +44,8 @@ public class StudyImageController {
 
     private static final Logger log = LoggerFactory.getLogger(StudyImageController.class);
 
-    @ApiOperation(value = "Get parts", notes = "Get body parts", code = 200, httpMethod = "GET", produces = "application/json")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Get parts", notes = "Get body parts", code = 200, httpMethod = "GET", produces = "application/json")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Parts fetched successfully", response = StudyBodyPartsResponse.class) })
     @RequestMapping(value = "/get-body-parts/{studyId}", method = RequestMethod.GET)
@@ -72,7 +73,7 @@ public class StudyImageController {
                 loggerService.printLogs(log, "imageUrlService", "Invalid User");
                 responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
                         Constants.USER_NOT_FOUND.errordesc()));
-                return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
             }
         } catch (ClassCastException e) {
             e.printStackTrace();
