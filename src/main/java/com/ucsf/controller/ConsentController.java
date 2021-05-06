@@ -22,8 +22,6 @@ import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.ConsentForms;
 import com.ucsf.model.ConsentForms.ConsentType;
-import com.ucsf.model.UserConsent;
-import com.ucsf.model.UserConsent.FormType;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.payload.request.ConsentRequest;
 import com.ucsf.payload.response.ErrorResponse;
@@ -140,40 +138,7 @@ public class ConsentController {
 				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 			}
 			
-			ConsentForms consentForm = null;
-			UserConsent userConsent = new UserConsent();
-			userConsent.setUserId(user.getId());
-			userConsent.setDate(consent.getDate());
-			userConsent.setPatientName(consent.getPatientName());
-			if (userMetadata.getAge() < 18) {
-				userConsent.setParentName(consent.getParentName());
-				if (userMetadata.isConsentAccepted()) {
-					userConsent.setConsentType(ConsentType.ASSENT_FORM);
-					userConsent.setType(FormType.ASSENT);
-					consentForm = consentFormRepository.getConsentFormByConsentType(ConsentType.ASSENT_FORM);
-				} else {
-					userConsent.setConsentType(ConsentType.CONSENT_FORM_FOR_BELOW_18);
-					userConsent.setType(FormType.CONSENT);
-					userMetadata.setConsentAccepted(true);
-					consentForm = consentFormRepository.getConsentFormByConsentType(ConsentType.CONSENT_FORM_FOR_BELOW_18);
-				}
-
-			} else {
-				userConsent.setConsentType(ConsentType.CONSENT_FORM_FOR_ABOVE_18);
-				userConsent.setType(FormType.CONSENT);
-				userMetadata.setConsentAccepted(true);
-				consentForm = consentFormRepository.getConsentFormByConsentType(ConsentType.CONSENT_FORM_FOR_ABOVE_18);
-			}
-
-			//File patientSignature = new File("patientSignature.jpeg");
-			//byte[] decodedBytes = Base64.decodeBase64(consent.getPatientSignature());
-			//FileUtils.writeByteArrayToFile(patientSignature, decodedBytes);
-			
-			userConsentRepository.save(userConsent);
-			userMetaDataRepository.save(userMetadata);
-					
-			//send consent email to user
-			//emailService.sendUserConsentEmail(user.getEmail(), "UCSF Consent", user.getFirstName()+" "+user.getLastName(), consentForm.getFilePath(), userConsent);
+			consentService.saveUserConsent(user, consent, userMetadata);
 			
 			responseJson.put("data", new SuccessResponse(true, "User consent saved successfully."));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);

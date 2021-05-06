@@ -37,6 +37,9 @@ public class UserConsent extends Auditable<String> {
 	@Column(name = "patient_signature")
 	private String patientSignature;
 	
+	@Column(name = "pdf_file")
+	private String pdfFile;
+	
 	@Column(name = "user_id")
 	private Long userId;
 	
