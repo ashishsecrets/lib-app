@@ -34,8 +34,11 @@ import com.ucsf.service.EmailService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
 
+import io.swagger.annotations.Api;
+
 @RestController
 @RequestMapping("/api/consent")
+@Api(tags = "Consent Controller")
 public class ConsentController {
 
 	@Autowired
@@ -121,7 +124,7 @@ public class ConsentController {
 					.getPrincipal();
 			if (userDetail != null && userDetail.getUsername() != null) {
 				user = userService.findByEmail(userDetail.getUsername());
-				loggerService.printLogs(log, "saveUserConsent", "Saving user consent for user " + user.getId());
+				loggerService.printLogs(log, "saveUserConsent", "Saving user consent for user " + user.getEmail());
 			} else {
 				loggerService.printLogs(log, "saveUserConsent", "Invalid JWT signature.");
 				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),

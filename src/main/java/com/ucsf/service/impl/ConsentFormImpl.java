@@ -54,13 +54,13 @@ public class ConsentFormImpl implements ConsentService{
 			userConsent.setPatientName(consent.getPatientName());
 			
 			String fileName = user.getId()+"_"+new Date().getTime();
-			//File patientSignatureFile = decodeBase64String(consent.getPatientSignature(), fileName+".jpeg");
-			//File parentSignatureFile = null;
-			//userConsent.setPatientSignature(saveSignature(patientSignatureFile));
+			File patientSignatureFile = decodeBase64String(consent.getPatientSignature(), fileName+".jpeg");
+			File parentSignatureFile = null;
+			userConsent.setPatientSignature(saveFile(patientSignatureFile, user.getId().toString()));
 			if (userMetadata.getAge() < 18) {
 				userConsent.setParentName(consent.getParentName());
-				//parentSignatureFile = decodeBase64String(consent.getParentSignature(), fileName+".jpeg");
-				//userConsent.setParentSignature(saveSignature(parentSignatureFile));
+				parentSignatureFile = decodeBase64String(consent.getParentSignature(), fileName+".jpeg");
+				userConsent.setParentSignature(saveFile(parentSignatureFile, user.getId().toString()));
 				
 				if (userMetadata.isConsentAccepted()) {
 					userConsent.setConsentType(ConsentType.ASSENT_FORM);
@@ -84,39 +84,29 @@ public class ConsentFormImpl implements ConsentService{
 			userMetaDataRepository.save(userMetadata);
 					
 			//send consent email to user
-			//userConsent = emailService.sendUserConsentEmail(user.getEmail(), "UCSF Consent", user.getFirstName()+" "+user.getLastName(), 
-					//consentForm.getFilePath(), userConsent, fileName, patientSignatureFile, parentSignatureFile);
+			userConsent = emailService.sendUserConsentEmail(user, "UCSF Consent", consentForm.getContent(), userConsent, fileName, patientSignatureFile, parentSignatureFile, userMetadata.getAge().toString());
 			
-			//userConsentRepository.save(userConsent);
-	
+			userConsentRepository.save(userConsent);
+			
+			patientSignatureFile.delete();
+			if(parentSignatureFile != null) {
+				parentSignatureFile.delete();
+			}
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public String saveSignature(File file) {
+	@Override
+	public String saveFile(File file, String fileFolder) {
 		try {
 					
-			String folderName = "signatures";
-			String filePath = folderName+"/"+file.getName();
-			amazonClientService.awsCreateFolder(folderName);
+			String filePath = fileFolder+"/"+file.getName();
+			amazonClientService.awsCreateFolder(fileFolder);
 			amazonClientService.awsPutObject(file, filePath);
 			
 			return filePath;
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public String saveConsentForm(File file) {
-		try {
-			String folderName = "consents";
-			String filePath = folderName+"/"+file.getName();
-			amazonClientService.awsCreateFolder(folderName);
-			amazonClientService.awsPutObject(file, filePath);
-			return filePath;
-		}catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}

@@ -2,10 +2,20 @@
 <html>
 <head>
 <title>SkinTracker Assent Form</title>
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 10px;
+  text-align: left;    
+}
+</style>
 </head>
 <body>
 
-	<h1>UNIVERSITY OF CALIFORNIA SAN FRANCISCO (UCSF) ASSENT TO
+	<h1 ALIGN=CENTER >UNIVERSITY OF CALIFORNIA SAN FRANCISCO (UCSF) ASSENT TO
 		PARTICIPATE IN A RESEARCH STUDY:</h1>
 	<h3 style="text-align: center">For adolescents 13-17 years old</h3>
 	<h2>Study Title: SkinTracker: A Mobile Health App to Monitor Skin
@@ -103,7 +113,7 @@
 		sign here, it means you agree to participate in this study.</br> The doctor
 		will give you a copy of this form to keep.
 	</h3>
-	<form>
+	<!--<form>
 		<label for="fname">Adolescent's Signature:</label><br> <input
 			type="text" id="fname" name="fname" value=""><br> <label
 			for="lname">Adolescent's Name (print):</label><br> <input
@@ -114,7 +124,25 @@
 		<br> <label for="lname"> Name of Person Conducting Assent
 			Discussion (print):</label><br> <input type="text" id="lname"
 			name="lname" value=""><br>
-		<br>
+		<br>-->
+		
+	<table style="width:100%">
+	  <tr>
+	    <td>Adolescent's Signature: <img src={{patientSignature}} alt="Patient_Signature"></td>
+	    <td>Date : {{date}}</td>
+	    <td>Age : {{age}}</td>
+	  </tr>
+	  <tr>
+	    <td>Adolescent's Name : {{patientName}}</td>
+	  </tr>  
+	  <tr>
+	    <td>Signature of Person Conducting Assent Discussion: <img src={{parentSignature}} alt="Parent_Signature"></td>
+	    <td>Date : {{date}}</td>
+	  </tr>
+	  <tr>
+	    <td>Name of Person Conducting Assent Discussion : {{parentName}}</td>
+	  </tr>
+	</table>
 </body>
 </html>
 

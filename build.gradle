@@ -43,6 +43,9 @@ dependencies {
     compile group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
 	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
 	implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+	implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.133'
+	implementation group: 'com.google.firebase', name: 'firebase-admin', version: '7.0.0'
+	implementation group: 'com.itextpdf', name: 'html2pdf', version: '2.1.6'
 }
 
 test {

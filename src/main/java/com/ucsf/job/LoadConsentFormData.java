@@ -12,6 +12,8 @@ import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.ucsf.model.ConsentForms;
@@ -25,11 +27,17 @@ public class LoadConsentFormData {
 	
 	@Autowired ConsentFormRepository consentFormRepository;
 	@Autowired ConsentSectionRepository consentSectionRepository;
+	@Autowired JdbcTemplate jdbcTemplate;
 
 	//@Scheduled(cron="0 */5 * * * *") //please run this job first
 	public void loadFormContent() {
 
 		try {
+			jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
+			jdbcTemplate.update("TRUNCATE TABLE consent_forms");
+			jdbcTemplate.update("TRUNCATE TABLE consent_sections");
+			jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
+			
 			List<ConsentForms> forms = new ArrayList<>();
 			for(String fileName : getResourceFiles("/consentForms/")) {
 				System.out.println("saving... "+ fileName);
@@ -51,7 +59,7 @@ public class LoadConsentFormData {
 				forms.add(consentForm);
 			}
 			consentFormRepository.saveAll(forms);
-			System.out.println("done");
+			System.out.println("consent forms done...");
 			loadSectionContent();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -90,7 +98,7 @@ public class LoadConsentFormData {
 				sections.add(consentSection);
 			}
 			consentSectionRepository.saveAll(sections);
-			System.out.println("done");
+			System.out.println("consent sections done...");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

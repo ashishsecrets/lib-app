@@ -47,6 +47,7 @@ public class AmazonClientService {
 	
 	public Boolean awsCreateFolder(String folderName) {
 		try {
+			folderName = folderName+"/";
 			if(!s3client.doesObjectExist(bucketName, folderName)) {
 				InputStream input = new ByteArrayInputStream(new byte[0]);
 		        ObjectMetadata metadata = new ObjectMetadata();

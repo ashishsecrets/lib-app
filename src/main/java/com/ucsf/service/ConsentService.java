@@ -14,5 +14,5 @@ public interface ConsentService {
 	List<ConsentForms> getConsent();
 	ConsentForms getConsentFormByConsentType(ConsentType consentType);
 	void saveUserConsent(User user, ConsentRequest consent, UserMetadata userMetadata);
-	String saveConsentForm(File pdfFile);
+	String saveFile(File pdfFile, String string);
 }
