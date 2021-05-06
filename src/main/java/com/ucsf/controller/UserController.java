@@ -44,8 +44,8 @@ public class UserController {
 		loadScreeningQuestions.loadSheetContent();
 		System.out.println("1111111111");
 		//loading informatives
-		//loadStudyInformatives.loadSheetContent();
-		loadConsentFormData.loadFormContent();
+		loadStudyInformatives.loadSheetContent();
+		//loadConsentFormData.loadFormContent();
 		System.out.println("2222222222");
 		return ResponseEntity.ok("success");
 	}
