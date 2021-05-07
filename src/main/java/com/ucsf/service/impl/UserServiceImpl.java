@@ -350,4 +350,24 @@ public class UserServiceImpl implements UserService {
 		}
 		return patients;
 	}
+	
+	@Override
+	public List<User> getApprovedPatients() {
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_metadata umd ON ur.user_id = umd.user_id and  umd.study_status = 3 and ur.role_id = 2;");
+		List<User> patients = new ArrayList<User>();
+		Long userId = 0l;
+		Optional<User> user = null;
+		User patient = null;
+		for (Map<String, Object> map : patientList) {
+			if (map.get("user_id") != null) {
+				userId = Long.parseLong(map.get("user_id").toString());
+				user = userRepository.findById(userId);
+				if (user.isPresent()) {
+					patient = user.get();
+					patients.add(patient);
+				}
+			}
+		}
+		return patients;
+	}
 }

@@ -15,4 +15,5 @@ public interface UserService {
 	User findByEmail(String email);
 	User addUser(AddUserRequest user);
 	User updateUser(Long userId,UserUpdateRequest updateUser);
+	List<User> getApprovedPatients();
 }
