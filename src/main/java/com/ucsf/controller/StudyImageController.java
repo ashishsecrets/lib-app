@@ -107,7 +107,7 @@ public class StudyImageController {
 
         if(list != null){
             for(StudyImages item : list){
-                StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount());
+                StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount(), item.getDescription());
                 totalCount += item.getCount();
                 newList.add(data);
             }

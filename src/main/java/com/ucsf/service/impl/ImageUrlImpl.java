@@ -69,7 +69,8 @@ public class ImageUrlImpl implements ImageUrlService {
             saveFile(bodyPartFile, studyImages.getImageUrl());
             int count = studyImages.getCount();
             studyImages.setCount(count+1);
-            studyImages.setDescription(request.getDescription());
+            //to do when we find out what to do with special areas description in next sprint
+            //studyImages.setDescription(request.getDescription());
             imageRepository.save(studyImages);
 
             bodyPartFile.delete();
