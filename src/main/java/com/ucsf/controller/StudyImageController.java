@@ -4,12 +4,18 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.StudyImages;
+import com.ucsf.model.UserMetadata;
+import com.ucsf.payload.request.BodyPartRequest;
+import com.ucsf.payload.request.ConsentRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.StudyBodyPartsResponse;
 import com.ucsf.payload.response.StudyImageUrlData;
+import com.ucsf.payload.response.SuccessResponse;
+import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.ImageUrlService;
 import com.ucsf.service.LoggerService;
+import com.ucsf.service.UserService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +47,12 @@ public class StudyImageController {
 
     @Autowired
     private LoggerService loggerService;
+
+    @Autowired
+    private UserMetaDataRepository userMetaDataRepository;
+
+    @Autowired
+    UserService userService;
 
     private static final Logger log = LoggerFactory.getLogger(StudyImageController.class);
 
@@ -116,5 +128,39 @@ public class StudyImageController {
 
         return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);
 
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @PostMapping(value = "/save-part-image")
+    @ResponseBody
+    public ResponseEntity<?> savePartImage(@RequestBody BodyPartRequest request) {
+        User user = null;
+        JSONObject responseJson = new JSONObject();
+        try {
+
+            UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            if (userDetail != null && userDetail.getUsername() != null) {
+                user = userService.findByEmail(userDetail.getUsername());
+                loggerService.printLogs(log, "savePartImage", "Saving user body part image " + user.getEmail());
+            } else {
+                loggerService.printLogs(log, "savePartImage", "Invalid JWT signature.");
+                responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+                        Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+                return new ResponseEntity(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
+            }
+
+
+            imageUrlService.saveImage(user, request);
+
+            responseJson.put("data", new SuccessResponse(true, "User body part image saved successfully."));
+            return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            loggerService.printErrorLogs(log, "savePartImage", "Error while saving user image.");
+            responseJson.put("error", new ErrorResponse(116, e.getMessage()));
+            return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+        }
     }
 }
