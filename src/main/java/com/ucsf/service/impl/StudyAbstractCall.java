@@ -254,12 +254,7 @@ public class StudyAbstractCall {
         response.setChoices(new ArrayList<>());
         response.setMessage(message);
         response.setMessage("");
-        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l) != null){
-            response.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l).getInfoDescription());
-        }
-        else{
-            response.setInformation("");
-        }
+        response.setInformation("");
         return response;
     }
 
