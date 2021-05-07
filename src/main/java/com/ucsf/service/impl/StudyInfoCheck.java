@@ -64,7 +64,7 @@ public class StudyInfoCheck {
     
      if (lastAnswer.getIndexValue()==6) {
         if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("None of Above")) {
-            screenTestData.setMessage("Thank you for your interest in this study! We will review your answers and will follow up with you via email or phone to discuss in detail the study and your ability to participate.");
+            screenTestData.setMessage("");
             screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.FALSE);
         }
         else{
