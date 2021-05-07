@@ -19,6 +19,7 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
 import io.swagger.annotations.Api;
@@ -98,6 +99,42 @@ public class PatientController {
 			return new ResponseEntity(response.toMap(), HttpStatus.OK);
 		} catch (Exception e) {
 			response.put("error", patients);
+			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	//@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@ApiOperation(value = "Check patient approval", notes = "Check Patient Approved or not", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Fetched Approved Patient", response = Boolean.class) })
+	@RequestMapping(value = "/isApproved", method = RequestMethod.GET)
+	public ResponseEntity<?> checkPatientApproval() {
+		JSONObject response = new JSONObject();
+		User user = null;
+		Boolean isApproved = false;
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			loggerService.printLogs(log, "checkPatientApproval", "Checking if user is approved or not for study " + user.getEmail());
+		} else {
+			loggerService.printLogs(log, "getAllPatients", "Invalid JWT signature.");
+			response.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			isApproved = userService.isApproved(user.getId());
+			if(isApproved) {
+				response.put("data", new SuccessResponse(true,"Patient is Approved"));
+				return new ResponseEntity(response.toMap(), HttpStatus.OK);
+			}
+			else {
+				response.put("data", new SuccessResponse(false,"Patient is Not approved"));
+				return new ResponseEntity(response.toMap(), HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			response.put("data", new ErrorResponse(403,"Internal Server Error"));
 			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}

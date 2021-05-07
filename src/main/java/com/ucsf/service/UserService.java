@@ -16,4 +16,5 @@ public interface UserService {
 	User addUser(AddUserRequest user);
 	User updateUser(Long userId,UserUpdateRequest updateUser);
 	List<User> getApprovedPatients();
+	Boolean isApproved(Long userId);
 }

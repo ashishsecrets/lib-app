@@ -370,4 +370,16 @@ public class UserServiceImpl implements UserService {
 		}
 		return patients;
 	}
+
+	@Override
+	public Boolean isApproved(Long userId) {
+		UserMetadata metadata = new UserMetadata();
+		metadata = userMetaDataRepository.findByStudyStatusAndUserId(StudyStatus.ENROLLED,userId);
+		if(metadata == null) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
 }
