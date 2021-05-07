@@ -253,7 +253,6 @@ public class StudyAbstractCall {
         response.setScreeningAnswers(new ScreeningAnswers());
         response.setChoices(new ArrayList<>());
         response.setMessage(message);
-        response.setMessage("");
         response.setInformation("");
         return response;
     }
