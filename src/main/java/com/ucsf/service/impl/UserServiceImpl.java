@@ -28,7 +28,6 @@ import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
-import com.ucsf.payload.response.StudyResponse;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserMetaDataRepository;
@@ -267,7 +266,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<User> getPatients() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("select * from user_roles where role_id = 2");
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_metadata umd ON ur.user_id = umd.user_id and  umd.study_status = 0 and ur.role_id = 2;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
