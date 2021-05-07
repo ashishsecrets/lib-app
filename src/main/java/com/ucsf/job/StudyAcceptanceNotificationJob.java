@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 import com.ucsf.auth.model.User;
@@ -62,7 +63,7 @@ public class StudyAcceptanceNotificationJob {
 
 	private static Logger log = LoggerFactory.getLogger(StudyAcceptanceNotificationJob.class);
 
-	// @Scheduled(cron="0 */1 * * * *")
+	 @Scheduled(cron="0 */5 * * * *")
 	public void sendNotifications() {
 		loggerService.printLogs(log, "sendNotifications",
 				"Job started for sending study approval notifications " + new Date());
