@@ -66,7 +66,7 @@ public class ImageUrlImpl implements ImageUrlService {
 
             StudyImages studyImages = imageRepository.findById(request.getId()).get();
 
-            saveFile(bodyPartFile, studyImages.getImageUrl());
+            saveFile(bodyPartFile, studyImages.getImageUrl()+"/"+user.getId().toString());
             int count = studyImages.getCount();
             studyImages.setCount(count+1);
             studyImages.setDescription(request.getDescription());
