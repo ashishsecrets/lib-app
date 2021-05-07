@@ -36,7 +36,7 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/images")
-@Api(tags = "Screening-Answer Controller")
+@Api(tags = "Study-Image Controller")
 public class StudyImageController {
 
     @Autowired
