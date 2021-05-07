@@ -107,7 +107,7 @@ public class AdminController {
 		user.setAuthToken(token);
 		try {
 			emailService.sendCredsToUsersAddedByAdmin(fromEmail, user.getEmail(), "User Registered",
-					user.getFirstName(), user.getPassword());
+					user.getFirstName(), signUpRequest.getPassword());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

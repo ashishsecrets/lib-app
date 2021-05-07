@@ -103,6 +103,7 @@ public class EmailService {
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
 		body = body.replaceAll("\\{\\{email\\}\\}", to);
+		body = body.replaceAll("\\{\\{password\\}\\}", password);
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
