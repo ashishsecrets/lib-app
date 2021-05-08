@@ -63,7 +63,7 @@ public class StudyAcceptanceNotificationJob {
 
 	private static Logger log = LoggerFactory.getLogger(StudyAcceptanceNotificationJob.class);
 
-	 @Scheduled(cron="0 */5 * * * *")
+	 @Scheduled(cron="0 */1 * * * *")
 	public void sendNotifications() {
 		loggerService.printLogs(log, "sendNotifications",
 				"Job started for sending study approval notifications " + new Date());
