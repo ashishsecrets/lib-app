@@ -115,16 +115,27 @@ public class StudyController {
 			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 		}
 		List<StudyResponse> listStudyResponse = new ArrayList<StudyResponse>();
+		List<StudyFetchResponse> listResponse = new ArrayList<>();
 		try {
 			listStudyResponse = studyService.getStudies(user.getId());
 			loggerService.printLogs(log, "fetchAllStudies", "Studies fetched successfully for user " + user.getEmail());
-			responseJson.put("data", listStudyResponse);
+			for(int i = 0; i < listStudyResponse.size(); i++){
+				listResponse.add(new StudyFetchResponse());
+				listResponse.get(i).setStudy(listStudyResponse.get(i));
+				listResponse.get(i).setUserImageCount(studyService.getImageCount(1l, user.getId()));
+			}
+			responseJson.put("data", listResponse);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
-
-		} catch (Exception e) {
+		}
+		 catch (Exception e) {
 			loggerService.printErrorLogs(log, "fetchAllStudies",
 					"Failed Studies fetch request for user " + user.getEmail());
-			responseJson.put("data", listStudyResponse);
+			for(int i = 0; i < listStudyResponse.size(); i++){
+				listResponse.add(new StudyFetchResponse());
+				listResponse.get(i).setStudy(listStudyResponse.get(i));
+				listResponse.get(i).setUserImageCount(studyService.getImageCount(1l, user.getId()));
+			}
+			responseJson.put("data", listResponse);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}

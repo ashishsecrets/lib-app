@@ -48,6 +48,9 @@ public class StudyServiceImpl implements StudyService {
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
 
+	@Autowired
+	ImageRepository imageRepository;
+
 	@Override
 	public void save(StudyRequest studyRequest) {
 		UcsfStudy study = new UcsfStudy();
@@ -83,6 +86,24 @@ public class StudyServiceImpl implements StudyService {
 			listStudyResponse.add(studyResponse);
 		}
 		return listStudyResponse;
+	}
+
+	@Override
+	public int getImageCount(Long studyId, Long userId) {
+		int totalCount = 0;
+		List<StudyImages> list = null;
+
+		if(studyId != null && userId != null){
+
+			list = imageRepository.findByStudyIdAndUserId(studyId, userId);
+
+		}
+
+		for(StudyImages item: list){
+			totalCount += item.getCount();
+		}
+
+		return totalCount;
 	}
 
 	@Override
