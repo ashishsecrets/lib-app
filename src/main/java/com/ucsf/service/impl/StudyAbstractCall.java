@@ -243,6 +243,7 @@ public class StudyAbstractCall {
         else{
             response.setInformation("");
         }
+        response.setIsDisqualified(userScreeningStatus.getUserScreeningStatus() == UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
 
         return response;
     }
@@ -254,6 +255,7 @@ public class StudyAbstractCall {
         response.setChoices(new ArrayList<>());
         response.setMessage(message);
         response.setInformation("");
+        response.setIsDisqualified(userScreeningStatus.getUserScreeningStatus() == UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
         return response;
     }
 

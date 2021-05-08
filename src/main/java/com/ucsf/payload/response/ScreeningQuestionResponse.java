@@ -18,5 +18,6 @@ public class ScreeningQuestionResponse {
 	Boolean isLastQuestion;
 	String message;
 	String information;
+	Boolean isDisqualified;
 	
 }

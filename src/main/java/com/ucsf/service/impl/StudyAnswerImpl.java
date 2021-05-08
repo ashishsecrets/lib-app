@@ -168,6 +168,11 @@ public class StudyAnswerImpl implements AnswerSaveService {
 					}
 						if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
 
+							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
+							studyAbstractCall.userScreeningStatus.setIndexValue(current);
+							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
+							userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+
 							response = studyAbstractCall.displayNullQuesNAns(screenTestData.getMessage());
 
 							if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE){
@@ -176,9 +181,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 								response.setIsLastQuestion(false);
 							}
 
-							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
-							studyAbstractCall.userScreeningStatus.setIndexValue(current);
-							userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+
 
 						} else if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.FALSE)  {
 
