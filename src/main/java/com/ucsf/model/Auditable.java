@@ -20,7 +20,7 @@ import lombok.Data;
 @EntityListeners(AuditingEntityListener.class)
 @Data
 public class Auditable<U> {
-	@JsonIgnore
+	
 	@CreatedBy
 	@Column(name = "created_by")
 	private U createdBy;
@@ -29,7 +29,6 @@ public class Auditable<U> {
 	@Column(name = "created_date")
 	private Date createdDate;
 
-	@JsonIgnore
 	@LastModifiedBy
 	@Column(name = "last_modified_by")
 	private U lastModifiedBy;

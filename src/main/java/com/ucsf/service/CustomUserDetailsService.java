@@ -1,7 +1,6 @@
 package com.ucsf.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,11 +20,6 @@ import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
 import com.ucsf.config.JwtConfig;
-import com.ucsf.model.UserMetadata;
-import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
-import com.ucsf.model.UserScreeningStatus;
-import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
-import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
