@@ -122,7 +122,7 @@ public class StudyController {
 			for(int i = 0; i < listStudyResponse.size(); i++){
 				listResponse.add(new StudyFetchResponse());
 				listResponse.get(i).setStudy(listStudyResponse.get(i));
-				listResponse.get(i).setUserImageCount(studyService.getImageCount((long) (i + 1), user.getId()));
+				listResponse.get(i).setUserImageCount(studyService.getImageCount(listStudyResponse.get(i).getId(), user.getId()));
 			}
 			responseJson.put("data", listResponse);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
@@ -133,7 +133,7 @@ public class StudyController {
 			for(int i = 0; i < listStudyResponse.size(); i++){
 				listResponse.add(new StudyFetchResponse());
 				listResponse.get(i).setStudy(listStudyResponse.get(i));
-				listResponse.get(i).setUserImageCount(studyService.getImageCount((long) (i + 1), user.getId()));
+				listResponse.get(i).setUserImageCount(studyService.getImageCount(listStudyResponse.get(i).getId(), user.getId()));
 			}
 			responseJson.put("data", listResponse);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);

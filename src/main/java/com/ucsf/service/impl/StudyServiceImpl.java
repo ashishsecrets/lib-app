@@ -79,6 +79,7 @@ public class StudyServiceImpl implements StudyService {
 			}
 			studyResponse.setDescription(map.get("description").toString());
 			studyResponse.setTitle(map.get("title").toString());
+			studyResponse.setId((Long) map.get("study_id"));
 			studyResponse.setDefault(
 					Boolean.parseBoolean(map.get("is_default") != null ? map.get("is_default").toString() : ""));
 			studyResponse.setEnabled(
