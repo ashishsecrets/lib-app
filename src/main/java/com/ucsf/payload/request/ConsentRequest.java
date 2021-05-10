@@ -9,6 +9,7 @@ public class ConsentRequest {
 	private String parentName;
     private String patientName;
     private String date;
+    private String age;
     private String parentSignature;
     private String patientSignature;
    
