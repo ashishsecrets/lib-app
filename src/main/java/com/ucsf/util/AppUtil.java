@@ -21,7 +21,7 @@ public class AppUtil {
 	
 	public static Long getAge(String birthDate) {
 		try {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 			LocalDate localDate = LocalDate.parse(birthDate, formatter);
 			
 			LocalDate now = LocalDate.now();
