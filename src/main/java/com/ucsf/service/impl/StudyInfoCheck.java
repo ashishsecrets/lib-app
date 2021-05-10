@@ -63,13 +63,12 @@ public class StudyInfoCheck {
         }
     
      if (lastAnswer.getIndexValue()==6) {
-        if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("None of Above")) {
-            screenTestData.setMessage("");
-            screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.FALSE);
-        }
-        else{
+        if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("None of Above")) {
             screenTestData.setMessage("Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center");
             screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.TRUE);
+        }
+        else{
+            screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.NONE);
         }
     }
         return screenTestData;
