@@ -4,14 +4,13 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.controller.ScreeningAnswerController;
-import com.ucsf.model.ScreeningAnsChoice;
-import com.ucsf.model.ScreeningAnswers;
-import com.ucsf.model.ScreeningQuestions;
-import com.ucsf.model.UserScreeningStatus;
+import com.ucsf.model.*;
 import com.ucsf.payload.request.ScreeningAnswerRequest;
+import com.ucsf.payload.request.SurveyAnswerRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
 import com.ucsf.payload.response.StudyInfoData;
+import com.ucsf.payload.response.SurveyQuestionResponse;
 import com.ucsf.repository.*;
 import com.ucsf.service.LoggerService;
 import lombok.Data;
@@ -39,6 +38,12 @@ public class StudyAbstractCall {
     ScreeningQuestionRepository screeningQuestionRepository;
 
     @Autowired
+    SurveyQuestionRepository surveyQuestionRepository;
+
+    @Autowired
+    SurveyAnswerRepository surveyAnswerRepository;
+
+    @Autowired
     UserScreeningStatusRepository userScreeningStatusRepository;
 
     @Autowired
@@ -49,6 +54,9 @@ public class StudyAbstractCall {
 
     @Autowired
     ChoiceRepository choiceRepository;
+
+    @Autowired
+    SurveyChoiceRepository surveyChoiceRepository;
 
     @Autowired
     private LoggerService loggerService;
@@ -69,9 +77,14 @@ public class StudyAbstractCall {
 
     ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 
+    SurveyQuestionResponse surveyResponse = new SurveyQuestionResponse();
+
+
     User user = null;
 
     ScreeningAnswerRequest answerRequest = new ScreeningAnswerRequest();
+
+    SurveyAnswerRequest surveyAnswerRequest = new SurveyAnswerRequest();
 
     UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 
@@ -226,6 +239,17 @@ public class StudyAbstractCall {
         return value;
     }
 
+    public SurveyQuestion getSurveyQuestionToDisplayToUser(int index) {
+
+        return surveyQuestionRepository.findByStudyIdAndIndexValue(
+                userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), index);
+    }
+
+    public SurveyAnswer getSurveyAnswerToDisplayToUser(Long index) {
+        return surveyAnswerRepository.findByQuestionIdAndAnsweredById(index, user.getId());
+    }
+
+
     public ScreeningQuestionResponse displayQuesNAns(ScreeningQuestions questionToDisplayToUser, ScreeningAnswers answerToDisplayToUser) {
 
         List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(questionToDisplayToUser.getId());
@@ -246,6 +270,39 @@ public class StudyAbstractCall {
         response.setIsDisqualified(userScreeningStatus.getUserScreeningStatus() == UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
 
         return response;
+    }
+
+    public SurveyQuestionResponse displaySurveyNullQuesNAns(String message) {
+
+        surveyResponse.setSurveyQuestion(new SurveyQuestion());
+        surveyResponse.setSurveyAnswer(new SurveyAnswer());
+        surveyResponse.setChoices(new ArrayList<>());
+        surveyResponse.setMessage(message);
+        surveyResponse.setInformation("");
+        surveyResponse.setIsDisqualified(userScreeningStatus.getUserScreeningStatus() == UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
+        return surveyResponse;
+    }
+
+    public SurveyQuestionResponse displaySurveyQuesNAns(SurveyQuestion questionToDisplayToUser, SurveyAnswer answerToDisplayToUser) {
+
+        List<SurveyAnswerChoice> choices = surveyChoiceRepository.findByQuestionId(questionToDisplayToUser.getId());
+        surveyResponse.setSurveyQuestion(questionToDisplayToUser);
+        if (answerToDisplayToUser == null) {
+            answerToDisplayToUser = new SurveyAnswer();
+        }
+        surveyResponse.setSurveyAnswer(answerToDisplayToUser);
+        surveyResponse.setChoices(choices);
+        surveyResponse.setIsLastQuestion(getIsLastQuestionBool());
+        surveyResponse.setMessage("");
+        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l) != null){
+            surveyResponse.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l).getInfoDescription());
+        }
+        else{
+            surveyResponse.setInformation("");
+        }
+        surveyResponse.setIsDisqualified(userScreeningStatus.getUserScreeningStatus() == UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
+
+        return surveyResponse;
     }
 
     public ScreeningQuestionResponse displayNullQuesNAns(String message) {

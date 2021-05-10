@@ -1,5 +1,8 @@
 package com.ucsf.controller;
 
+import com.ucsf.payload.request.SurveyAnswerRequest;
+import com.ucsf.payload.response.SurveyQuestionResponse;
+import com.ucsf.service.AnswerSaveService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +27,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import javax.transaction.Transactional;
 
 @RestController
 @CrossOrigin
@@ -80,5 +85,18 @@ public class SurveyController {
 		surveyRepository.save(survey);
 		responseJson.put("data", new SuccessResponse(true, "Survey saved successfully!"));
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+	}
+
+	@Autowired
+	AnswerSaveService answerSaveService;
+
+	@Transactional
+	@ApiOperation(value = "Save answer", notes = "Save survey answer", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Answer saved successfully", response = SurveyQuestionResponse.class) })
+	@RequestMapping(value = "/answer-save", method = RequestMethod.POST)
+	public ResponseEntity<?> saveSurveyAnswers(@RequestBody SurveyAnswerRequest answerRequest) throws Exception {
+		return answerSaveService.saveSurveyAnswer(answerRequest);
+
 	}
 }
