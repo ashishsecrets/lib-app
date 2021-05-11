@@ -114,7 +114,7 @@ public class OtpController {
 				// expiryTime = expiryTime.plusHours(24);
 				long otpExpiry = Timestamp.valueOf(expiryTime).getTime();
 				try {
-					emailService.sendOtpEmail(fromEmail, user.getEmail(), "Otp for verification",
+					emailService.sendOtpEmail(fromEmail, user.getEmail(), "Otp for Skin Tracker verification",
 							user.getFirstName() + " " + user.getLastName(), otpCode);
 					otp.setOtpCode(otpCode);
 					otp.setOtpExpiry(otpExpiry);
@@ -285,7 +285,7 @@ public class OtpController {
 			// expiryTime = expiryTime.plusHours(24);
 			long otpExpiry = Timestamp.valueOf(expiryTime).getTime();
 			try {
-				emailService.sendOtpEmail(fromEmail, user.getEmail(), "Otp for verification",
+				emailService.sendOtpEmail(fromEmail, user.getEmail(), " Skin tracker Otp for verification",
 						user.getFirstName() + " " + user.getLastName(), otpCode);
 				otp.setOtpCode(otpCode);
 				otp.setOtpExpiry(otpExpiry);
