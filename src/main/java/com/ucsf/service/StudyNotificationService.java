@@ -88,14 +88,12 @@ public class StudyNotificationService {
 				note.setSubject("Study Confirmation");
 				note.setType("approval");
 				Map<String, String> data = new TreeMap<String, String>();
-				data.put("1", "value");
+				data.put("type", "approval");
 				data.put("2", "value2");
 
 				note.setData(data);
 				String token = approvedUser.getDevideId();
-				System.out.println("111111111111"+token);
 				String msgId = pushNotificationService.sendNotification(note,token);
-				System.out.println("22222222222"+msgId);
 				metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
 				metaData.setStudyStatus(StudyStatus.ENROLLED);
 				userMetaDataRepository.save(metaData);
@@ -158,7 +156,7 @@ public class StudyNotificationService {
 						"Dear " + disApprovedUser.getFirstName() + "Your Eczema Tracking Study has been disapproved");
 				note.setSubject("Study Confirmation");
 				Map<String, String> data = new TreeMap<String, String>();
-				data.put("1", "value");
+				data.put("type", "disapproval");
 				data.put("2", "value2");
 
 				note.setData(data);
