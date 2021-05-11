@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import com.ucsf.auth.model.User;
+import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
@@ -16,5 +18,5 @@ public interface UserService {
 	User addUser(AddUserRequest user);
 	User updateUser(Long userId,UserUpdateRequest updateUser);
 	List<User> getApprovedPatients();
-	Boolean isApproved(Long userId);
+	UserMetadata getUserStatus(Long userId);
 }

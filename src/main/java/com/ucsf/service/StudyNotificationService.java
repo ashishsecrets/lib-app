@@ -86,6 +86,7 @@ public class StudyNotificationService {
 				// Todo Dynamic Study name
 				note.setContent("Dear " + approvedUser.getFirstName() + " Your Eczema Tracking Study has been Approved");
 				note.setSubject("Study Confirmation");
+				note.setType("approval");
 				Map<String, String> data = new TreeMap<String, String>();
 				data.put("1", "value");
 				data.put("2", "value2");
@@ -161,6 +162,7 @@ public class StudyNotificationService {
 				data.put("2", "value2");
 
 				note.setData(data);
+				note.setType("disapproval");
 				String msgId = pushNotificationService.sendNotification(note, disApprovedUser.getDevideId());
 				metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
 				metaData.setStudyStatus(StudyStatus.DISQUALIFIED);

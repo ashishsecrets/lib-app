@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,7 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
+import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.payload.response.StudyResponse;
+import com.ucsf.payload.response.StudyStatusResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
@@ -42,7 +47,7 @@ public class PatientController {
 	private static final Logger log = LoggerFactory.getLogger(PatientController.class);
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	//@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@ApiOperation(value = "Get all patients", notes = "Get all patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all patients", response = User.class) })
 	@RequestMapping(value = "/getAllPatients", method = RequestMethod.GET)
@@ -73,7 +78,7 @@ public class PatientController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	//@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@ApiOperation(value = "Get approved patients", notes = "Get approved patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of approved patients", response = User.class) })
 	@RequestMapping(value = "/getApprovedPatients", method = RequestMethod.GET)
@@ -104,14 +109,14 @@ public class PatientController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	//@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_PATIENT')")
 	@ApiOperation(value = "Check patient approval", notes = "Check Patient Approved or not", code = 200, httpMethod = "GET", produces = "application/json")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Fetched Approved Patient", response = Boolean.class) })
-	@RequestMapping(value = "/isApproved", method = RequestMethod.GET)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Fetched Approved Patient", response = StudyStatusResponse.class) })
+	@RequestMapping(value = "/getPatientStudyStatus", method = RequestMethod.GET)
 	public ResponseEntity<?> checkPatientApproval() {
 		JSONObject response = new JSONObject();
 		User user = null;
-		Boolean isApproved = false;
+		UserMetadata studyStatus = null;
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userDetail != null && userDetail.getUsername() != null) {
@@ -124,17 +129,17 @@ public class PatientController {
 			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
 		}
 		try {
-			isApproved = userService.isApproved(user.getId());
-			if(isApproved) {
-				response.put("data", new SuccessResponse(true,"Patient is Approved"));
+			studyStatus = userService.getUserStatus(user.getId());
+			if(studyStatus != null) {
+				response.put("data", new StudyStatusResponse(true,studyStatus.getStudyStatus()));
 				return new ResponseEntity(response.toMap(), HttpStatus.OK);
 			}
 			else {
-				response.put("data", new SuccessResponse(false,"Patient is Not approved"));
+				response.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),Constants.USER_NOT_FOUND.errordesc()));
 				return new ResponseEntity(response.toMap(), HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			response.put("data", new ErrorResponse(403,"Internal Server Error"));
+			response.put("data", new ErrorResponse(403,e.getMessage()));
 			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}

@@ -59,13 +59,13 @@ public class UserServiceImpl implements UserService {
 	EmailService emailService;
 
 	@Autowired
-	UserScreeningStatusRepository userScreeningStatusRepository;
-
-	@Autowired
 	ImageRepository imageRepository;
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	UserScreeningStatusRepository userScreeningStatusRepository;
 
 	@Override
 	public Page<User> findAll(int page, int size) {
@@ -372,14 +372,15 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Boolean isApproved(Long userId) {
-		UserMetadata metadata = new UserMetadata();
-		metadata = userMetaDataRepository.findByStudyStatusAndUserId(StudyStatus.ENROLLED,userId);
-		if(metadata == null) {
-			return false;
+	public UserMetadata getUserStatus(Long userId) {
+		UserMetadata status = new UserMetadata();
+		//metadata = userMetaDataRepository.findByStudyStatusAndUserId(StudyStatus.ENROLLED,userId);
+		status = userMetaDataRepository.findByUserId(userId);
+		if(status == null) {
+			return null;
 		}
 		else {
-			return true;
+			return status;
 		}
 	}
 }

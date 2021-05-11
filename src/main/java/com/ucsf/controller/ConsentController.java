@@ -46,14 +46,19 @@ public class ConsentController {
 
 	@Autowired
 	UserService userService;
+	
 	@Autowired
 	private LoggerService loggerService;
+	
 	@Autowired
 	private UserMetaDataRepository userMetaDataRepository;
+	
 	@Autowired
 	private UserConsentRepository userConsentRepository;
+	
 	@Autowired
 	ConsentFormRepository consentFormRepository;
+	
 	@Autowired
 	EmailService emailService;
 
@@ -140,9 +145,9 @@ public class ConsentController {
 						Constants.USER_AGE_NOT_SPECIFIED.errordesc()));
 				return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 			}
-			
+
 			consentService.saveUserConsent(user, consent, userMetadata);
-			
+
 			responseJson.put("data", new SuccessResponse(true, "User consent saved successfully."));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 
