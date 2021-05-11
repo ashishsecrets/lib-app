@@ -153,7 +153,7 @@ public class StudyNotificationService {
 				Note note = new Note();
 				// Todo Dynamic Study name
 				note.setContent(
-						"Dear " + disApprovedUser.getFirstName() + "Your Eczema Tracking Study has been disapproved");
+						"Dear " + disApprovedUser.getFirstName() + " Your Eczema Tracking Study has been disapproved");
 				note.setSubject("Study Confirmation");
 				Map<String, String> data = new TreeMap<String, String>();
 				data.put("type", "disapproval");

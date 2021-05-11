@@ -61,7 +61,7 @@ public class ConsentFormImpl implements ConsentService{
 				userConsent.setParentName(consent.getParentName());
 				parentSignatureFile = decodeBase64String(consent.getParentSignature(), fileName+".jpeg");
 				userConsent.setParentSignature(saveFile(parentSignatureFile, user.getId().toString()));
-				
+				userConsent.setAge(consent.getAge());
 				if (userMetadata.isConsentAccepted()) {
 					userConsent.setConsentType(ConsentType.ASSENT_FORM);
 					userConsent.setType(FormType.ASSENT);
@@ -84,7 +84,7 @@ public class ConsentFormImpl implements ConsentService{
 			userMetaDataRepository.save(userMetadata);
 					
 			//send consent email to user
-			userConsent = emailService.sendUserConsentEmail(user, "UCSF Consent", consentForm.getContent(), userConsent, fileName, patientSignatureFile, parentSignatureFile, userMetadata.getAge().toString());
+			userConsent = emailService.sendUserConsentEmail(user, "UCSF Consent", consentForm.getContent(), userConsent, fileName, patientSignatureFile, parentSignatureFile, consent.getAge());
 			
 			userConsentRepository.save(userConsent);
 			
