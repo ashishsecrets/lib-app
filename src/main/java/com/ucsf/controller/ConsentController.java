@@ -113,7 +113,7 @@ public class ConsentController {
 			e.printStackTrace();
 			loggerService.printErrorLogs(log, "getConsentForm", "Error while getting consent form. ");
 			responseJson.put("error", new ErrorResponse(116, e.getMessage()));
-			return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
