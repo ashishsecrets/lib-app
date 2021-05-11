@@ -1,7 +1,10 @@
 package com.ucsf.job;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +32,7 @@ import com.twilio.type.PhoneNumber;
 @EnableAutoConfiguration
 @EnableScheduling
 @Service
-public class StudyAcceptanceNotificationJob {
+public class StudyAcceptanceNotificationService{
 
 	@Value("${spring.mail.from}")
 	String fromEmail;
@@ -61,10 +64,10 @@ public class StudyAcceptanceNotificationJob {
 	@Autowired
 	PushNotificationService pushNotificationService;
 
-	private static Logger log = LoggerFactory.getLogger(StudyAcceptanceNotificationJob.class);
+	private static Logger log = LoggerFactory.getLogger(StudyAcceptanceNotificationService.class);
 
-	 @Scheduled(cron="0 */5 * * * *")
-	public void sendNotifications() {
+	// @Scheduled(cron="0 */5 * * * *")
+	public void sendApproveNotifications(Long userId) {
 		loggerService.printLogs(log, "sendNotifications",
 				"Job started for sending study approval notifications " + new Date());
 		Optional<User> user = null;
@@ -160,6 +163,11 @@ public class StudyAcceptanceNotificationJob {
 					note.setContent(
 							"Dear " + approvedUser.getFirstName() + "Your Eczema Tracking Study has been disApproved");
 					note.setSubject("Study Confirmation");
+					Map<String, String> data = new TreeMap<String, String>();
+					data.put("1", "value");
+					data.put("2", "value2");
+
+					note.setData(data);
 					String msgId = pushNotificationService.sendNotification(note, approvedUser.getDevideId());
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
 					metaData.setStudyStatus(StudyStatus.DISQUALIFIED);
