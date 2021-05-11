@@ -86,6 +86,7 @@ public class LoadConsentFormData {
 				ConsentSection consentSection = new ConsentSection();
 				consentSection.setContent(section);
 				consentSection.setFilePath("sections/"+sectionName);
+				consentSection.setSectionNumber(Integer.parseInt(sectionName.replace(".html", "").substring(sectionName.lastIndexOf("_")+1)));
 				
 				if(sectionName.toLowerCase().contains("assent")) {
 					consentSection.setConsentFormId(formsMap.get(ConsentType.ASSENT_FORM));
@@ -94,7 +95,6 @@ public class LoadConsentFormData {
 				} else {
 					consentSection.setConsentFormId(formsMap.get(ConsentType.CONSENT_FORM_FOR_ABOVE_18));
 				}
-				
 				sections.add(consentSection);
 			}
 			consentSectionRepository.saveAll(sections);

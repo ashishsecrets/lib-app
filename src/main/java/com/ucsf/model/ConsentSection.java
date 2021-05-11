@@ -24,4 +24,7 @@ public class ConsentSection extends Auditable<String> {
 	
 	@Column(name = "consent_form_id")
 	private Long consentFormId;
+	
+	@Column(name = "section_number")
+	private Integer sectionNumber;
 }

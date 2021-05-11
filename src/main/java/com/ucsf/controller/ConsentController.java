@@ -1,5 +1,9 @@
 package com.ucsf.controller;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
@@ -22,6 +26,7 @@ import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.ConsentForms;
 import com.ucsf.model.ConsentForms.ConsentType;
+import com.ucsf.model.ConsentSection;
 import com.ucsf.model.UserMetadata;
 import com.ucsf.payload.request.ConsentRequest;
 import com.ucsf.payload.response.ErrorResponse;
@@ -46,19 +51,19 @@ public class ConsentController {
 
 	@Autowired
 	UserService userService;
-	
+
 	@Autowired
 	private LoggerService loggerService;
-	
+
 	@Autowired
 	private UserMetaDataRepository userMetaDataRepository;
-	
+
 	@Autowired
 	private UserConsentRepository userConsentRepository;
-	
+
 	@Autowired
 	ConsentFormRepository consentFormRepository;
-	
+
 	@Autowired
 	EmailService emailService;
 
@@ -94,6 +99,8 @@ public class ConsentController {
 				return new ResponseEntity(responseJson, HttpStatus.BAD_REQUEST);
 			}
 
+			List<ConsentSection> sections = new ArrayList<ConsentSection>();
+
 			ConsentForms consentForm = null;
 			if (userMetadata.getAge() < 18) {
 				if (userMetadata.isConsentAccepted()) {
@@ -101,14 +108,17 @@ public class ConsentController {
 				} else {
 					consentForm = consentService.getConsentFormByConsentType(ConsentType.CONSENT_FORM_FOR_BELOW_18);
 				}
-				responseJson.put("data", consentForm);
-				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+
 			} else {
 				consentForm = consentService.getConsentFormByConsentType(ConsentType.CONSENT_FORM_FOR_ABOVE_18);
-				responseJson.put("data", consentForm);
-				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
-			}
 
+			}
+			sections = consentForm.getSections();
+		    sections.sort(Comparator.comparingInt(ConsentSection::getSectionNumber));
+			//consentForm.getSections().clear();
+			consentForm.setSections(sections);
+			responseJson.put("data", consentForm);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			loggerService.printErrorLogs(log, "getConsentForm", "Error while getting consent form. ");
