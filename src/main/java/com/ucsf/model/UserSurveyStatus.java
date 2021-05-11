@@ -18,7 +18,7 @@ public class UserSurveyStatus {
 	}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "status_id")
+	@Column(name = "survey_status_id")
 	private Long id;
 
 	@Column(name = "user_survey_status")

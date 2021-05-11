@@ -75,6 +75,7 @@ public class StudyAbstractCall {
     JSONObject responseJson = new JSONObject();
 
     int quesIncrement = 0;
+    int quesSurveyIncrement = 0;
 
     ScreeningQuestions questionToDisplayToUser;
 
@@ -109,6 +110,17 @@ public class StudyAbstractCall {
             quesIncrement = 0;
         }
         return quesIncrement;
+    }
+
+    public int getSurveyQuestionDirection(){
+        if (surveyAnswerRequest.getForward() == SurveyAnswerRequest.ForwardStatus.FALSE) {
+            quesSurveyIncrement = -1;
+        } else if (surveyAnswerRequest.getForward() == SurveyAnswerRequest.ForwardStatus.TRUE) {
+            quesSurveyIncrement = 1;
+        } else if (surveyAnswerRequest.getForward() == SurveyAnswerRequest.ForwardStatus.NONE) {
+            quesSurveyIncrement = 0;
+        }
+        return quesSurveyIncrement;
     }
 
     public void updateUserScreeningStatus(UserScreeningStatus.UserScreenStatus currentStatus, int newIndex){
@@ -173,7 +185,7 @@ public class StudyAbstractCall {
         Optional<SurveyAnswer> surveyAnswerOp = null;
         try {
             if (!surveyAnswerRequest.getAnswer().isEmpty()) {
-                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesIncrement).getId())));
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId())));
                 SurveyAnswer surveyAnswer;
                 if (surveyAnswerOp.isPresent()) {
                     surveyAnswer = surveyAnswerRepository.findById(surveyAnswerOp.get().getId()).get();
@@ -184,15 +196,15 @@ public class StudyAbstractCall {
                 surveyAnswer.setAnswerChoice(surveyAnswerRequest.getAnswer());
                 surveyAnswer.setQuestionId(
                         (surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(),
-                                userScreeningStatus.getIndexValue() - quesIncrement).getId()));
+                                userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()));
                 surveyAnswer.setSurveyId(surveyAnswerRequest.getSurveyId());
                 surveyAnswer.setAnsweredById(user.getId());
-                surveyAnswer.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
+                surveyAnswer.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
                 surveyAnswerRepository.save(surveyAnswer);
                 isSuccess = true;
             }
             else{
-                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesIncrement).getId())));
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId())));
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -208,9 +220,9 @@ public class StudyAbstractCall {
     }
 
     public int getSurveyIndexValue(){
-        int indexValue = userSurveyStatus.getIndexValue();
+        int surveyIndexValue = userSurveyStatus.getIndexValue();
 
-        return indexValue;
+        return surveyIndexValue;
     }
 
     public JSONObject catchQuestionAnswerError() {
@@ -314,7 +326,7 @@ public class StudyAbstractCall {
                 userSurveyStatus.setIndexValue(-1);
                 userSurveyStatusRepository.save(userSurveyStatus);
             }
-            userSurveyStatus.setIndexValue(userSurveyStatus.getIndexValue() - quesIncrement);
+            userSurveyStatus.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
             userSurveyStatusRepository.save(userSurveyStatus);
         }
         //returning responseJson

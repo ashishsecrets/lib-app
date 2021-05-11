@@ -248,7 +248,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		int indexValue;
 
-		int questionDirection = studyAbstractCall.getQuestionDirection();
+		int questionDirection = studyAbstractCall.getSurveyQuestionDirection();
 
 		//Getting user Details from Auth Token;
 
@@ -285,7 +285,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		try {
 			//Updating screeningStatus to In Progress and setting index so next question is displayed.
-			studyAbstractCall.updateUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS, studyAbstractCall.userSurveyStatus.getIndexValue() + questionDirection);
+			studyAbstractCall.updateUserSurveyStatus(UserSurveyStatus.SurveyStatus.INPROGRESS, studyAbstractCall.userSurveyStatus.getIndexValue() + questionDirection);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
@@ -333,8 +333,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 						studyAbstractCall.setQuestionToDisplayToUser(current);
 
 						response = studyAbstractCall.displaySurveyQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
-						studyAbstractCall.userScreeningStatus.setIndexValue(current);
-						userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+						studyAbstractCall.userSurveyStatus.setIndexValue(current);
+						userSurveyStatusRepository.save(studyAbstractCall.userSurveyStatus);
 
 					//}
 					/*if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
@@ -380,16 +380,16 @@ public class StudyAnswerImpl implements AnswerSaveService {
 			e.printStackTrace();
 		}
 
-		Boolean isLastQuestion = studyAbstractCall.getIsLastQuestionBool();
+		Boolean isLastQuestion = studyAbstractCall.getIsLastSurveyQuestionBool();
 
 		if(isLastQuestion){
-			studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
-			studyAbstractCall.userScreeningStatus.setIndexValue(studyAbstractCall.userScreeningStatus.getIndexValue());
-			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+			studyAbstractCall.userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
+			studyAbstractCall.userSurveyStatus.setIndexValue(studyAbstractCall.userSurveyStatus.getIndexValue());
+			userSurveyStatusRepository.save(studyAbstractCall.userSurveyStatus);
 		}
 		else{
-			studyAbstractCall.userScreeningStatus.setIndexValue(studyAbstractCall.userScreeningStatus.getIndexValue());
-			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+			studyAbstractCall.userSurveyStatus.setIndexValue(studyAbstractCall.userSurveyStatus.getIndexValue());
+			userSurveyStatusRepository.save(studyAbstractCall.userSurveyStatus);
 		}
 
 		responseJson.put("data", response);

@@ -8,6 +8,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 
 import com.ucsf.model.StudyImages;
+import com.ucsf.model.UserSurveyStatus;
 import com.ucsf.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,6 +61,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
+
+	@Autowired
+	UserSurveyStatusRepository userSurveyStatusRepository;
 
 	@Autowired
 	ImageRepository imageRepository;
@@ -116,6 +120,13 @@ public class UserServiceImpl implements UserService {
 		userScreeningStatus.setIndexValue(1);
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
+
+		UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
+		userSurveyStatus.setSurveyId(1l);
+		userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.NEWLY_ADDED);
+		userSurveyStatus.setIndexValue(1);
+		userSurveyStatus.setUserId(savedUser.getId());
+		userSurveyStatusRepository.save(userSurveyStatus);
 
 		//New list updated by client
 		/*“Full body front”, ” Full body back ", "Front Trunk", ”Back Trunk” , "Front of Arms", ”Back of Arms”, ”Front of Hands”, "Back of Hands", "Front of Legs", ”Back of Legs”, "Front of Feet", ”Back of Feet” "Special areas of interest”*/
