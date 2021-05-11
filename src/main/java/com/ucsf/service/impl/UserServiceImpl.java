@@ -333,7 +333,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<User> getPatients() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_metadata umd ON ur.user_id = umd.user_id and  umd.study_status = 0 and ur.role_id = 2;");
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_metadata umd ON ur.user_id = umd.user_id and  umd.study_status = 0 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -353,7 +353,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public List<User> getApprovedPatients() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_metadata umd ON ur.user_id = umd.user_id and  umd.study_status = 3 and ur.role_id = 2;");
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_metadata umd ON ur.user_id = umd.user_id and  umd.study_status = 3 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;

@@ -6,7 +6,6 @@ import com.ucsf.model.ConsentForms.ConsentType;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
 
 import javax.persistence.*;
 

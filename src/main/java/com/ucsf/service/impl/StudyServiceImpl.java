@@ -22,6 +22,7 @@ import com.ucsf.payload.request.StudyReviewRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.StudyResponse;
 import com.ucsf.payload.response.StudyReviewResponse;
+import com.ucsf.service.StudyNotificationService;
 import com.ucsf.service.StudyService;
 
 @Service("studyService")
@@ -32,6 +33,9 @@ public class StudyServiceImpl implements StudyService {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Autowired
+	StudyNotificationService studyNotificationService;
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
@@ -94,13 +98,13 @@ public class StudyServiceImpl implements StudyService {
 		int totalCount = 0;
 		List<StudyImages> list = null;
 
-		if(studyId != null && userId != null){
+		if (studyId != null && userId != null) {
 
 			list = imageRepository.findByStudyIdAndUserId(studyId, userId);
 
 		}
 
-		for(StudyImages item: list){
+		for (StudyImages item : list) {
 			totalCount += item.getCount();
 		}
 
@@ -111,13 +115,15 @@ public class StudyServiceImpl implements StudyService {
 	public void updateStudyStatus(Long userId, String status) {
 		UserMetadata metaData = userMetaDataRepository.findByUserId(userId);
 		if (metaData != null) {
-			if(status != null && status.equals("approved")) {
+			if (status != null && status.equals("approved")) {
 				metaData.setStudyStatus(StudyStatus.APPROVED);
 				userMetaDataRepository.save(metaData);
+				studyNotificationService.sendApproveNotifications(userId);
 			}
-			if(status != null && status.equals("disapproved")) {
+			if (status != null && status.equals("disapproved")) {
 				metaData.setStudyStatus(StudyStatus.DISAPPROVED);
 				userMetaDataRepository.save(metaData);
+				studyNotificationService.sendDisapproveNotifications(userId);
 			}
 		}
 
@@ -130,17 +136,20 @@ public class StudyServiceImpl implements StudyService {
 		if (reviewStudy != null) {
 			if (reviewStudy.getType().equals("screening")) {
 
-				List<ScreeningQuestions> questionsList = screeningQuestionRepository.findByStudyId(reviewStudy.getStudyId());
+				List<ScreeningQuestions> questionsList = screeningQuestionRepository
+						.findByStudyId(reviewStudy.getStudyId());
 
 				String answer;
 
 				List<StudyReviewData> newList = new ArrayList<>();
-				for(ScreeningQuestions question : questionsList ){
-					if(screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId()) == null){
+				for (ScreeningQuestions question : questionsList) {
+					if (screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(),
+							reviewStudy.getUserId()) == null) {
 						answer = "User did not enter answer";
-					}
-					else{
-						answer = screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId()).getAnswerDescription();
+					} else {
+						answer = screeningAnswerRepository
+								.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId())
+								.getAnswerDescription();
 					}
 					newList.add(new StudyReviewData(question.getDescription(), answer));
 				}
@@ -161,7 +170,7 @@ public class StudyServiceImpl implements StudyService {
 	public List<User> getApprovedPatients() {
 		Optional<User> user = null;
 		List<User> approvedUsers = new ArrayList<User>();
-		//Need to get enrolled patients bcoz status updated after approval notification
+		// Need to get enrolled patients bcoz status updated after approval notification
 		List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus(StudyStatus.APPROVED);
 		if (userMetaData != null && userMetaData.size() > 0) {
 			for (UserMetadata metaData : userMetaData) {
