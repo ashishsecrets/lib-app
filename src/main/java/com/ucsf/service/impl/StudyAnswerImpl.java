@@ -193,10 +193,11 @@ public class StudyAnswerImpl implements AnswerSaveService {
 									questionToDisplayToUser = studyAbstractCall.getQuestionToDisplayToUser(next);
 									answerToDisplayToUser = studyAbstractCall.getAnswerToDisplayToUser(questionToDisplayToUser.getId());
 
-									studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
-
 									studyAbstractCall.userScreeningStatus.setIndexValue(next);
 									userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+
+									studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
+
 								}
 							}
 						}
