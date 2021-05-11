@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -114,6 +115,29 @@ public class AdminController {
 		}
 		responseJson.put("data", new AuthResponse(userDetails, user, message));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "getLoggedInUser", notes = "getLoggedInUser", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "getLoggedInUser", response = User.class) })
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/getLoggedInUser", method = RequestMethod.GET)
+	public ResponseEntity<?> getLoggedInUser() {
+		User user = null;
+		JSONObject response = new JSONObject();
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			response.put("data", user);
+			loggerService.printLogs(log, "getLoggedInUser", "getLoggedInUser " + user.getId());
+			return new ResponseEntity(response.toMap(), HttpStatus.OK);
+		} else {
+			loggerService.printLogs(log, "getAllPatients", "Invalid JWT signature.");
+			response.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

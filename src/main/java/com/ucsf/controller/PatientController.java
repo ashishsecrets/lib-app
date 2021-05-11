@@ -2,7 +2,6 @@ package com.ucsf.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +19,8 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UserMetadata;
-import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.response.ErrorResponse;
-import com.ucsf.payload.response.StudyResponse;
 import com.ucsf.payload.response.StudyStatusResponse;
-import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
 import io.swagger.annotations.Api;
@@ -143,5 +139,4 @@ public class PatientController {
 			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
-
 }
