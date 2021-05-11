@@ -14,6 +14,7 @@ import com.ucsf.payload.response.SurveyQuestionResponse;
 import com.ucsf.repository.ScreeningQuestionRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
+import com.ucsf.repository.UserSurveyStatusRepository;
 import com.ucsf.service.AnswerSaveService;
 import com.ucsf.service.LoggerService;
 import org.json.JSONException;
@@ -40,6 +41,9 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 	@Autowired
 	UserScreeningStatusRepository userScreeningStatusRepository;
+
+	@Autowired
+	UserSurveyStatusRepository userSurveyStatusRepository;
 
 	@Autowired
 	ScreeningQuestionRepository screeningQuestionRepository;
@@ -274,14 +278,14 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 
 		try {
-			studyAbstractCall.userScreeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+			studyAbstractCall.userSurveyStatus = userSurveyStatusRepository.findByUserId(user.getId());
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 
 		try {
 			//Updating screeningStatus to In Progress and setting index so next question is displayed.
-			studyAbstractCall.updateUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS, studyAbstractCall.userScreeningStatus.getIndexValue() + questionDirection);
+			studyAbstractCall.updateUserScreeningStatus(UserScreeningStatus.UserScreenStatus.INPROGRESS, studyAbstractCall.userSurveyStatus.getIndexValue() + questionDirection);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
@@ -289,11 +293,11 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		//Getting lastSaved Answer below ;;
 
 
-		Optional<ScreeningAnswers> lastSavedAnswer = studyAbstractCall.getLastSavedAnswer();
+		Optional<SurveyAnswer> lastSavedAnswer = studyAbstractCall.getLastSavedSurveyAnswer();
 
 		// CHecking for any errors:
 		try {
-			return new ResponseEntity(studyAbstractCall.catchQuestionAnswerError().toMap(), HttpStatus.ACCEPTED);
+			return new ResponseEntity(studyAbstractCall.catchSurveyQuestionAnswerError().toMap(), HttpStatus.ACCEPTED);
 
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -303,7 +307,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		// You will get previous question or answer if you do index - questionDirection and next by index + questionDirection
 		// It does not matter whether you are going forward or backward questionDirection takes care of that.
 
-		indexValue = studyAbstractCall.getIndexValue();
+		indexValue = studyAbstractCall.getSurveyIndexValue();
 
 		// Therefore, here we create two new ints for going next or previous question/answer --
 		// not used currently -> int previous = indexValue - questionDirection;
@@ -323,8 +327,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 			try {
 				if (lastSavedAnswer != null) {
-					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
-					if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
+					//StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
+					//if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
 
 						studyAbstractCall.setQuestionToDisplayToUser(current);
 
@@ -332,8 +336,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 						studyAbstractCall.userScreeningStatus.setIndexValue(current);
 						userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
 
-					}
-					if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
+					//}
+					/*if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
 
 						studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
 						studyAbstractCall.userScreeningStatus.setIndexValue(current);
@@ -366,7 +370,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 								userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
 							}
 						}
-					}
+					}*/
 
 				}
 			} catch (NoSuchElementException e) {

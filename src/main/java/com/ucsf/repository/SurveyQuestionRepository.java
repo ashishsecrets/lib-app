@@ -8,6 +8,6 @@ import com.ucsf.model.SurveyQuestion;
 import com.ucsf.model.UcsfSurvey;
 
 public interface SurveyQuestionRepository extends CrudRepository<SurveyQuestion, Long>{
-    SurveyQuestion findByStudyIdAndIndexValue(Long studyId, int index);
+    SurveyQuestion findBySurveyIdAndIndexValue(Long studyId, int index);
 
 }

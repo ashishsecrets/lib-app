@@ -47,6 +47,9 @@ public class StudyAbstractCall {
     UserScreeningStatusRepository userScreeningStatusRepository;
 
     @Autowired
+    UserSurveyStatusRepository userSurveyStatusRepository;
+
+    @Autowired
     UserRepository userRepository;
 
     @Autowired
@@ -88,6 +91,8 @@ public class StudyAbstractCall {
 
     UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 
+    UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
+
     public User getUserDetails(String email){
 
             user = userRepository.findByEmail(email);
@@ -112,6 +117,15 @@ public class StudyAbstractCall {
             userScreeningStatus.setUserScreeningStatus(currentStatus);
             userScreeningStatus.setIndexValue(newIndex);
             userScreeningStatusRepository.save(userScreeningStatus);
+        }
+    }
+
+    public void updateUserSurveyStatus(UserSurveyStatus.SurveyStatus currentStatus, int newIndex){
+        if (userSurveyStatus != null) {
+            userSurveyStatus.setSurveyId(surveyAnswerRequest.getSurveyId());
+            userSurveyStatus.setUserSurveyStatus(currentStatus);
+            userSurveyStatus.setIndexValue(newIndex);
+            userSurveyStatusRepository.save(userSurveyStatus);
         }
     }
 
@@ -155,8 +169,46 @@ public class StudyAbstractCall {
         return  screenAnswerOp;
     }
 
+    public Optional<SurveyAnswer> getLastSavedSurveyAnswer(){
+        Optional<SurveyAnswer> surveyAnswerOp = null;
+        try {
+            if (!surveyAnswerRequest.getAnswer().isEmpty()) {
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesIncrement).getId())));
+                SurveyAnswer surveyAnswer;
+                if (surveyAnswerOp.isPresent()) {
+                    surveyAnswer = surveyAnswerRepository.findById(surveyAnswerOp.get().getId()).get();
+                } else {
+                    surveyAnswer = new SurveyAnswer();
+                }
+                surveyAnswer.setAnswerDescription(surveyAnswerRequest.getAnswerDescription().toString());
+                surveyAnswer.setAnswerChoice(surveyAnswerRequest.getAnswer());
+                surveyAnswer.setQuestionId(
+                        (surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(),
+                                userScreeningStatus.getIndexValue() - quesIncrement).getId()));
+                surveyAnswer.setSurveyId(surveyAnswerRequest.getSurveyId());
+                surveyAnswer.setAnsweredById(user.getId());
+                surveyAnswer.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
+                surveyAnswerRepository.save(surveyAnswer);
+                isSuccess = true;
+            }
+            else{
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesIncrement).getId())));
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        return  surveyAnswerOp;
+    }
+
     public int getIndexValue(){
         int indexValue = userScreeningStatus.getIndexValue();
+
+        return indexValue;
+    }
+
+    public int getSurveyIndexValue(){
+        int indexValue = userSurveyStatus.getIndexValue();
 
         return indexValue;
     }
@@ -215,6 +267,60 @@ public class StudyAbstractCall {
         return responseEntity;
     }
 
+    public JSONObject catchSurveyQuestionAnswerError() {
+
+        Optional<SurveyQuestion> sq = Optional.ofNullable(surveyQuestionRepository
+                .findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue()));
+
+        JSONObject responseEntity = null;
+
+        if (sq.isPresent()) {
+            if (userSurveyStatus.getIndexValue() != sq.get().getId()) {
+                responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
+                        Constants.INVALID_INDEXVALUE.errordesc()));
+            }
+        } else {
+                /*responseJson.put("error",
+                        new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));*/
+            if (getIsLastSurveyQuestionBool()) {
+                responseJson.remove("error");
+                surveyResponse = new SurveyQuestionResponse();
+                SurveyQuestion sc = null;
+                SurveyAnswer sa = null;
+                List<SurveyAnswerChoice> choices = null;
+                surveyResponse.setSurveyQuestion(sc);
+                surveyResponse.setSurveyAnswer(sa);
+                surveyResponse.setChoices(choices);
+                surveyResponse.setMessage("Survey complete.");
+                surveyResponse.setIsLastQuestion(true);
+                surveyResponse.setInformation("");
+                responseJson.put("data", surveyResponse);
+                responseEntity = responseJson;
+                userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
+            } else if (userSurveyStatus.getIndexValue() <= 0) {
+                responseJson.remove("error");
+                surveyResponse = new SurveyQuestionResponse();
+                SurveyQuestion sc = null;
+                SurveyAnswer sa = null;
+                List<SurveyAnswerChoice> choices = null;
+                surveyResponse.setSurveyQuestion(sc);
+                surveyResponse.setSurveyAnswer(sa);
+                surveyResponse.setChoices(choices);
+                surveyResponse.setMessage("Please go forward and answer first question.");
+                surveyResponse.setInformation("");
+                surveyResponse.setIsLastQuestion(false);
+                responseJson.put("data", surveyResponse);
+                responseEntity = responseJson;
+                userSurveyStatus.setIndexValue(-1);
+                userSurveyStatusRepository.save(userSurveyStatus);
+            }
+            userSurveyStatus.setIndexValue(userSurveyStatus.getIndexValue() - quesIncrement);
+            userSurveyStatusRepository.save(userSurveyStatus);
+        }
+        //returning responseJson
+        return responseEntity;
+    }
+
     public ScreeningQuestions getQuestionToDisplayToUser(int index) {
 
         return screeningQuestionRepository.findByStudyIdAndIndexValue(
@@ -239,10 +345,17 @@ public class StudyAbstractCall {
         return value;
     }
 
+    public Boolean getIsLastSurveyQuestionBool() {
+        Boolean value;
+
+        value = !Optional.ofNullable(surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() + 1)).isPresent();
+
+        return value;
+    }
+
     public SurveyQuestion getSurveyQuestionToDisplayToUser(int index) {
 
-        return surveyQuestionRepository.findByStudyIdAndIndexValue(
-                userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), index);
+        return surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), index);
     }
 
     public SurveyAnswer getSurveyAnswerToDisplayToUser(Long index) {
@@ -292,15 +405,10 @@ public class StudyAbstractCall {
         }
         surveyResponse.setSurveyAnswer(answerToDisplayToUser);
         surveyResponse.setChoices(choices);
-        surveyResponse.setIsLastQuestion(getIsLastQuestionBool());
+        surveyResponse.setIsLastQuestion(getIsLastSurveyQuestionBool());
         surveyResponse.setMessage("");
-        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l) != null){
-            surveyResponse.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l).getInfoDescription());
-        }
-        else{
-            surveyResponse.setInformation("");
-        }
-        surveyResponse.setIsDisqualified(userScreeningStatus.getUserScreeningStatus() == UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
+        surveyResponse.setInformation("");
+        surveyResponse.setIsDisqualified(userSurveyStatus.getUserSurveyStatus() == UserSurveyStatus.SurveyStatus.DISQUALIFIED);
 
         return surveyResponse;
     }
