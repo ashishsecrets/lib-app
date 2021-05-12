@@ -12,8 +12,12 @@ public enum Constants {
 	LINK_EXPIRED("User not found or Link expired"),
 	INVALID_CREDENTIALS("Invalid UserName/Password"),
 	USER_NOT_FOUND("User not existed"),CODE_NOT_SENT("OTP not Sent"),
-	NO_STUDY_FOUND("No study exist");
-	
+	NO_STUDY_FOUND("No study exist"),
+	OTP_NOT_VERIFIED("Otp expired or wrong otp"),
+	OTP_EXPIRED("Otp has been Expired"),
+	INVALID_STUDY("Invalid Study"),
+	OTP_INCORRECT("Invalid Otp"), 
+	USER_AGE_NOT_SPECIFIED("Please add user age");
 		private Constants(String value) { 
 	    this.errordesc = value; 
 	    }

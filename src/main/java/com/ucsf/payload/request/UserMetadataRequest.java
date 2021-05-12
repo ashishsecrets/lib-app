@@ -10,6 +10,7 @@ public class UserMetadataRequest {
 	private String phone;
 	private boolean acceptanceOpted;
 	private Date acceptanceDate;
+	private String dateOfBirth;
 	public String getRace() {
 		return race;
 	}
@@ -45,6 +46,12 @@ public class UserMetadataRequest {
 	}
 	public void setAcceptanceDate(Date acceptanceDate) {
 		this.acceptanceDate = acceptanceDate;
+	}
+	public String getDateOfBirth() {
+		return dateOfBirth;
+	}
+	public void setDateOfBirth(String dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
 	}
 	
 }

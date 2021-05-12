@@ -1,8 +1,21 @@
 package com.ucsf.service;
 
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-@Service
-public class StudyService {
-          
+import com.ucsf.auth.model.User;
+import com.ucsf.payload.request.StudyRequest;
+import com.ucsf.payload.request.StudyReviewRequest;
+import com.ucsf.payload.response.StudyResponse;
+import com.ucsf.payload.response.StudyReviewResponse;
+
+public interface StudyService {
+  
+	public void save(StudyRequest study);
+	public List<StudyResponse> getStudies(Long userId);
+	int getImageCount(Long studyId, Long userId);
+    
+	void updateStudyStatus(Long userId, String status);
+	StudyReviewResponse reviewStudy(StudyReviewRequest reviewStudy);
+	List<User> getApprovedPatients();
+
 }

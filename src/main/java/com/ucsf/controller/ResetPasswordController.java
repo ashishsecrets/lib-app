@@ -74,7 +74,7 @@ public class ResetPasswordController {
 			}
 		}
 		try {
-			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your UCSF account password",
+			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your UCSF Skin Tracker account password",
 					user.getFirstName() + " " + user.getLastName(), passResetLinkService.createPasswordResetLink(user), "classpath:template/passwordResetEmail.html");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -116,30 +116,4 @@ public class ResetPasswordController {
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@ApiOperation(value = "Resend code", notes = "Resend verification code", code = 200, httpMethod = "POST", produces = "application/json")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Code sent successfully", response = SuccessResponse.class) })
-	@RequestMapping(value = "/resend-code", method = RequestMethod.POST)
-	public ResponseEntity<?> resendCode(@RequestParam String email) throws Exception {
-		loggerService.printLogs(log, "resendCode", "Resend Password");
-		JSONObject responseJson = new JSONObject();
-		JSONObject jsonObject = null;
-		User user = userRepository.findByEmail(email);
-		if(user == null) {
-			responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
-					Constants.USER_NOT_FOUND.errordesc()));
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-		}
-		jsonObject = verificationService.sendVerificationCode(user);
-		if (jsonObject.get("success").equals(true)) {
-			loggerService.printLogs(log, jsonObject.toString(), user.getEmail());
-			responseJson.put("data", new SuccessResponse(true, "Code Sent."));
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
-		}
-		else {
-			responseJson.put("error", new ErrorResponse(ErrorCodes.CODE_NOT_SENT.code(),
-					Constants.CODE_NOT_SENT.errordesc()));
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
-		}
-	}
 }

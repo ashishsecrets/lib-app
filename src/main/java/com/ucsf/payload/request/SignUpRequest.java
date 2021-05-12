@@ -1,10 +1,6 @@
 package com.ucsf.payload.request;
 
 import java.util.List;
-import java.util.Set;
-
-import com.ucsf.auth.model.Role;
-import com.ucsf.auth.model.RoleName;
 
 import lombok.Data;
 @Data
@@ -17,6 +13,7 @@ public class SignUpRequest {
     private String password;
     private String phone;
     private String phoneCode;
+    private String deviceId;
 	List<String> userRoles;
-	private UserMetadataRequest userMetadata;
+	private String dateOfBirth;
 }

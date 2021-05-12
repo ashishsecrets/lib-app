@@ -1,15 +1,11 @@
 package com.ucsf.controller;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 
-import org.apache.commons.lang3.time.DateUtils;
+import com.ucsf.payload.response.*;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,20 +28,11 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UcsfStudy;
-import com.ucsf.model.UcsfStudy.StudyFrequency;
-import com.ucsf.model.UserMetadata;
-import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.StudyRequest;
-import com.ucsf.payload.response.ErrorResponse;
-import com.ucsf.payload.response.StudyResponse;
-import com.ucsf.payload.response.SuccessResponse;
-import com.ucsf.repository.ScreeningAnswerRepository;
-import com.ucsf.repository.ScreeningQuestionRepository;
-import com.ucsf.repository.StudyRepository;
-import com.ucsf.repository.UserMetaDataRepository;
-import com.ucsf.repository.UserRepository;
-import com.ucsf.repository.UserScreeningStatusRepository;
+import com.ucsf.payload.request.StudyReviewRequest;
 import com.ucsf.service.LoggerService;
+import com.ucsf.service.StudyService;
+import com.ucsf.service.UserService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -58,26 +46,14 @@ import io.swagger.annotations.ApiResponses;
 public class StudyController {
 
 	@Autowired
-	ScreeningAnswerRepository screeningAnswerRepository;
-
-	@Autowired
-	ScreeningQuestionRepository screeningQuestionRepository;
-
-	@Autowired
 	private LoggerService loggerService;
 
 	@Autowired
-	UserScreeningStatusRepository userScreeningStatusRepository;
+	UserService userService;
 
 	@Autowired
-	UserRepository userRepository;
+	StudyService studyService;
 
-	@Autowired
-	StudyRepository studyRepository;
-	
-	@Autowired
-	UserMetaDataRepository  userMetaDataRepository;
-	
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 
@@ -85,112 +61,186 @@ public class StudyController {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ApiOperation(value = "Save study", notes = "Save study", code = 200, httpMethod = "POST", produces = "application/json")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Study saved successfully", response = UcsfStudy.class) })
-	@RequestMapping(value = "/save", method = RequestMethod.POST)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Study saved successfully", response = UcsfStudy.class) })
+	@PreAuthorize("hasRole('PATIENT')")
+
+	@RequestMapping(value = "/saveStudy", method = RequestMethod.POST)
 	public ResponseEntity<?> saveStudy(@RequestBody StudyRequest studyRequest) throws Exception {
-		loggerService.printLogs(log, "saveStudy", "Saving UCSF Study");
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (userDetail != null && userDetail.getUsername() != null) {
 			String email = userDetail.getUsername();
-			user = userRepository.findByEmail(email);
+			user = userService.findByEmail(email);
+			loggerService.printLogs(log, "saveStudy",
+					"Saving UCSF Study with user " + user.getEmail() + "studyRequest " + studyRequest.toString());
 		} else {
 			loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
 			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 		}
-
-		UcsfStudy study = new UcsfStudy();
-		study.setCustom_date(null);
-		study.setEnabled(studyRequest.getEnabled());
-		study.setDescription(studyRequest.getDescription());
-		study.setTitle(studyRequest.getTitle());
-		study.setFrequency(StudyFrequency.MONTHLY);
-		study.setStartDate(new Date());
-		study.setEndDate(DateUtils.addMonths(new Date(), 3));
-		studyRepository.save(study);
-
-		responseJson.put("data", new SuccessResponse(true, "Study Saved"));
-		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		try {
+			studyService.save(studyRequest);
+			loggerService.printLogs(log, "saveStudy", "Study " + studyRequest.getTitle() + "saved Successfully!");
+			responseJson.put("data", new SuccessResponse(true, "Study Saved Successfully"));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			loggerService.printErrorLogs(log, "saveStudy", "Error while saving " + studyRequest.getTitle());
+			responseJson.put("data", new SuccessResponse(true, "Error While saving Study"));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ApiOperation(value = "Get all studies", notes = "Get all studies", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all studies", response = StudyResponse.class) })
-	@RequestMapping(value = "/fetch", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('PATIENT')")
+	@RequestMapping(value = "/fetchStudies", method = RequestMethod.GET)
 	public ResponseEntity<?> fetchAllStudies() throws Exception {
-		loggerService.printLogs(log, "saveStudy", "Saving UCSF Study");
+		loggerService.printLogs(log, "saveStudy", "Fetch UCSF Studies");
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (userDetail != null && userDetail.getUsername() != null) {
 			String email = userDetail.getUsername();
-			user = userRepository.findByEmail(email);
+			user = userService.findByEmail(email);
 		} else {
-			loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
+			loggerService.printLogs(log, "fetchAllStudies", "Invalid JWT signature.");
 			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 		}
-		/*
-		 * EntityManager entityManager = BeanUtil.getBean(EntityManager.class); Query
-		 * query = entityManager.createQuery(
-		 * "SELECT us,uss.userScreeningStatus,uss.indexValue FROM UcsfStudy us LEFT JOIN UserScreeningStatus uss ON us.id = uss.studyId and uss.userId ="
-		 * +user.getId());
-		 */
-		//Iterable<UcsfStudy> study = studyRepository.findAll();
-		List<Map<String,Object>> studies = jdbcTemplate.queryForList("SELECT us.*,uss.user_screening_status FROM ucsf_studies us LEFT JOIN user_screening_status uss ON us.study_id = uss.study_id and  uss.user_id="+user.getId()+";");
-		System.out.println(studies);
 		List<StudyResponse> listStudyResponse = new ArrayList<StudyResponse>();
-		for(Map<String,Object> map :studies) {
-			StudyResponse studyResponse = new StudyResponse();
-			if(map.get("user_screening_status") == null) {
-				studyResponse.setStudyStatus(UserScreenStatus.AVAILABLE.toString());
+		List<StudyFetchResponse> listResponse = new ArrayList<>();
+		try {
+			listStudyResponse = studyService.getStudies(user.getId());
+			loggerService.printLogs(log, "fetchAllStudies", "Studies fetched successfully for user " + user.getEmail());
+			for(int i = 0; i < listStudyResponse.size(); i++){
+				listResponse.add(new StudyFetchResponse());
+				listResponse.get(i).setStudy(listStudyResponse.get(i));
+				listResponse.get(i).setUserImageCount(studyService.getImageCount(listStudyResponse.get(i).getId(), user.getId()));
 			}
-			else {
-				studyResponse.setStudyStatus(map.get("user_screening_status").toString());
-			}
-			studyResponse.setDescription(map.get("description").toString());
-			studyResponse.setTitle(map.get("title").toString());
-			studyResponse.setDefault(Boolean.parseBoolean(map.get("is_default") != null ?map.get("is_default").toString():""));
-			studyResponse.setEnabled(Boolean.parseBoolean(map.get("is_enabled") != null ?map.get("is_enabled").toString():""));
-			listStudyResponse.add(studyResponse);
+			responseJson.put("data", listResponse);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		}
-		responseJson.put("data", listStudyResponse);
-		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		 catch (Exception e) {
+			loggerService.printErrorLogs(log, "fetchAllStudies",
+					"Failed Studies fetch request for user " + user.getEmail());
+			for(int i = 0; i < listStudyResponse.size(); i++){
+				listResponse.add(new StudyFetchResponse());
+				listResponse.get(i).setStudy(listStudyResponse.get(i));
+				listResponse.get(i).setUserImageCount(studyService.getImageCount(listStudyResponse.get(i).getId(), user.getId()));
+			}
+			responseJson.put("data", listResponse);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@ApiOperation(value = "Approve study", notes = "Approve study", code = 200, httpMethod = "POST", produces = "application/json")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Study approved successfully", response = SuccessResponse.class) })
-	@RequestMapping(value = "/approveStudy", method = RequestMethod.POST)
-	public ResponseEntity<?> approveStudy(@PathVariable Long userId,@RequestParam String status) throws Exception {
-		loggerService.printLogs(log, "approveStudy", "approve UCSF Study");
+	@ApiOperation(value = "Update Study Status", notes = "Approve study", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Study Status Updated successfully", response = SuccessResponse.class) })
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/updateStudyStatus/{userId}", method = RequestMethod.POST)
+	public ResponseEntity<?> updateStudyStatus(@PathVariable Long userId, @RequestParam String status)
+			throws Exception {
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (userDetail != null && userDetail.getUsername() != null) {
-			String email = userDetail.getUsername();
-			user = userRepository.findByEmail(email);
+			user = userService.findByEmail(userDetail.getUsername());
+			if (user != null) {
+				loggerService.printLogs(log, "updateStudyStatus", "Update Study Status of userId " + userId);
+			}
 		} else {
 			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
 		}
-		
-		 UserMetadata metaData = userMetaDataRepository.findByUserId(userId);
-         if(metaData != null) {
-        	 metaData.setStudyStatus(status);
-        	 userMetaDataRepository.save(metaData);
-        	 loggerService.printLogs(log, "approveStudy", "Updated Study approval status for user with id "+userId);
-         }
-		responseJson.put("data", new SuccessResponse(true, "Study approved"));
-		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		try {
+			studyService.updateStudyStatus(userId, status);
+			loggerService.printLogs(log, "updateStudyStatus", "Study " + status + "  for user with id " + userId);
+			responseJson.put("data", new SuccessResponse(true, "Study " + status));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			loggerService.printErrorLogs(log, "updateStudyStatus",
+					"Error while updating Study " + status + "  for user with id " + userId);
+			responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
+					Constants.USER_NOT_FOUND.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
+	}
+
+	@Transactional
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Review Patient's Study", notes = "Review Patient's Study", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Study reviewed successfully", response = StudyReviewResponse.class) })
+	@RequestMapping(value = "/reviewStudy", method = RequestMethod.GET)
+	public ResponseEntity<?> reviewStudy(@RequestBody StudyReviewRequest reviewStudy) throws Exception {
+
+		JSONObject responseJson = new JSONObject();
+		StudyReviewResponse response = null;
+		try {
+			response = studyService.reviewStudy(reviewStudy);
+			loggerService.printLogs(log, "reviewStudy",
+					"Study " + reviewStudy.getStudyId() + "  for user with id " + reviewStudy.getUserId());
+			responseJson.put("data", response);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			loggerService.printErrorLogs(log, "reviewStudy", "Error while reviewing Study " + reviewStudy.getStudyId()
+					+ "  for user with id " + reviewStudy.getUserId());
+			responseJson.put("data", response);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
+	}
+
+	@Transactional
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	/*
+	 * @ApiOperation(value = "Get Approved Patients", notes =
+	 * "Get Approved Patients", code = 200, httpMethod = "GET", produces =
+	 * "application/json")
+	 * 
+	 * @ApiResponses(value = {
+	 * 
+	 * @ApiResponse(code = 200, message = "Approved Patients fetched successfully",
+	 * response = User.class) })
+	 */	@RequestMapping(value = "/approvedPatients", method = RequestMethod.GET)
+	public ResponseEntity<?> fetchApprovedPatients() throws Exception {
+
+		JSONObject responseJson = new JSONObject();
+		StudyApprovedPatientsResponse response = new StudyApprovedPatientsResponse();
+		User user = null;
+		List<User> approvedPatients = new ArrayList<User>();
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			if (user != null) {
+				loggerService.printLogs(log, "fetchApprovedPatients", "Approved patients fetched for Physicain  " + user.getEmail());
+			}
+		} else {
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			approvedPatients = studyService.getApprovedPatients();
+			response.setList(approvedPatients);
+			loggerService.printLogs(log, "fetchApprovedPatients", "Approved patients fetched Successfully for Physicain "+user.getEmail());
+			responseJson.put("data", response);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			loggerService.printErrorLogs(log, "fetchApprovedPatients", "Error while fetching approved patients fetched  for Physicain "+user.getEmail());
+			responseJson.put("data", response);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.ucsf.controller;
 
+import com.ucsf.job.LoadStudyInformatives;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucsf.auth.model.User;
+import com.ucsf.job.LoadConsentFormData;
 import com.ucsf.job.LoadScreeningQuestions;
 import com.ucsf.service.UserService;
 
@@ -30,11 +32,21 @@ public class UserController {
 	
 	@Autowired
 	LoadScreeningQuestions loadScreeningQuestions;
+
+	@Autowired
+	LoadStudyInformatives loadStudyInformatives;
+	
+	@Autowired
+	LoadConsentFormData loadConsentFormData;
 	
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllUsers() throws Exception {
 		loadScreeningQuestions.loadSheetContent();
 		System.out.println("1111111111");
+		//loading informatives
+		//loadStudyInformatives.loadSheetContent();
+		loadConsentFormData.loadFormContent();
+		System.out.println("2222222222");
 		return ResponseEntity.ok("success");
 	}
 	
@@ -43,6 +55,7 @@ public class UserController {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all users", response = User.class) })
 	@RequestMapping(value = "/users/{page}/{size}", method = RequestMethod.GET)
 	public Page<User> getUsers(@PathVariable int page, @PathVariable int size) {
+		//Todo get only patients not admin
 		return userService.findAll(page, size);
 	}
 

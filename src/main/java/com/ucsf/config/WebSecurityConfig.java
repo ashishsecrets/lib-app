@@ -1,10 +1,13 @@
 package com.ucsf.config;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -22,10 +25,28 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	@Value("${aws-accessKey}")
+    private String accessKey;
+	
+    @Value("${aws-secretKey}")
+    private String secretKey;
 
 	@Autowired
 	private UcsfAuthenticationEntryPoint ucsfAuthenticationEntryPoint;
@@ -63,14 +84,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.authorizeRequests().antMatchers("/api/auth/**").permitAll().antMatchers("/api/verify").permitAll()
 				.antMatchers("/swagger-ui/index.html").permitAll()
 				.antMatchers("/swagger-ui/**").permitAll()
-				.antMatchers("/**").permitAll()
-				.antMatchers("/swagger-ui.html").permitAll()
 				.antMatchers("/swagger-resources/**").permitAll()
 				.antMatchers("/configuration/**").permitAll()		
 				.antMatchers("/v2/**").permitAll()
-				.antMatchers("/swagger-resources/**").permitAll()
 				.antMatchers("/api/password/**").permitAll().antMatchers("/api/questions/**").hasRole("PATIENT")
-				.antMatchers("/api/answers/**").hasRole("PATIENT").antMatchers("/api/study/**").hasRole("PATIENT")
+				.antMatchers("/api/answers/**").hasRole("PATIENT")
+				.antMatchers("/api/images/**").hasRole("PATIENT")
 				.antMatchers("/api/survey/**").hasRole("PATIENT").antMatchers("/api/users/**").hasRole("ADMIN").anyRequest()
 				.authenticated().and().
 
@@ -97,4 +116,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	       source.registerCorsConfiguration("/**", configuration);
 	       return source;
 	   }
+	
+	@Bean
+	AmazonS3 initializeAmazon() {
+		AWSCredentials credentials = new BasicAWSCredentials( accessKey, secretKey);
+		AmazonS3 s3client = AmazonS3ClientBuilder
+				.standard()
+				.withCredentials(new AWSStaticCredentialsProvider(credentials))
+				.withRegion(Regions.US_WEST_2)
+				.build();
+		return s3client;
+    }
+	
+	@Bean
+	FirebaseMessaging firebaseMessaging() throws IOException {
+	    GoogleCredentials googleCredentials = GoogleCredentials
+	            .fromStream(new ClassPathResource("firebase-service-account.json").getInputStream());
+	    FirebaseOptions firebaseOptions = FirebaseOptions
+	            .builder()
+	            .setCredentials(googleCredentials)
+	            .build();
+	    FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "com.SkinTracker");
+	    return FirebaseMessaging.getInstance(app);
+	}
 }

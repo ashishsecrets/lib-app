@@ -3,6 +3,7 @@ package com.ucsf.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,10 +12,15 @@ import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
+
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.ucsf.auth.model.User;
+import com.ucsf.model.UserConsent;
 
 @Service
 public class EmailService {
@@ -24,8 +30,14 @@ public class EmailService {
 
 	@Value("${web.site.url}")
 	String webSiteUrl;
+	
+	@Value("${spring.mail.from}")
+	String fromEmail;
+	
+	@Autowired ConsentService consentService;
 
-	public void sendResetPasswordEmail(String from, String to, String subject, String name, String url, String fileName) throws Exception {
+	public void sendResetPasswordEmail(String from, String to, String subject, String name, String url, String fileName)
+			throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
 		helper.setTo(to);
@@ -35,12 +47,12 @@ public class EmailService {
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
 		body = body.replaceAll("\\{\\{url\\}\\}", url);
-		String redirectUrl = webSiteUrl+"?token="+url;
+		String redirectUrl = webSiteUrl + "?token=" + url;
 		body = body.replaceAll("\\{\\{webSiteUrl\\}\\}", redirectUrl);
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
-	
+
 	public void sendStudyApprovalEmail(String from, String to, String subject, String name) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
@@ -53,7 +65,7 @@ public class EmailService {
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
-	
+
 	public void sendStudyDisApprovalEmail(String from, String to, String subject, String name) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
@@ -63,6 +75,35 @@ public class EmailService {
 		File file = ResourceUtils.getFile("classpath:template/studyDisApprovalEmail.html");
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
+
+	public void sendOtpEmail(String from, String to, String subject, String name, String otp) throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(from);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/otpEmail.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		body = body.replaceAll("\\{\\{otp\\}\\}", otp);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
+
+	public void sendCredsToUsersAddedByAdmin(String from, String to, String subject, String name, String password) throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(from);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/addUser.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		body = body.replaceAll("\\{\\{email\\}\\}", to);
+		body = body.replaceAll("\\{\\{password\\}\\}", password);
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
@@ -77,4 +118,40 @@ public class EmailService {
 		}
 		return resultStringBuilder.toString();
 	}
+	
+	public UserConsent sendUserConsentEmail(User user, String subject, String formContent, UserConsent userConsent, String fileName, File patientSignatureFile, File parentSignatureFile, String age) throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		
+		helper.setTo(user.getEmail());
+		helper.setFrom(fromEmail);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/userConsentEmail.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{name\\}\\}", user.getFirstName()+" "+user.getLastName());
+		
+        formContent = formContent.replaceAll("\\{\\{date\\}\\}", userConsent.getDate())
+								 .replaceAll("\\{\\{patientName\\}\\}", userConsent.getPatientName())
+								 .replaceAll("\\{\\{patientSignature\\}\\}", patientSignatureFile.getPath())
+								 .replaceAll("\\{\\{parentName\\}\\}", userConsent.getParentName())
+								 .replaceAll("\\{\\{age\\}\\}", age);
+        if(parentSignatureFile != null) {
+        	formContent = formContent.replaceAll("\\{\\{parentSignature\\}\\}", parentSignatureFile.getPath());
+        }
+        
+        File pdfFile = new File(fileName+".pdf");
+        HtmlConverter.convertToPdf(formContent, new FileOutputStream(pdfFile));
+        
+        userConsent.setPdfFile(consentService.saveFile(pdfFile, user.getId().toString()));
+        
+        FileSystemResource attachmentFile = new FileSystemResource(pdfFile);
+        helper.addAttachment("Consent_"+user.getFirstName()+user.getLastName().replace(" ", "")+".pdf", attachmentFile);
+        helper.setText(body, true);
+     
+		javaMailSender.send(msg);
+		pdfFile.delete();
+		
+		return userConsent;
+	}
+	
 }

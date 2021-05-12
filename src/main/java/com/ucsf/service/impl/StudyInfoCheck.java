@@ -19,21 +19,21 @@ public class StudyInfoCheck {
     	StudyInfoData screenTestData = new StudyInfoData();
     if (lastAnswer.getIndexValue()==1) {
         if (Integer.parseInt(lastAnswer.getAnswerDescription()) < 12 || Integer.parseInt(lastAnswer.getAnswerDescription()) > 65) {
-            screenTestData.setIsFinished(true);
+            screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.TRUE);
             screenTestData.setMessage("Sorry, this study is only for individuals between the ages of 12 and 65!");
         }
         else{
-            screenTestData = null;
+            screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.NONE);
         }
     }
      if (lastAnswer.getIndexValue()==2) {
         if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("No")) {
-            screenTestData.setIsFinished(true);
+            screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.TRUE);
             screenTestData.setMessage("Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center");
            // screenTestData.setMessage("");
         }
         else{
-            screenTestData = null;
+            screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.NONE);
 
         }
     }
@@ -41,33 +41,34 @@ public class StudyInfoCheck {
         if (lastAnswer.getIndexValue()==3) {
             if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
                 screenTestData.setMessage("");
-                screenTestData.setIsFinished(false);
+                screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.FALSE);
             }
             else{
-                screenTestData = null;
+                screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.NONE);
 
             }
         }
 
+        //check if user goes backwards
+
         if (lastAnswer.getIndexValue()==5 && quesIncrement == -1) {
             if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
                 screenTestData.setMessage("");
-                screenTestData.setIsFinished(false);
+                screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.FALSE);
             }
             else{
-                screenTestData = null;
+                screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.NONE);
 
             }
         }
     
      if (lastAnswer.getIndexValue()==6) {
-        if (lastAnswer.getAnswerDescription()!= null && lastAnswer.getAnswerDescription().equals("None of Above")) {
-            screenTestData.setMessage("Thank you for your interest in this study! We will review your answers and will follow up with you via email or phone to discuss in detail the study and your ability to participate.");
-            screenTestData.setIsFinished(false);
+        if (lastAnswer.getAnswerDescription()!= null && !lastAnswer.getAnswerDescription().equals("None of Above")) {
+            screenTestData.setMessage("Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center");
+            screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.TRUE);
         }
         else{
-            screenTestData.setMessage("Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center");
-            screenTestData.setIsFinished(true);
+            screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.NONE);
         }
     }
         return screenTestData;
