@@ -72,7 +72,7 @@ public class AdminController {
 	@Value("${spring.mail.from}")
 	String fromEmail;
 
-	private static Logger log = LoggerFactory.getLogger(ConsentController.class);
+	private static Logger log = LoggerFactory.getLogger(AdminController.class);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ApiOperation(value = "add users", notes = "add users", code = 200, httpMethod = "POST", produces = "application/json")

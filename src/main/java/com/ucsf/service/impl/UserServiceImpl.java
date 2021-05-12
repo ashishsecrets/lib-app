@@ -311,9 +311,9 @@ public class UserServiceImpl implements UserService {
 			return user;
 		} else {
 			user = existed.get();
-			user.setEmail(updateRequest.getEmail());
-			user.setFirstName(updateRequest.getFirstName());
-			user.setLastName(updateRequest.getLastName());
+			user.setEmail(updateRequest.getEmail() != null ? updateRequest.getEmail() : user.getEmail());
+			user.setFirstName(updateRequest.getFirstName() != null ? updateRequest.getFirstName() : user.getFirstName());
+			user.setLastName(updateRequest.getLastName() != null ? updateRequest.getLastName() : user.getLastName());
 			if (updateRequest.getUserRoles() != null && updateRequest.getUserRoles().size() > 0) {
 				for (String role : updateRequest.getUserRoles()) {
 					if (role.equals("PHYSICIAN")) {
@@ -324,8 +324,8 @@ public class UserServiceImpl implements UserService {
 					}
 				}
 			}
-			user.setPassword(bcryptEncoder.encode(updateRequest.getPassword()));
-			user.setPhoneNumber(updateRequest.getPhone());
+			user.setPassword(updateRequest.getPassword() != null ? bcryptEncoder.encode(updateRequest.getPassword()) : user.getPassword());
+			user.setPhoneNumber(updateRequest.getPhone() != null ? updateRequest.getPhone() : user.getPhoneNumber());
 			userRepository.save(user);
 			return user;
 		}

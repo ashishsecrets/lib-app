@@ -15,6 +15,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -30,7 +36,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class User extends Auditable<String>{
+public class User /*extends Auditable<String>*/ implements Diffable<User> {
 
 	public enum UserStatus {
 		PENDING, EMAIL_NOT_VERIFIED, ACTIVE, DEACTIVE, DELETED
@@ -90,4 +96,16 @@ public class User extends Auditable<String>{
 		}
 		
 	}
+	
+	@Override
+	public DiffResult diff(User obj) {
+        return new DiffBuilder(this, obj, ToStringStyle.SHORT_PREFIX_STYLE)
+          .append("firstName", this.firstName, obj.firstName)
+          .append("lastName", this.lastName, obj.lastName)
+          .append("email", this.email, obj.email)
+          .append("password", this.password, obj.password)
+          .append("phoneNumber", this.phoneNumber, obj.phoneNumber)
+          .append("roles", this.roles, obj.roles)
+          .build();
+   }
 }
