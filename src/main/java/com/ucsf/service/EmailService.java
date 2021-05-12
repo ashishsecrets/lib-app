@@ -119,7 +119,7 @@ public class EmailService {
 		return resultStringBuilder.toString();
 	}
 	
-	public UserConsent sendUserConsentEmail(User user, String subject, String formContent, UserConsent userConsent, String fileName, File patientSignatureFile, File parentSignatureFile, String age) throws Exception {
+	public UserConsent sendUserConsentEmail(User user, String subject, String formContent, UserConsent userConsent, String fileName, File patientSignatureFile, File parentSignatureFile, String age,String type) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
 		
@@ -132,11 +132,14 @@ public class EmailService {
 		
         formContent = formContent.replaceAll("\\{\\{date\\}\\}", userConsent.getDate())
 								 .replaceAll("\\{\\{patientName\\}\\}", userConsent.getPatientName())
-								 .replaceAll("\\{\\{patientSignature\\}\\}", patientSignatureFile.getPath())
+								// .replaceAll("\\{\\{patientSignature\\}\\}", patientSignatureFile.getPath())
 								 .replaceAll("\\{\\{parentName\\}\\}", userConsent.getParentName())
 								 .replaceAll("\\{\\{age\\}\\}", age);
         if(parentSignatureFile != null) {
         	formContent = formContent.replaceAll("\\{\\{parentSignature\\}\\}", parentSignatureFile.getPath());
+        }
+        if(patientSignatureFile != null) {
+        	formContent = formContent.replaceAll("\\{\\{patientSignature\\}\\}", patientSignatureFile.getPath());
         }
         
         File pdfFile = new File(fileName+".pdf");
@@ -145,7 +148,7 @@ public class EmailService {
         userConsent.setPdfFile(consentService.saveFile(pdfFile, user.getId().toString()));
         
         FileSystemResource attachmentFile = new FileSystemResource(pdfFile);
-        helper.addAttachment("Consent_"+user.getFirstName()+user.getLastName().replace(" ", "")+".pdf", attachmentFile);
+        helper.addAttachment(type+"_"+user.getFirstName()+user.getLastName().replace(" ", "")+".pdf", attachmentFile);
         helper.setText(body, true);
      
 		javaMailSender.send(msg);
