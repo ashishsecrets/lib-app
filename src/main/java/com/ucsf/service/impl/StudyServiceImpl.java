@@ -152,6 +152,11 @@ public class StudyServiceImpl implements StudyService {
 					}
 					newList.add(new StudyReviewData(question.getDescription(), answer));
 				}
+				List<String> imageUrlsList = new ArrayList<>();
+				for(StudyImages image: imageRepository.findByStudyIdAndUserId(reviewStudy.getStudyId(), reviewStudy.getUserId())){
+					imageUrlsList.add(image.getImageUrl());
+				}
+				newList.add(new StudyReviewData("Photos", imageUrlsList.toString()));
 				response.setList(newList);
 			} else {
 				responseJson.put("error",
