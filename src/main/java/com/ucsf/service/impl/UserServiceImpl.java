@@ -333,7 +333,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<User> getPatients() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_metadata umd ON ur.user_id = umd.user_id and  umd.study_status = 0 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -353,7 +353,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public List<User> getApprovedPatients() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_metadata umd ON ur.user_id = umd.user_id and  umd.study_status = 3 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -372,10 +372,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserMetadata getUserStatus(Long userId) {
-		UserMetadata status = new UserMetadata();
+	public UserScreeningStatus getUserStatus(Long userId) {
+		UserScreeningStatus status = new UserScreeningStatus();
 		//metadata = userMetaDataRepository.findByStudyStatusAndUserId(StudyStatus.ENROLLED,userId);
-		status = userMetaDataRepository.findByUserId(userId);
+		status = userScreeningStatusRepository.findByUserId(userId);
 		if(status == null) {
 			return null;
 		}

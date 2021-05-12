@@ -1,6 +1,6 @@
 package com.ucsf.payload.response;
 
-import com.ucsf.model.UserMetadata.StudyStatus;
+import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class StudyStatusResponse {
 
 	Boolean isSuccess;
-	StudyStatus status;
+	UserScreenStatus status;
 
 }

@@ -17,11 +17,14 @@ import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import com.ucsf.auth.model.User;
 import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
 import com.ucsf.model.UserMetadata.StudyStatus;
+import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.Note;
 import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
+import com.ucsf.repository.UserScreeningStatusRepository;
 
 @Service
 public class StudyNotificationService {
@@ -55,7 +58,7 @@ public class StudyNotificationService {
 	String twilioNumber;
 
 	@Autowired
-	UserMetaDataRepository userMetaDataRepository;
+	UserScreeningStatusRepository userScreeningStatusRepository;
 
 	public void sendApproveNotifications(Long userId) {
 		loggerService.printLogs(log, "sendApproveNotifications", "sendApproveNotifications " + new Date());
@@ -65,14 +68,14 @@ public class StudyNotificationService {
 		if (user.isPresent()) {
 			approvedUser = user.get();
 		}
-		UserMetadata metaData = userMetaDataRepository.findByUserId(userId);
-		if (metaData != null) {
+		UserScreeningStatus userStatus = userScreeningStatusRepository.findByUserId(userId);
+		if (userStatus != null) {
 			try {
 				emailService.sendStudyApprovalEmail(fromEmail, approvedUser.getEmail(), "Study Approval From UCSF Team",
 						approvedUser.getFirstName() + " " + approvedUser.getLastName());
-				metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
-				metaData.setStudyStatus(StudyStatus.ENROLLED);
-				userMetaDataRepository.save(metaData);
+				//metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
+				userStatus.setUserScreeningStatus(UserScreenStatus.ENROLLED);
+				userScreeningStatusRepository.save(userStatus);
 				loggerService.printLogs(log, "sendNotifications",
 						"Study approval mail sent to user: " + approvedUser.getEmail() + "At: " + new Date());
 			} catch (Exception e) {
@@ -94,9 +97,9 @@ public class StudyNotificationService {
 				note.setData(data);
 				String token = approvedUser.getDevideId();
 				String msgId = pushNotificationService.sendNotification(note,token);
-				metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
-				metaData.setStudyStatus(StudyStatus.ENROLLED);
-				userMetaDataRepository.save(metaData);
+				//metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
+				userStatus.setUserScreeningStatus(UserScreenStatus.ENROLLED);
+				userScreeningStatusRepository.save(userStatus);
 				loggerService.printLogs(log, "sendNotifications", "Study approval push notification sent to user: "
 						+ approvedUser.getEmail() + "At: " + new Date() + "msgId = " + msgId);
 			} catch (Exception e) {
@@ -110,9 +113,9 @@ public class StudyNotificationService {
 				Twilio.init(accoundSid, authToken);
 				Message.creator(new PhoneNumber(approvedUser.getPhoneCode() + approvedUser.getPhoneNumber()),
 						new PhoneNumber(twilioNumber), "Your Eczema Tracking Study has been approved").create();
-				metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
-				metaData.setStudyStatus(StudyStatus.ENROLLED);
-				userMetaDataRepository.save(metaData);
+				//metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
+				userStatus.setUserScreeningStatus(UserScreenStatus.ENROLLED);
+				userScreeningStatusRepository.save(userStatus);
 				loggerService.printLogs(log, "sendNotifications",
 						"Study approval SMS sent to user: " + approvedUser.getEmail() + "phoneNumber: "
 								+ approvedUser.getPhoneCode() + approvedUser.getPhoneNumber() + "At: " + new Date());
@@ -132,15 +135,15 @@ public class StudyNotificationService {
 		if (user.isPresent()) {
 			disApprovedUser = user.get();
 		}
-		UserMetadata metaData = userMetaDataRepository.findByUserId(userId);
-		if (metaData != null) {
+		UserScreeningStatus userStatus = userScreeningStatusRepository.findByUserId(userId);
+		if (userStatus != null) {
 			try {
 				emailService.sendStudyDisApprovalEmail(fromEmail, disApprovedUser.getEmail(),
 						"Study Disapproval From Skin Tracker Team",
 						disApprovedUser.getFirstName() + " " + disApprovedUser.getLastName());
-				metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
-				metaData.setStudyStatus(StudyStatus.DISQUALIFIED);
-				userMetaDataRepository.save(metaData);
+				///metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
+				userStatus.setUserScreeningStatus(UserScreenStatus.NOT_ELIGIBLE);
+				userScreeningStatusRepository.save(userStatus);
 				loggerService.printLogs(log, "sendNotifications",
 						"Study approval mail sent to user: " + disApprovedUser.getEmail() + "At: " + new Date());
 			} catch (Exception e) {
@@ -162,9 +165,9 @@ public class StudyNotificationService {
 				note.setData(data);
 				note.setType("disapproval");
 				String msgId = pushNotificationService.sendNotification(note, disApprovedUser.getDevideId());
-				metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
-				metaData.setStudyStatus(StudyStatus.DISQUALIFIED);
-				userMetaDataRepository.save(metaData);
+				//userStatus.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
+				userStatus.setUserScreeningStatus(UserScreenStatus.NOT_ELIGIBLE);
+				userScreeningStatusRepository.save(userStatus);
 				loggerService.printLogs(log, "sendNotifications", "Study disApproval push notification sent to user: "
 						+ disApprovedUser.getEmail() + "At: " + new Date() + "msgId = " + msgId);
 			} catch (Exception e) {
@@ -178,9 +181,9 @@ public class StudyNotificationService {
 				Twilio.init(accoundSid, authToken);
 				Message.creator(new PhoneNumber(disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber()),
 						new PhoneNumber(twilioNumber), "Your Eczema Tracking Study disapproved").create();
-				metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
-				metaData.setStudyStatus(StudyStatus.DISQUALIFIED);
-				userMetaDataRepository.save(metaData);
+				//metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_SMS);
+				userStatus.setUserScreeningStatus(UserScreenStatus.NOT_ELIGIBLE);
+				userScreeningStatusRepository.save(userStatus);
 				loggerService.printLogs(log, "sendNotifications",
 						"Study disApproval SMS sent to user: " + disApprovedUser.getEmail() + "phoneNumber: "
 								+ disApprovedUser.getPhoneCode() + disApprovedUser.getPhoneNumber() + "At: "

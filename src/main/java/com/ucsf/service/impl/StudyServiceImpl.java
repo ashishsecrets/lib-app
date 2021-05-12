@@ -113,25 +113,19 @@ public class StudyServiceImpl implements StudyService {
 
 	@Override
 	public void updateStudyStatus(Long userId, String status) {
-		UserMetadata metaData = userMetaDataRepository.findByUserId(userId);
 		UserScreeningStatus userStatus = userScreeningStatusRepository.findByUserId(userId);
-		if (metaData != null && userStatus != null) {
+		if (userStatus != null) {
 			if (status != null && status.equals("approved")) {
-				metaData.setStudyStatus(StudyStatus.APPROVED);
-				userMetaDataRepository.save(metaData);
-				userStatus.setUserScreeningStatus(UserScreenStatus.Done);
+				userStatus.setUserScreeningStatus(UserScreenStatus.APPROVED);
 				userScreeningStatusRepository.save(userStatus);
 				studyNotificationService.sendApproveNotifications(userId);
 			}
 			if (status != null && status.equals("disapproved")) {
-				metaData.setStudyStatus(StudyStatus.DISAPPROVED);
-				userMetaDataRepository.save(metaData);
-				userStatus.setUserScreeningStatus(UserScreenStatus.Undone);
+				userStatus.setUserScreeningStatus(UserScreenStatus.DISAPPROVED);
 				userScreeningStatusRepository.save(userStatus);
 				studyNotificationService.sendDisapproveNotifications(userId);
 			}
 		}
-
 	}
 
 	@Override
