@@ -84,7 +84,7 @@ public class ConsentFormImpl implements ConsentService{
 			userMetaDataRepository.save(userMetadata);
 					
 			//send consent email to user
-			userConsent = emailService.sendUserConsentEmail(user, "UCSF  Skin Tracker "+userConsent.getType().toString(), consentForm.getContent(), userConsent, fileName, patientSignatureFile, parentSignatureFile, consent.getAge(),userConsent.getType().toString());
+			userConsent = emailService.sendUserConsentEmail(user, "UCSF  Skin Tracker "+userConsent.getType().toString().toLowerCase()+" Form", consentForm.getContent(), userConsent, fileName, patientSignatureFile, parentSignatureFile, consent.getAge(),userConsent.getType().toString());
 			
 			userConsentRepository.save(userConsent);
 			
