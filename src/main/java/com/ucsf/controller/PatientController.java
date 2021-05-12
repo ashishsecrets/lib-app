@@ -19,6 +19,7 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UserMetadata;
+import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.StudyStatusResponse;
 import com.ucsf.service.LoggerService;
@@ -112,7 +113,7 @@ public class PatientController {
 	public ResponseEntity<?> checkPatientApproval() {
 		JSONObject response = new JSONObject();
 		User user = null;
-		UserMetadata studyStatus = null;
+        UserScreeningStatus studyStatus = null;
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userDetail != null && userDetail.getUsername() != null) {
@@ -127,7 +128,7 @@ public class PatientController {
 		try {
 			studyStatus = userService.getUserStatus(user.getId());
 			if(studyStatus != null) {
-				response.put("data", new StudyStatusResponse(true,studyStatus.getStudyStatus()));
+				response.put("data", new StudyStatusResponse(true,studyStatus.getUserScreeningStatus()));
 				return new ResponseEntity(response.toMap(), HttpStatus.OK);
 			}
 			else {

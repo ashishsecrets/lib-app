@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 public class UserScreeningStatus {
 
 	public enum UserScreenStatus {
-		NEWLY_ADDED,INPROGRESS,UNDER_REVIEW, ENROLLED, AVAILABLE, DISQUALIFIED,Done,Undone
+		NEWLY_ADDED,INPROGRESS,UNDER_REVIEW, ENROLLED, AVAILABLE, DISQUALIFIED,APPROVED,DISAPPROVED,NOT_ELIGIBLE
 	}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

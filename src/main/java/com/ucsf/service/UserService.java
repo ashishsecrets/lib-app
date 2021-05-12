@@ -18,5 +18,5 @@ public interface UserService {
 	User addUser(AddUserRequest user);
 	User updateUser(Long userId,UserUpdateRequest updateUser);
 	List<User> getApprovedPatients();
-	UserMetadata getUserStatus(Long userId);
+	UserScreeningStatus getUserStatus(Long userId);
 }
