@@ -54,19 +54,22 @@ public class ConsentFormImpl implements ConsentService{
 			userConsent.setPatientName(consent.getPatientName());
 			
 			String fileName = user.getId()+"_"+new Date().getTime();
-			File patientSignatureFile = decodeBase64String(consent.getPatientSignature(), fileName+".jpeg");
+			File patientSignatureFile = null;
 			File parentSignatureFile = null;
-			userConsent.setPatientSignature(saveFile(patientSignatureFile, user.getId().toString()));
+			
 			if (userMetadata.getAge() < 18) {
 				userConsent.setParentName(consent.getParentName());
-				parentSignatureFile = decodeBase64String(consent.getParentSignature(), fileName+".jpeg");
-				userConsent.setParentSignature(saveFile(parentSignatureFile, user.getId().toString()));
 				userConsent.setAge(consent.getAge());
+				
 				if (userMetadata.isConsentAccepted()) {
+					patientSignatureFile = decodeBase64String(consent.getPatientSignature(), fileName+".jpeg");
+					userConsent.setPatientSignature(saveFile(patientSignatureFile, user.getId().toString()));
 					userConsent.setConsentType(ConsentType.ASSENT_FORM);
 					userConsent.setType(FormType.ASSENT);
 					consentForm = getConsentFormByConsentType(ConsentType.ASSENT_FORM);
 				} else {
+					parentSignatureFile = decodeBase64String(consent.getParentSignature(), fileName+".jpeg");
+					userConsent.setParentSignature(saveFile(parentSignatureFile, user.getId().toString()));
 					userConsent.setConsentType(ConsentType.CONSENT_FORM_FOR_BELOW_18);
 					userConsent.setType(FormType.CONSENT);
 					userMetadata.setConsentAccepted(true);
@@ -74,6 +77,8 @@ public class ConsentFormImpl implements ConsentService{
 				}
 	
 			} else {
+				patientSignatureFile = decodeBase64String(consent.getPatientSignature(), fileName+".jpeg");
+				userConsent.setPatientSignature(saveFile(patientSignatureFile, user.getId().toString()));
 				userConsent.setConsentType(ConsentType.CONSENT_FORM_FOR_ABOVE_18);
 				userConsent.setType(FormType.CONSENT);
 				userMetadata.setConsentAccepted(true);
@@ -88,10 +93,11 @@ public class ConsentFormImpl implements ConsentService{
 			
 			userConsentRepository.save(userConsent);
 			
-			patientSignatureFile.delete();
-			if(parentSignatureFile != null) {
+			if(patientSignatureFile != null)
+				patientSignatureFile.delete();
+			if(parentSignatureFile != null)
 				parentSignatureFile.delete();
-			}
+			
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
