@@ -2,6 +2,7 @@ package com.ucsf.controller;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ucsf.auditModel.UserHistory;
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
@@ -35,6 +37,7 @@ import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
+import com.ucsf.service.HistoryService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
 
@@ -54,6 +57,9 @@ public class AdminController {
 
 	@Autowired
 	EmailService emailService;
+	
+	@Autowired
+	HistoryService historyService;
 
 	@Autowired
 	JwtConfig jwtConfig;
@@ -167,5 +173,23 @@ public class AdminController {
 					"Error while updating user with request " + updateUser.toString() + "of UserId " + userId);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
+	}
+	
+	@ApiOperation(value = "getActivityLogs", notes = "getActivityLogs", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "list of activity logs", response = UserHistory.class) })
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/getActivityLogs", method = RequestMethod.GET)
+	public ResponseEntity<?> getActivityLogs() {
+		JSONObject responseJson = new JSONObject();
+		try {
+			List<UserHistory> userHistories = historyService.getUserActivityLogs();
+			responseJson.put("data", userHistories);
+			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			loggerService.printErrorLogs(log, "getActivityLogs", "Error while getting activity logs..");
+			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}		
 	}
 }

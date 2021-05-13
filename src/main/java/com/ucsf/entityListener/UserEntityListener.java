@@ -36,7 +36,7 @@ public class UserEntityListener {
     public void preRemove(User target) {
         perform(target, DELETED);
     }
-
+    
     @Transactional
     private void perform(User target, Action action) {
         try {
@@ -52,12 +52,15 @@ public class UserEntityListener {
             	DiffResult<?> diff = previousUser.diff(target);
             	JSONObject changedContent = new JSONObject();
                 for(Diff<?> d: diff.getDiffs()) {
-                    changedContent.put(d.getFieldName(), "FROM [" + d.getLeft() + "] TO [" + d.getRight() + "]");
+                	changedContent.put(d.getFieldName(), "FROM [" + d.getLeft() + "] TO [" + d.getRight() + "]");
                 }
                 
-	        	entityManager.persist(new UserHistory(target, action, new Gson().toJson(target), previousContent, changedContent.toString()));
+                if(!changedContent.has("authToken")) {
+                	entityManager.persist(new UserHistory(target, action, new Gson().toJson(target), previousContent, changedContent.toString()));
+            	}
+               	        	
 	        } else {
-	        	entityManager.persist(new UserHistory(target, action, new Gson().toJson(target)));
+	        	entityManager.persist(new UserHistory(target, action, new Gson().toJson(target), "", ""));
 	        }
             
         }catch (Exception e) {

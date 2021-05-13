@@ -25,8 +25,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ucsf.entityListener.UserEntityListener;
-import com.ucsf.model.Auditable;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -106,6 +104,7 @@ public class User /*extends Auditable<String>*/ implements Diffable<User> {
           .append("password", this.password, obj.password)
           .append("phoneNumber", this.phoneNumber, obj.phoneNumber)
           .append("roles", this.roles, obj.roles)
+          .append("authToken", this.authToken, obj.authToken)
           .build();
    }
 }

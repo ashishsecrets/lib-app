@@ -1,9 +1,11 @@
 package com.ucsf.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -104,8 +106,10 @@ public class UserServiceImpl implements UserService {
 		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
 		metadata.setUserId(savedUser.getId());
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
-		metadata.setDateOfBith(user.getDateOfBirth());
-		metadata.setAge(AppUtil.getAge(user.getDateOfBirth()));
+		if(user.getDateOfBirth() != null) {
+			metadata.setDateOfBith(user.getDateOfBirth());
+			metadata.setAge(AppUtil.getAge(user.getDateOfBirth()));
+		}
 		userMetaDataRepository.save(metadata);
 		// save metadata in metadatarepo
 		// newUser.setMetadata(metadata);
@@ -315,12 +319,17 @@ public class UserServiceImpl implements UserService {
 			user.setFirstName(updateRequest.getFirstName() != null ? updateRequest.getFirstName() : user.getFirstName());
 			user.setLastName(updateRequest.getLastName() != null ? updateRequest.getLastName() : user.getLastName());
 			if (updateRequest.getUserRoles() != null && updateRequest.getUserRoles().size() > 0) {
+				Set<Role> newRole = new HashSet<Role>();
 				for (String role : updateRequest.getUserRoles()) {
 					if (role.equals("PHYSICIAN")) {
-						user.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
+						//user.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
+						newRole.add(roleRepository.findByName(RoleName.PHYSICIAN));
+						user.setRoles(newRole);
 					}
 					if (role.equals("STUDYTEAM")) {
-						user.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
+						//user.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
+						newRole.add(roleRepository.findByName(RoleName.STUDY_TEAM));
+						user.setRoles(newRole);
 					}
 				}
 			}
