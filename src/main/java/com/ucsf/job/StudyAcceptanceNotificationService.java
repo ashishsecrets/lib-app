@@ -1,10 +1,13 @@
 package com.ucsf.job;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import com.ucsf.model.Notifications;
+import com.ucsf.repository.NotificationsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,9 @@ public class StudyAcceptanceNotificationService{
 
 	@Autowired
 	UserMetaDataRepository userMetaDataRepository;
+
+	@Autowired
+	NotificationsRepository notificationsRepository;
 
 	@Autowired
 	EmailService emailService;
@@ -103,6 +109,15 @@ public class StudyAcceptanceNotificationService{
 							"Dear " + approvedUser.getFirstName() + "Your Eczema Tracking Study has been Approved");
 					note.setSubject("Study Confirmation");
 					String msgId = pushNotificationService.sendNotification(note, approvedUser.getDevideId());
+
+					//Adding sent notification to db
+					Notifications notification = new Notifications();
+					notification.setDate(new Date());
+					notification.setDescription(note.getContent());
+					notification.setType(Notifications.NotificationType.FIREBASE);
+					notification.setUserId(approvedUser.getId());
+					notificationsRepository.save(notification);
+
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
 					metaData.setStudyStatus(StudyStatus.ENROLLED);
 					userMetaDataRepository.save(metaData);
@@ -169,6 +184,15 @@ public class StudyAcceptanceNotificationService{
 
 					note.setData(data);
 					String msgId = pushNotificationService.sendNotification(note, approvedUser.getDevideId());
+
+					//Adding sent notification to db
+					Notifications notification = new Notifications();
+					notification.setDate(new Date());
+					notification.setDescription(note.getContent());
+					notification.setType(Notifications.NotificationType.FIREBASE);
+					notification.setUserId(approvedUser.getId());
+					notificationsRepository.save(notification);
+
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
 					metaData.setStudyStatus(StudyStatus.DISQUALIFIED);
 					userMetaDataRepository.save(metaData);

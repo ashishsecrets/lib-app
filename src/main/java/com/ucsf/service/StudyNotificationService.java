@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import com.ucsf.model.Notifications;
+import com.ucsf.repository.NotificationsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,9 @@ public class StudyNotificationService {
 
 	@Autowired
 	PushNotificationService pushNotificationService;
+
+	@Autowired
+	NotificationsRepository notificationsRepository;
 
 	@Value("${spring.mail.from}")
 	String fromEmail;
@@ -97,6 +102,15 @@ public class StudyNotificationService {
 				note.setData(data);
 				String token = approvedUser.getDevideId();
 				String msgId = pushNotificationService.sendNotification(note,token);
+
+				//Adding sent notification to db
+				Notifications notification = new Notifications();
+				notification.setDate(new Date());
+				notification.setDescription(note.getContent());
+				notification.setType(Notifications.NotificationType.FIREBASE);
+				notification.setUserId(approvedUser.getId());
+				notificationsRepository.save(notification);
+
 				//metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
 				userStatus.setUserScreeningStatus(UserScreenStatus.ENROLLED);
 				userScreeningStatusRepository.save(userStatus);
@@ -165,6 +179,15 @@ public class StudyNotificationService {
 				note.setData(data);
 				note.setType("disapproval");
 				String msgId = pushNotificationService.sendNotification(note, disApprovedUser.getDevideId());
+
+				//Adding sent notification to db
+				Notifications notification = new Notifications();
+				notification.setDate(new Date());
+				notification.setDescription(note.getContent());
+				notification.setType(Notifications.NotificationType.FIREBASE);
+				notification.setUserId(disApprovedUser.getId());
+				notificationsRepository.save(notification);
+
 				//userStatus.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_PUSH);
 				userStatus.setUserScreeningStatus(UserScreenStatus.NOT_ELIGIBLE);
 				userScreeningStatusRepository.save(userStatus);
