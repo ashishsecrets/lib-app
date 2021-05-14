@@ -17,5 +17,5 @@ public interface StudyService {
 	void updateStudyStatus(Long userId, String status);
 	StudyReviewResponse reviewStudy(StudyReviewRequest reviewStudy);
 	List<User> getApprovedPatients();
-
+    List<User> getDisapprovedPatients();
 }
