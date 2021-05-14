@@ -17,7 +17,10 @@ public class Notifications {
 
 	/*:userId,type,date on which notification triggered,Description*/
 	public enum NotificationType {
-		EMAIL, SMS, FIREBASE
+		EMAIL, SMS, PUSH
+	}
+	public enum NotificationKind {
+		SCREENING, TASK, PHOTOS, AUTHENTICATE, APPROVEDINSTUDY, DISAPPROVEDINSTUDY
 	}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +29,12 @@ public class Notifications {
 
 	@Column(name = "type")
 	private NotificationType type;
+
+	@Column(name = "kind")
+	private NotificationKind kind;
+
+	@Column(name = "kind_description")
+	private String kindDescription;
 
 	@Column(name = "date")
 	private Date date;

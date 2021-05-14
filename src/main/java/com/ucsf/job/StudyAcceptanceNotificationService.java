@@ -114,7 +114,9 @@ public class StudyAcceptanceNotificationService{
 					Notifications notification = new Notifications();
 					notification.setDate(new Date());
 					notification.setDescription(note.getContent());
-					notification.setType(Notifications.NotificationType.FIREBASE);
+					notification.setType(Notifications.NotificationType.PUSH);
+					notification.setKind(Notifications.NotificationKind.APPROVEDINSTUDY);
+					notification.setKindDescription("approved-study-1");
 					notification.setUserId(approvedUser.getId());
 					notificationsRepository.save(notification);
 
@@ -189,7 +191,9 @@ public class StudyAcceptanceNotificationService{
 					Notifications notification = new Notifications();
 					notification.setDate(new Date());
 					notification.setDescription(note.getContent());
-					notification.setType(Notifications.NotificationType.FIREBASE);
+					notification.setType(Notifications.NotificationType.PUSH);
+					notification.setKind(Notifications.NotificationKind.DISAPPROVEDINSTUDY);
+					notification.setKindDescription("disapproved-study-1");
 					notification.setUserId(approvedUser.getId());
 					notificationsRepository.save(notification);
 
