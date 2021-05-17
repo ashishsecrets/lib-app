@@ -243,4 +243,46 @@ public class StudyController {
 		}
 	}
 
+	@Transactional
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	/*
+	 * @ApiOperation(value = "Get Approved Patients", notes =
+	 * "Get Approved Patients", code = 200, httpMethod = "GET", produces =
+	 * "application/json")
+	 *
+	 * @ApiResponses(value = {
+	 *
+	 * @ApiResponse(code = 200, message = "Approved Patients fetched successfully",
+	 * response = User.class) })
+	 */	@RequestMapping(value = "/disapprovedPatients", method = RequestMethod.GET)
+	public ResponseEntity<?> fetchDisapprovedPatients() throws Exception {
+
+		JSONObject responseJson = new JSONObject();
+		StudyApprovedPatientsResponse response = new StudyApprovedPatientsResponse();
+		User user = null;
+		List<User> disapprovedPatients = new ArrayList<User>();
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			if (user != null) {
+				loggerService.printLogs(log, "fetchDisapprovedPatients", "Disapproved patients fetched for Physician  " + user.getEmail());
+			}
+		} else {
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			disapprovedPatients = studyService.getDisapprovedPatients();
+			response.setList(disapprovedPatients);
+			loggerService.printLogs(log, "fetchApprovedPatients", "Disapproved patients fetched Successfully for Physicain "+user.getEmail());
+			responseJson.put("data", response);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			loggerService.printErrorLogs(log, "fetchApprovedPatients", "Error while fetching disapproved patients fetched  for Physicain "+user.getEmail());
+			responseJson.put("data", response);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
+	}
+
 }

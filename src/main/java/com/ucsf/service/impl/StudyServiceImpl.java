@@ -188,4 +188,23 @@ public class StudyServiceImpl implements StudyService {
 		}
 		return approvedUsers;
 	}
+
+	@Override
+	public List<User> getDisapprovedPatients() {
+		Optional<User> user = null;
+		List<User> disapprovedUsers = new ArrayList<User>();
+		// Need to get enrolled patients bcoz status updated after approval notification
+		List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus(StudyStatus.DISAPPROVED);
+		if (userMetaData != null && userMetaData.size() > 0) {
+			for (UserMetadata metaData : userMetaData) {
+				user = userRepository.findById(metaData.getUserId());
+				if (user.isPresent()) {
+					User approvedUser = userRepository.findByEmail(user.get().getEmail());
+					disapprovedUsers.add(user.get());
+					disapprovedUsers.add(approvedUser);
+				}
+			}
+		}
+		return disapprovedUsers;
+	}
 }
