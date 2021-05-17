@@ -95,13 +95,13 @@ public class NotificationsController {
 			}
 		else{
 			responseJson.put("error", new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(), Constants.NO_STUDY_FOUND.errordesc()));
-			return new ResponseEntity(responseJson, HttpStatus.NO_CONTENT);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.NO_CONTENT);
 				}
 			} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 
-		return new ResponseEntity(responseJson, HttpStatus.OK);
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
 
 }

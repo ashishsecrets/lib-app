@@ -178,6 +178,7 @@ public class OtpController {
 		JSONObject responseJson = new JSONObject();
 		String token = "";
 		String message = "Otp Verified";
+		UserOtp otp = null;
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		if (userDetail != null && userDetail.getUsername() != null) {
@@ -191,7 +192,7 @@ public class OtpController {
 		}
 
 		if (verifyRequest.getCode() != null && verifyRequest.getCode().length() > 0) {
-			UserOtp otp = otpService.findByUserId(user.getId());
+			otp = otpService.findByUserId(user.getId());
 
 			// Verify BY SMS AUTHY
 			if (otp.getType() != null && !otp.getType().equals("") && otp.getType().equals("sms")) {
@@ -249,15 +250,17 @@ public class OtpController {
 						user.getFirstName() + " " + user.getLastName(), user.getFirstName(),
 						"classpath:template/signUpEmail.html");
 
-				//Adding notification sent to user via email to db
-				Notifications notification = new Notifications();
-				notification.setDate(new Date());
-				notification.setDescription("User Verified by OTP-EMAIL");
-				notification.setKind(Notifications.NotificationKind.AUTHENTICATE);
-				notification.setKindDescription("Register/Login");
-				notification.setType(Notifications.NotificationType.EMAIL);
-				notification.setUserId(user.getId());
-				notificationsRepository.save(notification);
+				if(otp.getType().equals("email")) {
+					//Adding notification sent to user via email to db
+					Notifications notification = new Notifications();
+					notification.setDate(new Date());
+					notification.setDescription("User Verified by OTP-EMAIL");
+					notification.setKind(Notifications.NotificationKind.AUTHENTICATE);
+					notification.setKindDescription("Register/Login");
+					notification.setType(Notifications.NotificationType.EMAIL);
+					notification.setUserId(user.getId());
+					notificationsRepository.save(notification);
+				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
