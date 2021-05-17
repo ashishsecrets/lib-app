@@ -317,22 +317,19 @@ public class UserServiceImpl implements UserService {
 			user.setEmail(updateRequest.getEmail() != null ? updateRequest.getEmail() : user.getEmail());
 			user.setFirstName(updateRequest.getFirstName() != null ? updateRequest.getFirstName() : user.getFirstName());
 			user.setLastName(updateRequest.getLastName() != null ? updateRequest.getLastName() : user.getLastName());
-			if (updateRequest.getUserRoles() != null && updateRequest.getUserRoles().size() > 0) {
+			if (updateRequest.getUserRoles() != null) {
 				Set<Role> newRole = new HashSet<Role>();
-				for (String role : updateRequest.getUserRoles()) {
-					if (role.equals("PHYSICIAN")) {
+					if (updateRequest.getUserRoles().equals("PHYSICIAN")) {
 						//user.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
 						newRole.add(roleRepository.findByName(RoleName.PHYSICIAN));
 						user.setRoles(newRole);
 					}
-					if (role.equals("STUDYTEAM")) {
+					if (updateRequest.getUserRoles().equals("STUDYTEAM")) {
 						//user.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
 						newRole.add(roleRepository.findByName(RoleName.STUDY_TEAM));
 						user.setRoles(newRole);
 					}
-				}
 			}
-			user.setPassword(updateRequest.getPassword() != null ? bcryptEncoder.encode(updateRequest.getPassword()) : user.getPassword());
 			user.setPhoneNumber(updateRequest.getPhone() != null ? updateRequest.getPhone() : user.getPhoneNumber());
 			userRepository.save(user);
 			return user;

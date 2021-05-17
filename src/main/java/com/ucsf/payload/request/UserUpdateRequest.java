@@ -13,5 +13,5 @@ public class UserUpdateRequest {
     private String address;
     private String country;
     private String state;
-	List<String> userRoles;
+    private String userRoles;
 }
