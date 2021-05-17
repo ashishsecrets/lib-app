@@ -252,8 +252,9 @@ public class UserServiceImpl implements UserService {
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
 		newUser.setEmail(user.getEmail());
+		newUser.setPassword(bcryptEncoder.encode("12234"));
 		newUser.setPhoneNumber(user.getPhone());
-		String code = (user.getPhoneCode().substring(0,2));
+		String code = (user.getPhone().substring(0,2));
 		newUser.setPhoneCode(code);
 		// Add Role
 		if (user.getUserRoles() != null && user.getUserRoles() != "") {
