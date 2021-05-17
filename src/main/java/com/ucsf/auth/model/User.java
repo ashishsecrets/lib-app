@@ -25,6 +25,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ucsf.entityListener.UserEntityListener;
+import com.ucsf.model.Auditable;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -34,7 +36,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class User /*extends Auditable<String>*/ implements Diffable<User> {
+public class User extends Auditable<String> implements Diffable<User> {
 
 	public enum UserStatus {
 		PENDING, EMAIL_NOT_VERIFIED, ACTIVE, DEACTIVE, DELETED
@@ -68,9 +70,9 @@ public class User /*extends Auditable<String>*/ implements Diffable<User> {
 	@Column(name = "auth_token", columnDefinition = "TEXT")
 	private String authToken;
 
-	private Date createdDate;
+	//private Date createdDate;
 
-	private Date lastModifiedDate;
+	//private Date lastModifiedDate;
 	
 	@Column(name = "device_id", columnDefinition = "TEXT")
 	private String devideId;

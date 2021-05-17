@@ -8,12 +8,12 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-
 import com.ucsf.model.StudyImages;
 import com.ucsf.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,7 @@ import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
+import com.ucsf.payload.response.UserDataResponse;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserMetaDataRepository;
@@ -362,7 +363,33 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public List<User> getApprovedPatients() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+		//String sql = "SELECT * FROM users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN user_screening_status uss ON u.user_id = uss.user_id WHERE ur.role_id = (SELECT id from roles where name = "+RoleName.PATIENT.toString()+") and uss.user_screening_status = "+UserScreenStatus.APPROVED.ordinal();
+		//List<User> patients = jdbcTemplate.query(sql, new BeanPropertyRowMapper<User>(User.class));
+		
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = "+UserScreenStatus.APPROVED.ordinal()+" and ur.role_id = 2 ORDER BY ur.user_id DESC;");		
+		List<User> patients = new ArrayList<User>();
+		Long userId = 0l;
+		Optional<User> user = null;
+		User patient = null;
+		for (Map<String, Object> map : patientList) {
+			if (map.get("user_id") != null) {
+				userId = Long.parseLong(map.get("user_id").toString());
+				user = userRepository.findById(userId);
+				if (user.isPresent()) {
+					patient = user.get();
+					patients.add(patient);
+				}
+			}
+		}
+		return patients;
+	}
+	
+	@Override
+	public List<User> getDisapprovedPatients() {
+		//String sql = "SELECT * FROM users u JOIN user_roles ur ON u.user_id = ur.user_id JOIN user_screening_status uss ON u.user_id = uss.user_id WHERE ur.role_id = (SELECT id from roles where name = "+RoleName.PATIENT.toString()+") and uss.user_screening_status = "+UserScreenStatus.APPROVED.ordinal();
+		//List<User> patients = jdbcTemplate.query(sql, new BeanPropertyRowMapper<User>(User.class));
+		
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = "+UserScreenStatus.DISAPPROVED.ordinal()+" and ur.role_id = 2 ORDER BY ur.user_id DESC;");		
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -391,5 +418,13 @@ public class UserServiceImpl implements UserService {
 		else {
 			return status;
 		}
+	}
+
+	@Override
+	public List<UserDataResponse> getUserById(Long userId) {
+		String sql = "SELECT * FROM users u JOIN user_metadata um ON u.user_id = um.user_id JOIN user_screening_status uss ON u.user_id = uss.user_id JOIN ucsf_studies us ON us.study_id = uss.study_id where u.user_id = "+userId;
+		List<UserDataResponse> patientList = jdbcTemplate.query(sql, new BeanPropertyRowMapper<UserDataResponse>(UserDataResponse.class));
+		
+		return patientList;
 	}
 }

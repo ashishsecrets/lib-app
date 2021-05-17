@@ -21,4 +21,12 @@ public class HistoryService {
 		
 		return list;
 	}
+	
+	public List<UserHistory> getUserActivityLogsByUserId(Long userId) {
+		
+		String sql = "select * from user_history where user_id = "+userId;
+		List<UserHistory> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<UserHistory>(UserHistory.class));
+		
+		return list;
+	}
 }

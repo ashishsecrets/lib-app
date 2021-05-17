@@ -35,6 +35,7 @@ import com.ucsf.payload.request.UserUpdateRequest;
 import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
+import com.ucsf.payload.response.UserDataResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
 import com.ucsf.service.HistoryService;
@@ -191,5 +192,40 @@ public class AdminController {
 			loggerService.printErrorLogs(log, "getActivityLogs", "Error while getting activity logs..");
 			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}		
+	}
+	
+	@ApiOperation(value = "getActivityLogsByUserId", notes = "getActivityLogs", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "list of activity logs", response = UserHistory.class) })
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/getActivityLogs/{userId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getActivityLogsByUserId(@PathVariable Long userId) {
+		JSONObject responseJson = new JSONObject();
+		try {
+			List<UserHistory> userHistories = historyService.getUserActivityLogsByUserId(userId);
+			responseJson.put("data", userHistories);
+			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			loggerService.printErrorLogs(log, "getActivityLogsByUserId", "Error while getting activity logs.. for user : "+userId);
+			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}		
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/getUser/{userId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getUserById(@PathVariable Long userId) {
+		loggerService.printLogs(log, "getUserById", "Getting user with id : "+userId);		
+		JSONObject responseJson = new JSONObject();
+		try {
+			List<UserDataResponse> userData = userService.getUserById(userId);
+			responseJson.put("data", userData);
+			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			loggerService.printErrorLogs(log, "getUserById", "Error while getting user with id : "+userId);
+			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 	}
 }
