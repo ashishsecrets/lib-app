@@ -251,21 +251,18 @@ public class UserServiceImpl implements UserService {
 		User newUser = new User();
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
-		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		newUser.setEmail(user.getEmail());
 		newUser.setPhoneNumber(user.getPhone());
-		newUser.setPhoneCode(user.getPhoneCode());
-
+		String code = (user.getPhoneCode().substring(0,2));
+		newUser.setPhoneCode(code);
 		// Add Role
-		if (user.getUserRoles() != null && user.getUserRoles().size() > 0) {
-			for (String role : user.getUserRoles()) {
-				if (role.equals("PHYSICIAN")) {
+		if (user.getUserRoles() != null && user.getUserRoles() != "") {
+				if (user.getUserRoles().equals("PHYSICIAN")) {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
 				}
-				if (role.equals("STUDYTEAM")) {
+				if (user.getUserRoles().equals("STUDYTEAM")) {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
 				}
-			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
 		}
