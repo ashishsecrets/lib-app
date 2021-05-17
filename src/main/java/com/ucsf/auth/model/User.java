@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "users")
-//@EntityListeners(UserEntityListener.class)
+@EntityListeners(UserEntityListener.class)
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})

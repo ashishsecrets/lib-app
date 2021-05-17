@@ -48,7 +48,7 @@ public class UserDataResponse extends Auditable<String> {
 
 	private StudyAcceptanceNotification notifiedBy;
 
-	private StudyStatus studyStatus;
+	//private StudyStatus studyStatus;
 	
 	private UserScreenStatus userScreeningStatus;
 
