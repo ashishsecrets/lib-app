@@ -1,6 +1,7 @@
 package com.ucsf.controller;
 
 import com.ucsf.job.LoadStudyInformatives;
+import com.ucsf.job.LoadSurveyQuestions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,9 @@ public class UserController {
 
 	@Autowired
 	LoadStudyInformatives loadStudyInformatives;
+
+	@Autowired
+	LoadSurveyQuestions loadSurveyQuestions;
 	
 	@Autowired
 	LoadConsentFormData loadConsentFormData;
@@ -47,6 +51,7 @@ public class UserController {
 		loadStudyInformatives.loadSheetContent();
 		loadConsentFormData.loadFormContent();
 		System.out.println("2222222222");
+		loadSurveyQuestions.loadSheetContent();
 		return ResponseEntity.ok("success");
 	}
 	

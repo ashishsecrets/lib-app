@@ -43,7 +43,7 @@ public class UserScreeningStatus {
 
 	@Column(name = "user_id")
 	private Long userId;
-	
+
 	@Column(name = "index_value")
 	private int indexValue;
 

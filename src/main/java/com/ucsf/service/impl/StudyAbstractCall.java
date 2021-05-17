@@ -4,14 +4,13 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.controller.ScreeningAnswerController;
-import com.ucsf.model.ScreeningAnsChoice;
-import com.ucsf.model.ScreeningAnswers;
-import com.ucsf.model.ScreeningQuestions;
-import com.ucsf.model.UserScreeningStatus;
+import com.ucsf.model.*;
 import com.ucsf.payload.request.ScreeningAnswerRequest;
+import com.ucsf.payload.request.SurveyAnswerRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
 import com.ucsf.payload.response.StudyInfoData;
+import com.ucsf.payload.response.SurveyQuestionResponse;
 import com.ucsf.repository.*;
 import com.ucsf.service.LoggerService;
 import lombok.Data;
@@ -39,7 +38,16 @@ public class StudyAbstractCall {
     ScreeningQuestionRepository screeningQuestionRepository;
 
     @Autowired
+    SurveyQuestionRepository surveyQuestionRepository;
+
+    @Autowired
+    SurveyAnswerRepository surveyAnswerRepository;
+
+    @Autowired
     UserScreeningStatusRepository userScreeningStatusRepository;
+
+    @Autowired
+    UserSurveyStatusRepository userSurveyStatusRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -49,6 +57,9 @@ public class StudyAbstractCall {
 
     @Autowired
     ChoiceRepository choiceRepository;
+
+    @Autowired
+    SurveyChoiceRepository surveyChoiceRepository;
 
     @Autowired
     private LoggerService loggerService;
@@ -64,16 +75,24 @@ public class StudyAbstractCall {
     JSONObject responseJson = new JSONObject();
 
     int quesIncrement = 0;
+    int quesSurveyIncrement = 0;
 
     ScreeningQuestions questionToDisplayToUser;
 
     ScreeningQuestionResponse response = new ScreeningQuestionResponse();
 
+    SurveyQuestionResponse surveyResponse = new SurveyQuestionResponse();
+
+
     User user = null;
 
     ScreeningAnswerRequest answerRequest = new ScreeningAnswerRequest();
 
+    SurveyAnswerRequest surveyAnswerRequest = new SurveyAnswerRequest();
+
     UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
+
+    UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
 
     public User getUserDetails(String email){
 
@@ -93,12 +112,32 @@ public class StudyAbstractCall {
         return quesIncrement;
     }
 
+    public int getSurveyQuestionDirection(){
+        if (surveyAnswerRequest.getForward() == SurveyAnswerRequest.ForwardStatus.FALSE) {
+            quesSurveyIncrement = -1;
+        } else if (surveyAnswerRequest.getForward() == SurveyAnswerRequest.ForwardStatus.TRUE) {
+            quesSurveyIncrement = 1;
+        } else if (surveyAnswerRequest.getForward() == SurveyAnswerRequest.ForwardStatus.NONE) {
+            quesSurveyIncrement = 0;
+        }
+        return quesSurveyIncrement;
+    }
+
     public void updateUserScreeningStatus(UserScreeningStatus.UserScreenStatus currentStatus, int newIndex){
         if (userScreeningStatus != null) {
             userScreeningStatus.setStudyId(answerRequest.getStudyId());
             userScreeningStatus.setUserScreeningStatus(currentStatus);
             userScreeningStatus.setIndexValue(newIndex);
             userScreeningStatusRepository.save(userScreeningStatus);
+        }
+    }
+
+    public void updateUserSurveyStatus(UserSurveyStatus.SurveyStatus currentStatus, int newIndex){
+        if (userSurveyStatus != null) {
+            userSurveyStatus.setSurveyId(surveyAnswerRequest.getSurveyId());
+            userSurveyStatus.setUserSurveyStatus(currentStatus);
+            userSurveyStatus.setIndexValue(newIndex);
+            userSurveyStatusRepository.save(userSurveyStatus);
         }
     }
 
@@ -142,10 +181,48 @@ public class StudyAbstractCall {
         return  screenAnswerOp;
     }
 
+    public Optional<SurveyAnswer> getLastSavedSurveyAnswer(){
+        Optional<SurveyAnswer> surveyAnswerOp = null;
+        try {
+            if (!surveyAnswerRequest.getAnswer().isEmpty()) {
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId())));
+                SurveyAnswer surveyAnswer;
+                if (surveyAnswerOp.isPresent()) {
+                    surveyAnswer = surveyAnswerRepository.findById(surveyAnswerOp.get().getId()).get();
+                } else {
+                    surveyAnswer = new SurveyAnswer();
+                }
+                surveyAnswer.setAnswerDescription(surveyAnswerRequest.getAnswerDescription().toString());
+                surveyAnswer.setAnswerChoice(surveyAnswerRequest.getAnswer());
+                surveyAnswer.setQuestionId(
+                        (surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(),
+                                userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()));
+                surveyAnswer.setSurveyId(surveyAnswerRequest.getSurveyId());
+                surveyAnswer.setAnsweredById(user.getId());
+                surveyAnswer.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
+                surveyAnswerRepository.save(surveyAnswer);
+                isSuccess = true;
+            }
+            else{
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId())));
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        return  surveyAnswerOp;
+    }
+
     public int getIndexValue(){
         int indexValue = userScreeningStatus.getIndexValue();
 
         return indexValue;
+    }
+
+    public int getSurveyIndexValue(){
+        int surveyIndexValue = userSurveyStatus.getIndexValue();
+
+        return surveyIndexValue;
     }
 
     public JSONObject catchQuestionAnswerError() {
@@ -202,6 +279,60 @@ public class StudyAbstractCall {
         return responseEntity;
     }
 
+    public JSONObject catchSurveyQuestionAnswerError() {
+
+        Optional<SurveyQuestion> sq = Optional.ofNullable(surveyQuestionRepository
+                .findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue()));
+
+        JSONObject responseEntity = null;
+
+        if (sq.isPresent()) {
+            if (userSurveyStatus.getIndexValue() != sq.get().getId()) {
+                responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
+                        Constants.INVALID_INDEXVALUE.errordesc()));
+            }
+        } else {
+                /*responseJson.put("error",
+                        new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));*/
+            if (getIsLastSurveyQuestionBool()) {
+                responseJson.remove("error");
+                surveyResponse = new SurveyQuestionResponse();
+                SurveyQuestion sc = null;
+                SurveyAnswer sa = null;
+                List<SurveyAnswerChoice> choices = null;
+                surveyResponse.setSurveyQuestion(sc);
+                surveyResponse.setSurveyAnswer(sa);
+                surveyResponse.setChoices(choices);
+                surveyResponse.setMessage("Survey complete.");
+                surveyResponse.setIsLastQuestion(true);
+                surveyResponse.setInformation("");
+                responseJson.put("data", surveyResponse);
+                responseEntity = responseJson;
+                userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
+            } else if (userSurveyStatus.getIndexValue() <= 0) {
+                responseJson.remove("error");
+                surveyResponse = new SurveyQuestionResponse();
+                SurveyQuestion sc = null;
+                SurveyAnswer sa = null;
+                List<SurveyAnswerChoice> choices = null;
+                surveyResponse.setSurveyQuestion(sc);
+                surveyResponse.setSurveyAnswer(sa);
+                surveyResponse.setChoices(choices);
+                surveyResponse.setMessage("Please go forward and answer first question.");
+                surveyResponse.setInformation("");
+                surveyResponse.setIsLastQuestion(false);
+                responseJson.put("data", surveyResponse);
+                responseEntity = responseJson;
+                userSurveyStatus.setIndexValue(-1);
+                userSurveyStatusRepository.save(userSurveyStatus);
+            }
+            userSurveyStatus.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
+            userSurveyStatusRepository.save(userSurveyStatus);
+        }
+        //returning responseJson
+        return responseEntity;
+    }
+
     public ScreeningQuestions getQuestionToDisplayToUser(int index) {
 
         return screeningQuestionRepository.findByStudyIdAndIndexValue(
@@ -226,6 +357,24 @@ public class StudyAbstractCall {
         return value;
     }
 
+    public Boolean getIsLastSurveyQuestionBool() {
+        Boolean value;
+
+        value = !Optional.ofNullable(surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() + 1)).isPresent();
+
+        return value;
+    }
+
+    public SurveyQuestion getSurveyQuestionToDisplayToUser(int index) {
+
+        return surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), index);
+    }
+
+    public SurveyAnswer getSurveyAnswerToDisplayToUser(Long index) {
+        return surveyAnswerRepository.findByQuestionIdAndAnsweredById(index, user.getId());
+    }
+
+
     public ScreeningQuestionResponse displayQuesNAns(ScreeningQuestions questionToDisplayToUser, ScreeningAnswers answerToDisplayToUser) {
 
         List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(questionToDisplayToUser.getId());
@@ -246,6 +395,34 @@ public class StudyAbstractCall {
         response.setIsDisqualified(userScreeningStatus.getUserScreeningStatus() == UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
 
         return response;
+    }
+
+    public SurveyQuestionResponse displaySurveyNullQuesNAns(String message) {
+
+        surveyResponse.setSurveyQuestion(new SurveyQuestion());
+        surveyResponse.setSurveyAnswer(new SurveyAnswer());
+        surveyResponse.setChoices(new ArrayList<>());
+        surveyResponse.setMessage(message);
+        surveyResponse.setInformation("");
+        surveyResponse.setIsDisqualified(userScreeningStatus.getUserScreeningStatus() == UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
+        return surveyResponse;
+    }
+
+    public SurveyQuestionResponse displaySurveyQuesNAns(SurveyQuestion questionToDisplayToUser, SurveyAnswer answerToDisplayToUser) {
+
+        List<SurveyAnswerChoice> choices = surveyChoiceRepository.findByQuestionId(questionToDisplayToUser.getId());
+        surveyResponse.setSurveyQuestion(questionToDisplayToUser);
+        if (answerToDisplayToUser == null) {
+            answerToDisplayToUser = new SurveyAnswer();
+        }
+        surveyResponse.setSurveyAnswer(answerToDisplayToUser);
+        surveyResponse.setChoices(choices);
+        surveyResponse.setIsLastQuestion(getIsLastSurveyQuestionBool());
+        surveyResponse.setMessage("");
+        surveyResponse.setInformation("");
+        surveyResponse.setIsDisqualified(userSurveyStatus.getUserSurveyStatus() == UserSurveyStatus.SurveyStatus.DISQUALIFIED);
+
+        return surveyResponse;
     }
 
     public ScreeningQuestionResponse displayNullQuesNAns(String message) {
