@@ -182,7 +182,7 @@ public class StudyController {
 	@ApiOperation(value = "Review Patient's Study", notes = "Review Patient's Study", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Study reviewed successfully", response = StudyReviewResponse.class) })
-	@RequestMapping(value = "/reviewStudy", method = RequestMethod.GET)
+	@RequestMapping(value = "/reviewStudy", method = RequestMethod.POST)
 	public ResponseEntity<?> reviewStudy(@RequestBody StudyReviewRequest reviewStudy) throws Exception {
 
 		JSONObject responseJson = new JSONObject();

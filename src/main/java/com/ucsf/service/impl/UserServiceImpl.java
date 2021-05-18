@@ -8,13 +8,13 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-
 import com.ucsf.model.StudyImages;
 import com.ucsf.model.UserSurveyStatus;
 import com.ucsf.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,7 @@ import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
+import com.ucsf.payload.response.UserDataResponse;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserMetaDataRepository;
@@ -73,6 +74,9 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 
+	@Autowired
+	UserScreeningStatusRepository userScreeningStatusRepository;
+
 	@Override
 	public Page<User> findAll(int page, int size) {
 		Page<User> users = userRepository.findAll(PageRequest.of(page, size));
@@ -94,8 +98,7 @@ public class UserServiceImpl implements UserService {
 			for (String role : user.getUserRoles()) {
 				if (role.equals("ADMIN")) {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.ADMIN));
-				}
-				else {
+				} else {
 					newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
 				}
 			}
@@ -110,7 +113,7 @@ public class UserServiceImpl implements UserService {
 		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
 		metadata.setUserId(savedUser.getId());
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
-		if(user.getDateOfBirth() != null) {
+		if (user.getDateOfBirth() != null) {
 			metadata.setDateOfBith(user.getDateOfBirth());
 			metadata.setAge(AppUtil.getAge(user.getDateOfBirth()));
 		}
@@ -125,6 +128,14 @@ public class UserServiceImpl implements UserService {
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
 
+		// New list updated by client
+		/*
+		 * “Full body front”, ” Full body back ", "Front Trunk", ”Back Trunk” , "Front
+		 * of Arms", ”Back of Arms”, ”Front of Hands”, "Back of Hands", "Front of
+		 * Legs", ”Back of Legs”, "Front of Feet", ”Back of Feet” "Special areas of
+		 * interest”
+		 */
+		// Making the changes below
 		UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
 		userSurveyStatus.setSurveyId(1l);
 		userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.NEWLY_ADDED);
@@ -139,7 +150,7 @@ public class UserServiceImpl implements UserService {
 		full_body_front.setName("full_body_front");
 		full_body_front.setDescription("Full body front");
 		full_body_front.setStudyId(1l);
-		full_body_front.setImageUrl("body_parts/full_body_front"+"/"+savedUser.getId());
+		full_body_front.setImageUrl("body_parts/full_body_front" + "/" + savedUser.getId());
 		full_body_front.setUserId(savedUser.getId());
 		full_body_front.setCount(0);
 		imageRepository.save(full_body_front);
@@ -148,7 +159,7 @@ public class UserServiceImpl implements UserService {
 		full_body_back.setName("full_body_back");
 		full_body_back.setDescription("Full body back");
 		full_body_back.setStudyId(1l);
-		full_body_back.setImageUrl("body_parts/full_body_back"+"/"+savedUser.getId());
+		full_body_back.setImageUrl("body_parts/full_body_back" + "/" + savedUser.getId());
 		full_body_back.setUserId(savedUser.getId());
 		full_body_back.setCount(0);
 		imageRepository.save(full_body_back);
@@ -157,7 +168,7 @@ public class UserServiceImpl implements UserService {
 		front_trunk.setName("front_trunk");
 		front_trunk.setDescription("Front Trunk");
 		front_trunk.setStudyId(1l);
-		front_trunk.setImageUrl("body_parts/front_trunk"+"/"+savedUser.getId());
+		front_trunk.setImageUrl("body_parts/front_trunk" + "/" + savedUser.getId());
 		front_trunk.setUserId(savedUser.getId());
 		front_trunk.setCount(0);
 		imageRepository.save(front_trunk);
@@ -166,7 +177,7 @@ public class UserServiceImpl implements UserService {
 		back_trunk.setName("back_trunk");
 		back_trunk.setDescription("Back Trunk");
 		back_trunk.setStudyId(1l);
-		back_trunk.setImageUrl("body_parts/back_trunk"+"/"+savedUser.getId());
+		back_trunk.setImageUrl("body_parts/back_trunk" + "/" + savedUser.getId());
 		back_trunk.setUserId(savedUser.getId());
 		back_trunk.setCount(0);
 		imageRepository.save(back_trunk);
@@ -175,7 +186,7 @@ public class UserServiceImpl implements UserService {
 		front_of_arms.setName("front_of_arms");
 		front_of_arms.setDescription("Front of Arms");
 		front_of_arms.setStudyId(1l);
-		front_of_arms.setImageUrl("body_parts/front_of_arms"+"/"+savedUser.getId());
+		front_of_arms.setImageUrl("body_parts/front_of_arms" + "/" + savedUser.getId());
 		front_of_arms.setUserId(savedUser.getId());
 		front_of_arms.setCount(0);
 		imageRepository.save(front_of_arms);
@@ -184,7 +195,7 @@ public class UserServiceImpl implements UserService {
 		back_of_arms.setName("back_of_arms");
 		back_of_arms.setDescription("Back of Arms");
 		back_of_arms.setStudyId(1l);
-		back_of_arms.setImageUrl("body_parts/front_of_arms"+"/"+savedUser.getId());
+		back_of_arms.setImageUrl("body_parts/front_of_arms" + "/" + savedUser.getId());
 		back_of_arms.setUserId(savedUser.getId());
 		back_of_arms.setCount(0);
 		imageRepository.save(back_of_arms);
@@ -193,7 +204,7 @@ public class UserServiceImpl implements UserService {
 		front_of_hands.setName("front_of_hands");
 		front_of_hands.setDescription("Front of Hands");
 		front_of_hands.setStudyId(1l);
-		front_of_hands.setImageUrl("body_parts/front_of_hands"+"/"+savedUser.getId());
+		front_of_hands.setImageUrl("body_parts/front_of_hands" + "/" + savedUser.getId());
 		front_of_hands.setUserId(savedUser.getId());
 		front_of_hands.setCount(0);
 		imageRepository.save(front_of_hands);
@@ -202,7 +213,7 @@ public class UserServiceImpl implements UserService {
 		back_of_hands.setName("back_of_hands");
 		back_of_hands.setDescription("Back of Hands");
 		back_of_hands.setStudyId(1l);
-		back_of_hands.setImageUrl("body_parts/back_of_hands"+"/"+savedUser.getId());
+		back_of_hands.setImageUrl("body_parts/back_of_hands" + "/" + savedUser.getId());
 		back_of_hands.setUserId(savedUser.getId());
 		back_of_hands.setCount(0);
 		imageRepository.save(back_of_hands);
@@ -211,7 +222,7 @@ public class UserServiceImpl implements UserService {
 		front_of_legs.setName("front_of_legs");
 		front_of_legs.setDescription("Front of Legs");
 		front_of_legs.setStudyId(1l);
-		front_of_legs.setImageUrl("body_parts/front_of_legs"+"/"+savedUser.getId());
+		front_of_legs.setImageUrl("body_parts/front_of_legs" + "/" + savedUser.getId());
 		front_of_legs.setUserId(savedUser.getId());
 		front_of_legs.setCount(0);
 		imageRepository.save(front_of_legs);
@@ -220,7 +231,7 @@ public class UserServiceImpl implements UserService {
 		back_of_legs.setName("back_of_legs");
 		back_of_legs.setDescription("Back of Legs");
 		back_of_legs.setStudyId(1l);
-		back_of_legs.setImageUrl("body_parts/back_of_legs"+"/"+savedUser.getId());
+		back_of_legs.setImageUrl("body_parts/back_of_legs" + "/" + savedUser.getId());
 		back_of_legs.setUserId(savedUser.getId());
 		back_of_legs.setCount(0);
 		imageRepository.save(back_of_legs);
@@ -229,7 +240,7 @@ public class UserServiceImpl implements UserService {
 		front_of_feet.setName("front_of_feet");
 		front_of_feet.setDescription("Front of Feet");
 		front_of_feet.setStudyId(1l);
-		front_of_feet.setImageUrl("body_parts/front_of_feet"+"/"+savedUser.getId());
+		front_of_feet.setImageUrl("body_parts/front_of_feet" + "/" + savedUser.getId());
 		front_of_feet.setUserId(savedUser.getId());
 		front_of_feet.setCount(0);
 		imageRepository.save(front_of_feet);
@@ -238,7 +249,7 @@ public class UserServiceImpl implements UserService {
 		back_of_feet.setName("back_of_feet");
 		back_of_feet.setDescription("Back of Feet");
 		back_of_feet.setStudyId(1l);
-		back_of_feet.setImageUrl("body_parts/back_of_feet"+"/"+savedUser.getId());
+		back_of_feet.setImageUrl("body_parts/back_of_feet" + "/" + savedUser.getId());
 		back_of_feet.setUserId(savedUser.getId());
 		back_of_feet.setCount(0);
 		imageRepository.save(back_of_feet);
@@ -247,7 +258,7 @@ public class UserServiceImpl implements UserService {
 		special_areas.setName("special_areas");
 		special_areas.setDescription("Special Areas of Interest");
 		special_areas.setStudyId(1l);
-		special_areas.setImageUrl("body_parts/special_areas"+"/"+savedUser.getId());
+		special_areas.setImageUrl("body_parts/special_areas" + "/" + savedUser.getId());
 		special_areas.setUserId(savedUser.getId());
 		special_areas.setCount(0);
 		imageRepository.save(special_areas);
@@ -261,20 +272,19 @@ public class UserServiceImpl implements UserService {
 		User newUser = new User();
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
-		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		newUser.setEmail(user.getEmail());
-		newUser.setPhoneNumber(user.getPhone());
-		newUser.setPhoneCode(user.getPhoneCode());
-
+		newUser.setPassword(bcryptEncoder.encode("12345"));
+		String code = (user.getPhone() != null ? user.getPhone().substring(0, user.getPhone().indexOf("-")) : "");
+		newUser.setPhoneCode(code);
+		newUser.setPhoneNumber(
+				user.getPhone() != null ? user.getPhone().substring((user.getPhone()).indexOf("-")+1) : "");
 		// Add Role
-		if (user.getUserRoles() != null && user.getUserRoles().size() > 0) {
-			for (String role : user.getUserRoles()) {
-				if (role.equals("PHYSICIAN")) {
-					newUser.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
-				}
-				if (role.equals("STUDYTEAM")) {
-					newUser.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
-				}
+		if (user.getUserRoles() != null && user.getUserRoles() != "") {
+			if (user.getUserRoles().equals("PHYSICIAN")) {
+				newUser.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
+			}
+			if (user.getUserRoles().equals("STUDYTEAM")) {
+				newUser.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
 			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
@@ -319,7 +329,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User updateUser(Long userId, UserUpdateRequest updateRequest) {
-		// TODO Auto-generated method stub
 		Optional<User> existed = userRepository.findById(userId);
 		User user = null;
 		if (existed.isEmpty()) {
@@ -327,25 +336,27 @@ public class UserServiceImpl implements UserService {
 		} else {
 			user = existed.get();
 			user.setEmail(updateRequest.getEmail() != null ? updateRequest.getEmail() : user.getEmail());
-			user.setFirstName(updateRequest.getFirstName() != null ? updateRequest.getFirstName() : user.getFirstName());
+			user.setFirstName(
+					updateRequest.getFirstName() != null ? updateRequest.getFirstName() : user.getFirstName());
 			user.setLastName(updateRequest.getLastName() != null ? updateRequest.getLastName() : user.getLastName());
-			if (updateRequest.getUserRoles() != null && updateRequest.getUserRoles().size() > 0) {
+			if (updateRequest.getUserRoles() != null) {
 				Set<Role> newRole = new HashSet<Role>();
-				for (String role : updateRequest.getUserRoles()) {
-					if (role.equals("PHYSICIAN")) {
-						//user.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
-						newRole.add(roleRepository.findByName(RoleName.PHYSICIAN));
-						user.setRoles(newRole);
-					}
-					if (role.equals("STUDYTEAM")) {
-						//user.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
-						newRole.add(roleRepository.findByName(RoleName.STUDY_TEAM));
-						user.setRoles(newRole);
-					}
+				if (updateRequest.getUserRoles().equals("PHYSICIAN")) {
+					newRole.add(roleRepository.findByName(RoleName.PHYSICIAN));
+					user.setRoles(newRole);
+				}
+				if (updateRequest.getUserRoles().equals("STUDYTEAM")) {
+					newRole.add(roleRepository.findByName(RoleName.STUDY_TEAM));
+					user.setRoles(newRole);
 				}
 			}
-			user.setPassword(updateRequest.getPassword() != null ? bcryptEncoder.encode(updateRequest.getPassword()) : user.getPassword());
-			user.setPhoneNumber(updateRequest.getPhone() != null ? updateRequest.getPhone() : user.getPhoneNumber());
+			String code = (updateRequest.getPhone() != null
+					? updateRequest.getPhone().substring(0, updateRequest.getPhone().indexOf("-"))
+					: user.getPhoneNumber());
+			user.setPhoneCode(code);
+			user.setPhoneNumber(updateRequest.getPhone() != null
+					? updateRequest.getPhone().substring((updateRequest.getPhone()).indexOf("-")+1)
+					: user.getPhoneNumber());
 			userRepository.save(user);
 			return user;
 		}
@@ -353,7 +364,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<User> getPatients() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -372,8 +384,69 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
+	public List<User> getStudyTeam() {
+		List<Map<String, Object>> studyTeam = jdbcTemplate.queryForList(
+				"SELECT * FROM user_roles ur JOIN users u ON ur.user_id = u.user_id  and ur.role_id IN(3,4) ORDER BY ur.user_id DESC");
+		List<User> patients = new ArrayList<User>();
+		Long userId = 0l;
+		Optional<User> user = null;
+		User patient = null;
+		for (Map<String, Object> map : studyTeam) {
+			if (map.get("user_id") != null) {
+				userId = Long.parseLong(map.get("user_id").toString());
+				user = userRepository.findById(userId);
+				if (user.isPresent()) {
+					patient = user.get();
+					patients.add(patient);
+				}
+			}
+		}
+		return patients;
+	}
+
+	@Override
 	public List<User> getApprovedPatients() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList("SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+		// String sql = "SELECT * FROM users u JOIN user_roles ur ON u.user_id =
+		// ur.user_id JOIN user_screening_status uss ON u.user_id = uss.user_id WHERE
+		// ur.role_id = (SELECT id from roles where name =
+		// "+RoleName.PATIENT.toString()+") and uss.user_screening_status =
+		// "+UserScreenStatus.APPROVED.ordinal();
+		// List<User> patients = jdbcTemplate.query(sql, new
+		// BeanPropertyRowMapper<User>(User.class));
+
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = "
+						+ UserScreenStatus.APPROVED.ordinal() + " and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+		List<User> patients = new ArrayList<User>();
+		Long userId = 0l;
+		Optional<User> user = null;
+		User patient = null;
+		for (Map<String, Object> map : patientList) {
+			if (map.get("user_id") != null) {
+				userId = Long.parseLong(map.get("user_id").toString());
+				user = userRepository.findById(userId);
+				if (user.isPresent()) {
+					patient = user.get();
+					patients.add(patient);
+				}
+			}
+		}
+		return patients;
+	}
+
+	@Override
+	public List<User> getDisapprovedPatients() {
+		// String sql = "SELECT * FROM users u JOIN user_roles ur ON u.user_id =
+		// ur.user_id JOIN user_screening_status uss ON u.user_id = uss.user_id WHERE
+		// ur.role_id = (SELECT id from roles where name =
+		// "+RoleName.PATIENT.toString()+") and uss.user_screening_status =
+		// "+UserScreenStatus.APPROVED.ordinal();
+		// List<User> patients = jdbcTemplate.query(sql, new
+		// BeanPropertyRowMapper<User>(User.class));
+
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = "
+						+ UserScreenStatus.DISAPPROVED.ordinal() + " and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -394,13 +467,23 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserScreeningStatus getUserStatus(Long userId) {
 		UserScreeningStatus status = new UserScreeningStatus();
-		//metadata = userMetaDataRepository.findByStudyStatusAndUserId(StudyStatus.ENROLLED,userId);
+		// metadata =
+		// userMetaDataRepository.findByStudyStatusAndUserId(StudyStatus.ENROLLED,userId);
 		status = userScreeningStatusRepository.findByUserId(userId);
-		if(status == null) {
+		if (status == null) {
 			return null;
-		}
-		else {
+		} else {
 			return status;
 		}
+	}
+
+	@Override
+	public List<UserDataResponse> getUserById(Long userId) {
+		String sql = "SELECT * FROM users u JOIN user_metadata um ON u.user_id = um.user_id JOIN user_screening_status uss ON u.user_id = uss.user_id JOIN ucsf_studies us ON us.study_id = uss.study_id where u.user_id = "
+				+ userId;
+		List<UserDataResponse> patientList = jdbcTemplate.query(sql,
+				new BeanPropertyRowMapper<UserDataResponse>(UserDataResponse.class));
+
+		return patientList;
 	}
 }
