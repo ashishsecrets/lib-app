@@ -228,4 +228,35 @@ public class AdminController {
 			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@ApiOperation(value = "Get studyTeam/physician", notes = "Get studyTeam/physician", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of Get studyTeam/physician", response = User.class) })
+	@RequestMapping(value = "/getStudyTeam", method = RequestMethod.GET)
+	public ResponseEntity<?> getPatients() {
+		List<User> patients = new ArrayList<User>();
+		JSONObject response = new JSONObject();
+		User user = null;
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			loggerService.printLogs(log, "getAllPatients", "Saving user consent for user " + user.getId());
+		} else {
+			loggerService.printLogs(log, "getAllPatients", "Invalid JWT signature.");
+			response.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			patients = userService.getStudyTeam();
+			loggerService.printLogs(log, "studyteam", "Fetched studyteam successfully!");
+			response.put("data", patients);
+			return new ResponseEntity(response.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			response.put("error", patients);
+			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
 }
