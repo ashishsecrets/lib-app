@@ -73,6 +73,7 @@ public class StudyAbstractCall {
     Boolean isSuccess = false;
 
     JSONObject responseJson = new JSONObject();
+    JSONObject surveyresponseJson = new JSONObject();
 
     int quesIncrement = 0;
     int quesSurveyIncrement = 0;
@@ -288,14 +289,14 @@ public class StudyAbstractCall {
 
         if (sq.isPresent()) {
             if (userSurveyStatus.getIndexValue() != sq.get().getId()) {
-                responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
+                surveyresponseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_INDEXVALUE.code(),
                         Constants.INVALID_INDEXVALUE.errordesc()));
             }
         } else {
                 /*responseJson.put("error",
                         new ErrorResponse(ErrorCodes.QUESTION_NOT_FOUND.code(), Constants.QUESTION_NOT_FOUND.errordesc()));*/
             if (getIsLastSurveyQuestionBool()) {
-                responseJson.remove("error");
+                surveyresponseJson.remove("error");
                 surveyResponse = new SurveyQuestionResponse();
                 SurveyQuestion sc = null;
                 SurveyAnswer sa = null;
@@ -306,11 +307,11 @@ public class StudyAbstractCall {
                 surveyResponse.setMessage("Survey complete.");
                 surveyResponse.setIsLastQuestion(true);
                 surveyResponse.setInformation("");
-                responseJson.put("data", surveyResponse);
-                responseEntity = responseJson;
+                surveyresponseJson.put("data", surveyResponse);
+                responseEntity = surveyresponseJson;
                 userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
             } else if (userSurveyStatus.getIndexValue() <= 0) {
-                responseJson.remove("error");
+                surveyresponseJson.remove("error");
                 surveyResponse = new SurveyQuestionResponse();
                 SurveyQuestion sc = null;
                 SurveyAnswer sa = null;
@@ -321,8 +322,8 @@ public class StudyAbstractCall {
                 surveyResponse.setMessage("Please go forward and answer first question.");
                 surveyResponse.setInformation("");
                 surveyResponse.setIsLastQuestion(false);
-                responseJson.put("data", surveyResponse);
-                responseEntity = responseJson;
+                surveyresponseJson.put("data", surveyResponse);
+                responseEntity = surveyresponseJson;
                 userSurveyStatus.setIndexValue(-1);
                 userSurveyStatusRepository.save(userSurveyStatus);
             }

@@ -73,9 +73,6 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	UserScreeningStatusRepository userScreeningStatusRepository;
-
 	@Override
 	public Page<User> findAll(int page, int size) {
 		Page<User> users = userRepository.findAll(PageRequest.of(page, size));
