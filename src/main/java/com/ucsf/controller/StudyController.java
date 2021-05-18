@@ -1,8 +1,13 @@
 package com.ucsf.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import com.ucsf.payload.response.*;
@@ -30,6 +35,7 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UcsfStudy;
 import com.ucsf.payload.request.StudyRequest;
 import com.ucsf.payload.request.StudyReviewRequest;
+import com.ucsf.service.AmazonClientService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.StudyService;
 import com.ucsf.service.UserService;
@@ -38,6 +44,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.MediaType;
 
 @RestController
 @CrossOrigin
@@ -56,6 +63,9 @@ public class StudyController {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	AmazonClientService amazonClientService;
 
 	private static Logger log = LoggerFactory.getLogger(StudyController.class);
 
@@ -198,6 +208,34 @@ public class StudyController {
 					+ "  for user with id " + reviewStudy.getUserId());
 			responseJson.put("data", response);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
+	}
+	
+	@RequestMapping(value = "/getImage", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	public void getStudyImage(@RequestParam String imagePath, HttpServletResponse response) {
+
+		try {
+			InputStream inputStream = amazonClientService.awsGetObject(imagePath).getObjectContent();
+			
+			final int BUFFER_SIZE = 4096;			
+			
+			//response.setContentType("image/png");
+			OutputStream outputStream = response.getOutputStream();
+			
+			byte[] buffer = new byte[BUFFER_SIZE];
+		    int bytesRead = -1;
+		    
+		    while ((bytesRead = inputStream.read(buffer)) != -1) {
+		    	outputStream.write(buffer, 0, bytesRead);
+		    }
+			outputStream.flush();
+			inputStream.close();
+			outputStream.close();
+			loggerService.printLogs(log, "getStudyImage", "Study image fetched successfully.");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			loggerService.printErrorLogs(log, "reviewStudy", "Error while fetching study image.");
 		}
 	}
 

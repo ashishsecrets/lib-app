@@ -2,8 +2,11 @@ package com.ucsf.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +17,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.IOUtils;
 
 @Service
@@ -34,14 +38,17 @@ public class AmazonClientService {
 		}
 	}
 	
-	public void awsGetObject(String keyName) {
+	public S3Object awsGetObject(String keyName) {
 		try {
-			S3Object obj = s3client.getObject(bucketName, keyName);
+			List<S3ObjectSummary> obj = s3client.listObjects(bucketName, keyName).getObjectSummaries();
+			System.out.println(obj);
+			S3Object image = s3client.getObject(bucketName, obj.get(0).getKey());
 			
-			IOUtils.copy(obj.getObjectContent(), new FileOutputStream(new File("/home/arshdeep/Pictures/cartwithbanner_3.png")));
-			
+			//IOUtils.copy(image.getObjectContent(), new FileOutputStream(new File("/home/arshdeep/img2.png")));
+			return image;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
