@@ -136,7 +136,7 @@ public class TaskServiceImpl implements TaskService {
 
     if (todaysDate.after(startDate) && todaysDate.before(endDate)){
 
-        status = "withinDateRange";
+        status = "inProgress";
 
     }
     else if(todaysDate.after(endDate)){
