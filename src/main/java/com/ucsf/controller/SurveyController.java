@@ -156,6 +156,7 @@ public class SurveyController {
 				response.setList(taskService.getAlteredTaskList(tasks));
 				response.setTotalProgress(taskService.getTotalProgress(taskService.getAlteredTaskList(tasks)));
 				responseJson.put("data", response);
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 			}
 			else{
 				responseJson.put("error", new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(), Constants.NO_STUDY_FOUND.errordesc()));

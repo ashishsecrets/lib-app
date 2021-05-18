@@ -1,7 +1,6 @@
 package com.ucsf.controller;
 
-import com.ucsf.job.LoadStudyInformatives;
-import com.ucsf.job.LoadSurveyQuestions;
+import com.ucsf.job.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucsf.auth.model.User;
-import com.ucsf.job.LoadConsentFormData;
-import com.ucsf.job.LoadScreeningQuestions;
 import com.ucsf.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -42,6 +39,9 @@ public class UserController {
 	
 	@Autowired
 	LoadConsentFormData loadConsentFormData;
+
+	@Autowired
+	LoadStudyTasks loadStudyTasks;
 	
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllUsers() throws Exception {
@@ -52,6 +52,8 @@ public class UserController {
 		loadConsentFormData.loadFormContent();
 		System.out.println("2222222222");
 		loadSurveyQuestions.loadSheetContent();
+		loadStudyTasks.loadSheetContent();
+		System.out.println("3333333333");
 		return ResponseEntity.ok("success");
 	}
 	

@@ -243,6 +243,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		Boolean isSuccess = false;
 
+		Boolean surveyStatusBool = false;
+
 		SurveyQuestionResponse response = new SurveyQuestionResponse();
 
 		JSONObject responseJson = new JSONObject();
@@ -279,9 +281,16 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 
 		try {
-			studyAbstractCall.userSurveyStatus = userSurveyStatusRepository.findByUserId(user.getId());
+			studyAbstractCall.userSurveyStatus = userSurveyStatusRepository.findByUserIdAndSurveyId(user.getId(), answerRequest.getSurveyId());
+			surveyStatusBool = true;
 		} catch (NullPointerException e) {
 			e.printStackTrace();
+		}
+
+		if(!surveyStatusBool){
+			responseJson.put("error", new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(),
+					Constants.NO_STUDY_FOUND.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
 		try {

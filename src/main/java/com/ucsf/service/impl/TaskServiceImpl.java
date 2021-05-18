@@ -12,6 +12,7 @@ import com.ucsf.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -74,6 +75,7 @@ public class TaskServiceImpl implements TaskService {
         for(TaskResponse item : alteredTaskList){
             totalProgress += item.getTaskPercentage();
         }
+        totalProgress = totalProgress/alteredTaskList.size();
 
         return totalProgress;
     }
@@ -81,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskResponse> getAlteredTaskList(List<UserTasks> tasks) {
 
-        List<TaskResponse> taskResponseList = null;
+        List<TaskResponse> taskResponseList = new ArrayList<>();
 
         for(UserTasks task : tasks){
             TaskResponse taskResponse = new TaskResponse();
