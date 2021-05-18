@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
-import com.ucsf.model.UserMetadata;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.StudyStatusResponse;

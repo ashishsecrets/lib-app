@@ -10,6 +10,5 @@ public class AddUserRequest {
     private String firstName;
     private String lastName;
     private String phone;
-    private String phoneCode;
     private String userRoles;
 }

@@ -93,7 +93,6 @@ public class AdminController {
 		boolean isUserNotExpired = true;
 		boolean isCredentialNotExpired = true;
 		boolean isAccountNotLocked = true;
-		jwtConfig.setTwoFa(true);
 
 		JSONObject responseJson = new JSONObject();
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
@@ -113,6 +112,7 @@ public class AdminController {
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		user.setAuthToken(token);
+		userRepository.save(user);
 		try {
 			emailService.sendCredsToUsersAddedByAdmin(fromEmail, user.getEmail(), "User Registered",
 					user.getFirstName(), "12345");
@@ -147,17 +147,33 @@ public class AdminController {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
 	@ApiOperation(value = "Update users", notes = "Update users", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Update users", response = SuccessResponse.class) })
 	@PreAuthorize("hasRole('ADMIN')")
 	@RequestMapping(value = "/updateUser/{userId}", method = RequestMethod.POST)
 	public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody UserUpdateRequest updateUser) {
 		User user = null;
-		JSONObject responseJson = new JSONObject();
+		boolean isEnable = true;
+		boolean isUserNotExpired = true;
+		boolean isCredentialNotExpired = true;
+		boolean isAccountNotLocked = true;
 
+		JSONObject responseJson = new JSONObject();
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		try {
 			user = userService.updateUser(userId, updateUser);
+			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+				grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.getName().toString()));
+			}
+
+			UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
+					user.getPassword(), isEnable, isUserNotExpired, isCredentialNotExpired, isAccountNotLocked,
+					grantedAuthorities);
+
+			final String token = jwtTokenUtil.generateToken(userDetails);
+			user.setAuthToken(token);
+			userRepository.save(user);
 			if (user == null) {
 				responseJson.put("error",
 						new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(), Constants.USER_NOT_FOUND.errordesc()));
@@ -242,9 +258,9 @@ public class AdminController {
 				.getPrincipal();
 		if (userDetail != null && userDetail.getUsername() != null) {
 			user = userService.findByEmail(userDetail.getUsername());
-			loggerService.printLogs(log, "getAllPatients", "Saving user consent for user " + user.getId());
+			loggerService.printLogs(log, "Get studyTeam/physician", "Saving user consent for user " + user.getId());
 		} else {
-			loggerService.printLogs(log, "getAllPatients", "Invalid JWT signature.");
+			loggerService.printLogs(log, "Get studyTeam/physician", "Invalid JWT signature.");
 			response.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
@@ -255,6 +271,7 @@ public class AdminController {
 			response.put("data", patients);
 			return new ResponseEntity(response.toMap(), HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			response.put("error", patients);
 			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
 		}

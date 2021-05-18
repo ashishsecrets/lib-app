@@ -255,11 +255,11 @@ public class UserServiceImpl implements UserService {
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
 		newUser.setEmail(user.getEmail());
-		newUser.setPassword(bcryptEncoder.encode("12234"));
+		newUser.setPassword(bcryptEncoder.encode("12345"));
 		String code = (user.getPhone() != null ? user.getPhone().substring(0, user.getPhone().indexOf("-")) : "");
 		newUser.setPhoneCode(code);
 		newUser.setPhoneNumber(
-				user.getPhone() != null ? user.getPhone().substring((user.getPhone()).indexOf("-")) : "");
+				user.getPhone() != null ? user.getPhone().substring((user.getPhone()).indexOf("-")+1) : "");
 		// Add Role
 		if (user.getUserRoles() != null && user.getUserRoles() != "") {
 			if (user.getUserRoles().equals("PHYSICIAN")) {
@@ -337,7 +337,7 @@ public class UserServiceImpl implements UserService {
 					: user.getPhoneNumber());
 			user.setPhoneCode(code);
 			user.setPhoneNumber(updateRequest.getPhone() != null
-					? updateRequest.getPhone().substring((updateRequest.getPhone()).indexOf("-"))
+					? updateRequest.getPhone().substring((updateRequest.getPhone()).indexOf("-")+1)
 					: user.getPhoneNumber());
 			userRepository.save(user);
 			return user;
@@ -367,13 +367,13 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public List<User> getStudyTeam() {
-		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN users u ON ur.user_id = u.user_id and  and ur.role_id IN(3,4) ORDER BY ur.user_id DESC;");
+		List<Map<String, Object>> studyTeam = jdbcTemplate.queryForList(
+				"SELECT * FROM user_roles ur JOIN users u ON ur.user_id = u.user_id  and ur.role_id IN(3,4) ORDER BY ur.user_id DESC");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
 		User patient = null;
-		for (Map<String, Object> map : patientList) {
+		for (Map<String, Object> map : studyTeam) {
 			if (map.get("user_id") != null) {
 				userId = Long.parseLong(map.get("user_id").toString());
 				user = userRepository.findById(userId);

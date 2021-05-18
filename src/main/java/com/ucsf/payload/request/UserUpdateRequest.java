@@ -1,7 +1,5 @@
 package com.ucsf.payload.request;
 
-import java.util.List;
-
 import lombok.Data;
 @Data
 public class UserUpdateRequest {
@@ -10,8 +8,5 @@ public class UserUpdateRequest {
     private String lastName;
     private String password;
     private String phone;
-    private String address;
-    private String country;
-    private String state;
     private String userRoles;
 }
