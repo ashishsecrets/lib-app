@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "user_tasks")
@@ -17,7 +19,7 @@ public class UserTasks {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "task_id")
+	@Column
 	private Long id;
 
 	@Column
@@ -26,8 +28,20 @@ public class UserTasks {
 	@Column
 	private String description;
 
-	@Column(name = "task_list", columnDefinition = "TEXT")
-	private String taskList; //survey ids in comma separated string
+	@Column(name = "task_id")
+	private Long taskId;
+
+	@Column(name = "task_type")
+	private String taskType;
+
+	@Column
+	private Integer progress;
+
+	@Column(name = "start_date")
+	private Date startDate;
+
+	@Column(name = "end_date")
+	private Date endDate;
 
 	@Column(name = "user_id")
 	private Long userId;

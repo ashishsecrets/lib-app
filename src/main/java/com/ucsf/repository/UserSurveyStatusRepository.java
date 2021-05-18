@@ -9,4 +9,7 @@ import java.util.List;
 public interface UserSurveyStatusRepository extends CrudRepository<UserSurveyStatus, Long>{
 	UserSurveyStatus findByUserId(Long userId);
 	List<UserSurveyStatus> findBySurveyId(Long studyId);
+
+    UserSurveyStatus findByUserIdAndSurveyId(Long userId, Long taskId);
 }
+

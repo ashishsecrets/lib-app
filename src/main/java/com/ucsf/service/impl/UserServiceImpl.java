@@ -126,20 +126,12 @@ public class UserServiceImpl implements UserService {
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
 
-		// New list updated by client
-		/*
-		 * “Full body front”, ” Full body back ", "Front Trunk", ”Back Trunk” , "Front
-		 * of Arms", ”Back of Arms”, ”Front of Hands”, "Back of Hands", "Front of
-		 * Legs", ”Back of Legs”, "Front of Feet", ”Back of Feet” "Special areas of
-		 * interest”
-		 */
-		// Making the changes below
-		UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
+		/*UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
 		userSurveyStatus.setSurveyId(1l);
 		userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.NEWLY_ADDED);
 		userSurveyStatus.setIndexValue(1);
 		userSurveyStatus.setUserId(savedUser.getId());
-		userSurveyStatusRepository.save(userSurveyStatus);
+		userSurveyStatusRepository.save(userSurveyStatus);*/
 
 		//New list updated by client
 		/*“Full body front”, ” Full body back ", "Front Trunk", ”Back Trunk” , "Front of Arms", ”Back of Arms”, ”Front of Hands”, "Back of Hands", "Front of Legs", ”Back of Legs”, "Front of Feet", ”Back of Feet” "Special areas of interest”*/

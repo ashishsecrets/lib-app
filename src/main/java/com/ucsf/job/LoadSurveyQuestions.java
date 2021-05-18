@@ -8,7 +8,8 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
-import lombok.Data;
+import com.ucsf.model.UcsfSurvey;
+import com.ucsf.repository.SurveyRepository;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,7 +17,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -40,7 +40,10 @@ public class LoadSurveyQuestions {
 	SurveyChoiceRepository surveyChoiceRepository;
 
 	@Autowired
-	SurveyQuestionRepository surveyRepository;
+	SurveyQuestionRepository surveyQuestionRepository;
+
+	@Autowired
+	SurveyRepository surveyRepository;
 
 	//@Value("${survey-patient-questions-file}")
 	private String filePath;
@@ -79,11 +82,25 @@ public class LoadSurveyQuestions {
 		for(Map.Entry<String, Sheet> sheet : sheetName.entrySet()) {
 			filePath = downloadSheetData(sheet.getValue().id, sheet.getValue().sheetName);
 			try {
+				createUpdateSurveyInDb(sheet.getValue().sheetName);
 				readDownloadedContentCsvData(filePath);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private void createUpdateSurveyInDb(String sheetName) {
+
+		if(surveyRepository.findByTitle(sheetName) == null){
+			UcsfSurvey survey = new UcsfSurvey();
+			survey.setTitle(sheetName);
+			survey.setDescription(sheetName);
+			survey.setEnabled(true);
+			survey.setStudyId(1l);
+			surveyRepository.save(survey);
+		}
+
 	}
 
 	public String downloadSheetData(String id, String sheetName) throws ClientProtocolException, IOException {
@@ -149,16 +166,16 @@ public class LoadSurveyQuestions {
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
 					if (csvFile.contains("patient")) {
-						sc.setSurveyId(1L);// repo
+						sc.setSurveyId(surveyRepository.findByTitle("patient").getId());// repo
 					}
 					if (csvFile.contains("dermatology")) {
-						sc.setSurveyId(2L);// repo
+						sc.setSurveyId(surveyRepository.findByTitle("dermatology").getId());// repo
 					}
 					if (csvFile.contains("itch")) {
-						sc.setSurveyId(3L);// repo
+						sc.setSurveyId(surveyRepository.findByTitle("itch").getId());// repo
 					}
 					sc.setIndexValue(counter);
-					surveyRepository.save(sc);
+					surveyQuestionRepository.save(sc);
 					if (choices != null && !choices.equals("")) {
 						String[] split = choices.split("//");
 						for (String c : split) {

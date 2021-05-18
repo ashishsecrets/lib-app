@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class TaskResponse {
 
-    int taskId;
+    Long taskId;
     String taskName;
     Date startDate;
     Date dueDate;

@@ -7,6 +7,7 @@ import com.ucsf.model.UserTasks;
 import com.ucsf.payload.request.SurveyAnswerRequest;
 import com.ucsf.payload.response.*;
 import com.ucsf.service.AnswerSaveService;
+import com.ucsf.service.TaskService;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,9 @@ public class SurveyController {
 	
 	@Autowired
 	private LoggerService loggerService;
+
+	@Autowired
+	TaskService taskService;
 
 	private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
@@ -142,16 +146,15 @@ public class SurveyController {
 					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
-		/*try {
+		try {
 
-			taskService.updateSurveryStatuses(user);
+			List<UserTasks> tasks = taskService.getTaskList(user);
 
-			List<UserTasks> tasks = taskService.getTaskDetails(user);
+			taskService.updateSurveyStatuses(user);
 
-
-			if(taskService.getTaskDetails(user) != null || !taskService.getTaskDetails(user).isEmpty()){
-				response.setList(taskService.getTaskDetails(user).getSpecificItems());
-				response.setTotalProgress(taskService.getTaskDetails(user).getTotalProgress());
+			if(taskService.getTaskList(user) != null && !taskService.getTaskList(user).isEmpty()){
+				response.setList(taskService.getAlteredTaskList(tasks));
+				response.setTotalProgress(taskService.getTotalProgress(taskService.getAlteredTaskList(tasks)));
 				responseJson.put("data", response);
 			}
 			else{
@@ -163,7 +166,7 @@ public class SurveyController {
 
 			} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
