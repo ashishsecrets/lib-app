@@ -74,7 +74,6 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 
-
 	@Override
 	public Page<User> findAll(int page, int size) {
 		Page<User> users = userRepository.findAll(PageRequest.of(page, size));
@@ -126,16 +125,23 @@ public class UserServiceImpl implements UserService {
 		userScreeningStatus.setUserId(savedUser.getId());
 		userScreeningStatusRepository.save(userScreeningStatus);
 
-		/*UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
-		userSurveyStatus.setSurveyId(1l);
-		userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.NEWLY_ADDED);
-		userSurveyStatus.setIndexValue(1);
-		userSurveyStatus.setUserId(savedUser.getId());
-		userSurveyStatusRepository.save(userSurveyStatus);*/
+		/*
+		 * UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
+		 * userSurveyStatus.setSurveyId(1l);
+		 * userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.
+		 * NEWLY_ADDED); userSurveyStatus.setIndexValue(1);
+		 * userSurveyStatus.setUserId(savedUser.getId());
+		 * userSurveyStatusRepository.save(userSurveyStatus);
+		 */
 
-		//New list updated by client
-		/*“Full body front”, ” Full body back ", "Front Trunk", ”Back Trunk” , "Front of Arms", ”Back of Arms”, ”Front of Hands”, "Back of Hands", "Front of Legs", ”Back of Legs”, "Front of Feet", ”Back of Feet” "Special areas of interest”*/
-		//Making the changes below
+		// New list updated by client
+		/*
+		 * “Full body front”, ” Full body back ", "Front Trunk", ”Back Trunk” , "Front
+		 * of Arms", ”Back of Arms”, ”Front of Hands”, "Back of Hands", "Front of
+		 * Legs", ”Back of Legs”, "Front of Feet", ”Back of Feet” "Special areas of
+		 * interest”
+		 */
+		// Making the changes below
 		StudyImages full_body_front = new StudyImages();
 		full_body_front.setName("full_body_front");
 		full_body_front.setDescription("Full body front");
@@ -253,7 +259,6 @@ public class UserServiceImpl implements UserService {
 		special_areas.setCount(0);
 		imageRepository.save(special_areas);
 
-
 		return savedUser;
 	}
 
@@ -267,7 +272,7 @@ public class UserServiceImpl implements UserService {
 		String code = (user.getPhone() != null ? user.getPhone().substring(0, user.getPhone().indexOf("-")) : "");
 		newUser.setPhoneCode(code);
 		newUser.setPhoneNumber(
-				user.getPhone() != null ? user.getPhone().substring((user.getPhone()).indexOf("-")+1) : "");
+				user.getPhone() != null ? user.getPhone().substring((user.getPhone()).indexOf("-") + 1) : "");
 		// Add Role
 		if (user.getUserRoles() != null && user.getUserRoles() != "") {
 			if (user.getUserRoles().equals("PHYSICIAN")) {
@@ -345,7 +350,7 @@ public class UserServiceImpl implements UserService {
 					: user.getPhoneNumber());
 			user.setPhoneCode(code);
 			user.setPhoneNumber(updateRequest.getPhone() != null
-					? updateRequest.getPhone().substring((updateRequest.getPhone()).indexOf("-")+1)
+					? updateRequest.getPhone().substring((updateRequest.getPhone()).indexOf("-") + 1)
 					: user.getPhoneNumber());
 			userRepository.save(user);
 			return user;
@@ -372,7 +377,7 @@ public class UserServiceImpl implements UserService {
 		}
 		return patients;
 	}
-	
+
 	@Override
 	public List<User> getStudyTeam() {
 		List<Map<String, Object>> studyTeam = jdbcTemplate.queryForList(
@@ -475,5 +480,15 @@ public class UserServiceImpl implements UserService {
 				new BeanPropertyRowMapper<UserDataResponse>(UserDataResponse.class));
 
 		return patientList;
+	}
+
+	@Override
+	public User findById(Long id) {
+		Optional<User> user = null;
+		user = userRepository.findById(id);
+		if(user.isPresent()) {
+			return user.get();
+		}
+		return user.get();
 	}
 }

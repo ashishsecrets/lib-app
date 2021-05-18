@@ -14,6 +14,7 @@ public interface UserService {
 	List<User> getPatients();
 	User save(SignUpRequest signUpRequest);
 	User findByEmail(String email);
+	User findById(Long id);
 	User addUser(AddUserRequest user);
 	User updateUser(Long userId,UserUpdateRequest updateUser);
 	List<User> getApprovedPatients();
