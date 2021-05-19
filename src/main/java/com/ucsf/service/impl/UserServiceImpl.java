@@ -269,10 +269,8 @@ public class UserServiceImpl implements UserService {
 		newUser.setLastName(user.getLastName());
 		newUser.setEmail(user.getEmail());
 		newUser.setPassword(bcryptEncoder.encode("12345"));
-		String code = (user.getPhone() != null ? user.getPhone().substring(0, user.getPhone().indexOf("-")) : "");
-		newUser.setPhoneCode(code);
-		newUser.setPhoneNumber(
-				user.getPhone() != null ? user.getPhone().substring((user.getPhone()).indexOf("-") + 1) : "");
+		newUser.setPhoneCode(user.getPhoneCode());
+		newUser.setPhoneNumber(user.getPhone());
 		// Add Role
 		if (user.getUserRoles() != null && user.getUserRoles() != "") {
 			if (user.getUserRoles().equals("PHYSICIAN")) {
@@ -340,17 +338,16 @@ public class UserServiceImpl implements UserService {
 					newRole.add(roleRepository.findByName(RoleName.PHYSICIAN));
 					user.setRoles(newRole);
 				}
-				if (updateRequest.getUserRoles().equals("STUDYTEAM")) {
+				if (updateRequest.getUserRoles().equals("STUDY_TEAM")) {
 					newRole.add(roleRepository.findByName(RoleName.STUDY_TEAM));
 					user.setRoles(newRole);
 				}
 			}
-			String code = (updateRequest.getPhone() != null
-					? updateRequest.getPhone().substring(0, updateRequest.getPhone().indexOf("-"))
-					: user.getPhoneNumber());
-			user.setPhoneCode(code);
+			user.setPhoneCode(updateRequest.getPhoneCode() != null
+					? updateRequest.getPhoneCode()
+					: user.getPhoneCode());
 			user.setPhoneNumber(updateRequest.getPhone() != null
-					? updateRequest.getPhone().substring((updateRequest.getPhone()).indexOf("-") + 1)
+					? updateRequest.getPhone()
 					: user.getPhoneNumber());
 			userRepository.save(user);
 			return user;
@@ -382,21 +379,21 @@ public class UserServiceImpl implements UserService {
 	public List<User> getStudyTeam() {
 		List<Map<String, Object>> studyTeam = jdbcTemplate.queryForList(
 				"SELECT * FROM user_roles ur JOIN users u ON ur.user_id = u.user_id  and ur.role_id IN(3,4) ORDER BY ur.user_id DESC");
-		List<User> patients = new ArrayList<User>();
+		List<User> users = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
-		User patient = null;
+		User teamMember = null;
 		for (Map<String, Object> map : studyTeam) {
 			if (map.get("user_id") != null) {
 				userId = Long.parseLong(map.get("user_id").toString());
 				user = userRepository.findById(userId);
 				if (user.isPresent()) {
-					patient = user.get();
-					patients.add(patient);
+					teamMember = user.get();
+					users.add(teamMember);
 				}
 			}
 		}
-		return patients;
+		return users;
 	}
 
 	@Override

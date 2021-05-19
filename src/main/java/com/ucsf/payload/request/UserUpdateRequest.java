@@ -8,5 +8,6 @@ public class UserUpdateRequest {
     private String lastName;
     private String password;
     private String phone;
+    private String phoneCode;
     private String userRoles;
 }
