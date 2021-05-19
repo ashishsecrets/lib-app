@@ -143,8 +143,8 @@ public class UserServiceImpl implements UserService {
 		 */
 		// Making the changes below
 		StudyImages full_body_front = new StudyImages();
-		full_body_front.setName("full_body_front");
-		full_body_front.setDescription("Full body front");
+		full_body_front.setName("Full body front");
+		full_body_front.setDescription("");
 		full_body_front.setStudyId(1l);
 		full_body_front.setImageUrl("body_parts/full_body_front" + "/" + savedUser.getId());
 		full_body_front.setUserId(savedUser.getId());
@@ -152,8 +152,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(full_body_front);
 
 		StudyImages full_body_back = new StudyImages();
-		full_body_back.setName("full_body_back");
-		full_body_back.setDescription("Full body back");
+		full_body_back.setName("Full body back");
+		full_body_back.setDescription("");
 		full_body_back.setStudyId(1l);
 		full_body_back.setImageUrl("body_parts/full_body_back" + "/" + savedUser.getId());
 		full_body_back.setUserId(savedUser.getId());
@@ -161,8 +161,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(full_body_back);
 
 		StudyImages front_trunk = new StudyImages();
-		front_trunk.setName("front_trunk");
-		front_trunk.setDescription("Front Trunk");
+		front_trunk.setName("Front Trunk");
+		front_trunk.setDescription("");
 		front_trunk.setStudyId(1l);
 		front_trunk.setImageUrl("body_parts/front_trunk" + "/" + savedUser.getId());
 		front_trunk.setUserId(savedUser.getId());
@@ -170,8 +170,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(front_trunk);
 
 		StudyImages back_trunk = new StudyImages();
-		back_trunk.setName("back_trunk");
-		back_trunk.setDescription("Back Trunk");
+		back_trunk.setName("Back Trunk");
+		back_trunk.setDescription("");
 		back_trunk.setStudyId(1l);
 		back_trunk.setImageUrl("body_parts/back_trunk" + "/" + savedUser.getId());
 		back_trunk.setUserId(savedUser.getId());
@@ -179,8 +179,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(back_trunk);
 
 		StudyImages front_of_arms = new StudyImages();
-		front_of_arms.setName("front_of_arms");
-		front_of_arms.setDescription("Front of Arms");
+		front_of_arms.setName("Front of Arms");
+		front_of_arms.setDescription("");
 		front_of_arms.setStudyId(1l);
 		front_of_arms.setImageUrl("body_parts/front_of_arms" + "/" + savedUser.getId());
 		front_of_arms.setUserId(savedUser.getId());
@@ -188,8 +188,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(front_of_arms);
 
 		StudyImages back_of_arms = new StudyImages();
-		back_of_arms.setName("back_of_arms");
-		back_of_arms.setDescription("Back of Arms");
+		back_of_arms.setName("Back of Arms");
+		back_of_arms.setDescription("");
 		back_of_arms.setStudyId(1l);
 		back_of_arms.setImageUrl("body_parts/front_of_arms" + "/" + savedUser.getId());
 		back_of_arms.setUserId(savedUser.getId());
@@ -197,8 +197,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(back_of_arms);
 
 		StudyImages front_of_hands = new StudyImages();
-		front_of_hands.setName("front_of_hands");
-		front_of_hands.setDescription("Front of Hands");
+		front_of_hands.setName("Front of Hands");
+		front_of_hands.setDescription("");
 		front_of_hands.setStudyId(1l);
 		front_of_hands.setImageUrl("body_parts/front_of_hands" + "/" + savedUser.getId());
 		front_of_hands.setUserId(savedUser.getId());
@@ -206,8 +206,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(front_of_hands);
 
 		StudyImages back_of_hands = new StudyImages();
-		back_of_hands.setName("back_of_hands");
-		back_of_hands.setDescription("Back of Hands");
+		back_of_hands.setName("Back of Hands");
+		back_of_hands.setDescription("");
 		back_of_hands.setStudyId(1l);
 		back_of_hands.setImageUrl("body_parts/back_of_hands" + "/" + savedUser.getId());
 		back_of_hands.setUserId(savedUser.getId());
@@ -215,8 +215,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(back_of_hands);
 
 		StudyImages front_of_legs = new StudyImages();
-		front_of_legs.setName("front_of_legs");
-		front_of_legs.setDescription("Front of Legs");
+		front_of_legs.setName("Front of Legs");
+		front_of_legs.setDescription("");
 		front_of_legs.setStudyId(1l);
 		front_of_legs.setImageUrl("body_parts/front_of_legs" + "/" + savedUser.getId());
 		front_of_legs.setUserId(savedUser.getId());
@@ -224,8 +224,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(front_of_legs);
 
 		StudyImages back_of_legs = new StudyImages();
-		back_of_legs.setName("back_of_legs");
-		back_of_legs.setDescription("Back of Legs");
+		back_of_legs.setName("Back of Legs");
+		back_of_legs.setDescription("");
 		back_of_legs.setStudyId(1l);
 		back_of_legs.setImageUrl("body_parts/back_of_legs" + "/" + savedUser.getId());
 		back_of_legs.setUserId(savedUser.getId());
@@ -233,8 +233,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(back_of_legs);
 
 		StudyImages front_of_feet = new StudyImages();
-		front_of_feet.setName("front_of_feet");
-		front_of_feet.setDescription("Front of Feet");
+		front_of_feet.setName("Front of Feet");
+		front_of_feet.setDescription("");
 		front_of_feet.setStudyId(1l);
 		front_of_feet.setImageUrl("body_parts/front_of_feet" + "/" + savedUser.getId());
 		front_of_feet.setUserId(savedUser.getId());
@@ -242,8 +242,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(front_of_feet);
 
 		StudyImages back_of_feet = new StudyImages();
-		back_of_feet.setName("back_of_feet");
-		back_of_feet.setDescription("Back of Feet");
+		back_of_feet.setName("Back of Feet");
+		back_of_feet.setDescription("");
 		back_of_feet.setStudyId(1l);
 		back_of_feet.setImageUrl("body_parts/back_of_feet" + "/" + savedUser.getId());
 		back_of_feet.setUserId(savedUser.getId());
@@ -251,8 +251,8 @@ public class UserServiceImpl implements UserService {
 		imageRepository.save(back_of_feet);
 
 		StudyImages special_areas = new StudyImages();
-		special_areas.setName("special_areas");
-		special_areas.setDescription("Special Areas of Interest");
+		special_areas.setName("Special Areas of Interest");
+		special_areas.setDescription("");
 		special_areas.setStudyId(1l);
 		special_areas.setImageUrl("body_parts/special_areas" + "/" + savedUser.getId());
 		special_areas.setUserId(savedUser.getId());

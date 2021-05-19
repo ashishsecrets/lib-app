@@ -135,15 +135,13 @@ public class TaskServiceImpl implements TaskService {
         Date todaysDate = new Date();
 
     if (todaysDate.after(startDate) && todaysDate.before(endDate)){
-
-        status = "inProgress";
-
+        status = "current";
     }
     else if(todaysDate.after(endDate)){
         status = "overdue";
     }
     else if(todaysDate.before(startDate)){
-        status = "advanced";
+        status = "upcoming";
     }
 
         return status;
