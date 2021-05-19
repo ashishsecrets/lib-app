@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucsf.auditModel.UserHistory;
@@ -189,6 +190,37 @@ public class AdminController {
 			loggerService.printErrorLogs(log, "updateUser",
 					"Error while updating user with request " + updateUser.toString() + "of UserId " + userId);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
+	@ApiOperation(value = "Update User Status", notes = "Update  User Status", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Update users", response = SuccessResponse.class) })
+	@PreAuthorize("hasRole('ADMIN')")
+	@RequestMapping(value = "/updateUserStatus/{userId}", method = RequestMethod.POST)
+	public ResponseEntity<?> updateUserStatus(@PathVariable Long userId,@RequestParam Boolean status) {
+		JSONObject response = new JSONObject();
+		User user = null;
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			loggerService.printLogs(log, "Get updateUserStatus", "Updating UserStatus for user " + user.getId());
+		} else {
+			loggerService.printLogs(log, "Get updateUserStatus", "Invalid JWT signature.");
+			response.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			userService.updateUserStatus(userId,status);
+			loggerService.printLogs(log, "updateUserStatus", "Updated UserStatus successfully!");
+			response.put("data", new SuccessResponse(true, "User updated successfully!"));
+			return new ResponseEntity(response.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			response.put("error",  new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
+					e.getMessage()));
+			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	

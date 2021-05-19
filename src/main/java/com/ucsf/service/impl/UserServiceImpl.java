@@ -343,12 +343,9 @@ public class UserServiceImpl implements UserService {
 					user.setRoles(newRole);
 				}
 			}
-			user.setPhoneCode(updateRequest.getPhoneCode() != null
-					? updateRequest.getPhoneCode()
-					: user.getPhoneCode());
-			user.setPhoneNumber(updateRequest.getPhone() != null
-					? updateRequest.getPhone()
-					: user.getPhoneNumber());
+			user.setPhoneCode(
+					updateRequest.getPhoneCode() != null ? updateRequest.getPhoneCode() : user.getPhoneCode());
+			user.setPhoneNumber(updateRequest.getPhone() != null ? updateRequest.getPhone() : user.getPhoneNumber());
 			userRepository.save(user);
 			return user;
 		}
@@ -483,9 +480,28 @@ public class UserServiceImpl implements UserService {
 	public User findById(Long id) {
 		Optional<User> user = null;
 		user = userRepository.findById(id);
-		if(user.isPresent()) {
+		if (user.isPresent()) {
 			return user.get();
 		}
 		return user.get();
+	}
+
+	@Override
+	public User updateUserStatus(Long userId, Boolean status) {
+		Optional<User> user = null;
+		User existed = null;
+		user = userRepository.findById(userId);
+		if (user.isPresent()) {
+			existed = user.get();
+			if (status) {
+				existed.setUserStatus(UserStatus.ACTIVE);
+			} else {
+				existed.setUserStatus(UserStatus.DEACTIVE);
+			}
+			if (existed != null) {
+				userRepository.save(existed);
+			}
+		}
+		return existed;
 	}
 }
