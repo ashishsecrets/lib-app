@@ -1,7 +1,5 @@
 package com.ucsf.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -183,7 +181,7 @@ public class StudyController {
 					"Error while updating Study " + status + "  for user with id " + userId);
 			responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
 					Constants.USER_NOT_FOUND.errordesc()));
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -196,18 +194,18 @@ public class StudyController {
 	public ResponseEntity<?> reviewStudy(@RequestBody StudyReviewRequest reviewStudy) throws Exception {
 
 		JSONObject responseJson = new JSONObject();
-		StudyReviewResponse response = null;
+		JSONObject response = null;
 		try {
 			response = studyService.reviewStudy(reviewStudy);
 			loggerService.printLogs(log, "reviewStudy",
 					"Study " + reviewStudy.getStudyId() + "  for user with id " + reviewStudy.getUserId());
-			responseJson.put("data", response);
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			return new ResponseEntity(response.toMap(), HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			loggerService.printErrorLogs(log, "reviewStudy", "Error while reviewing Study " + reviewStudy.getStudyId()
 					+ "  for user with id " + reviewStudy.getUserId());
-			responseJson.put("data", response);
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_STUDY.code(), Constants.INVALID_STUDY.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
