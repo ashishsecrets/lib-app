@@ -73,9 +73,9 @@ public class LoadSurveyQuestions {
 
 		Map<String, Sheet> sheetName = new HashMap();
 		List<Sheet> list = new ArrayList<>();
-		list.add(new Sheet("12Q-7nq9fhUM8BeEBWrn8hy26eLdDjx9g3R_ZeixjRVw", "patient"));
-		list.add(new Sheet("1MK20TCV04yCB_md1JV-OL0QyZkkXI6b8LrO4zvHW8dk", "dermatology"));
-		list.add(new Sheet("1DoSxuwLDnqzYHIzsCbi85I1KMS8yfmjv4s1vJRbUtnw", "itch"));
+		list.add(new Sheet("12Q-7nq9fhUM8BeEBWrn8hy26eLdDjx9g3R_ZeixjRVw", "POEM"));
+		list.add(new Sheet("1MK20TCV04yCB_md1JV-OL0QyZkkXI6b8LrO4zvHW8dk", "DLQI"));
+		list.add(new Sheet("1DoSxuwLDnqzYHIzsCbi85I1KMS8yfmjv4s1vJRbUtnw", "NRS_itch"));
 		sheetName.put("patient", list.get(0));
 		sheetName.put("dermatology", list.get(1));
 		sheetName.put("itch", list.get(2));
@@ -94,7 +94,7 @@ public class LoadSurveyQuestions {
 
 		if(surveyRepository.findByTitle(sheetName) == null){
 			UcsfSurvey survey = new UcsfSurvey();
-			survey.setTitle(sheetName);
+			survey.setTitle(sheetName.replaceAll("_", " "));
 			survey.setDescription(sheetName);
 			survey.setEnabled(true);
 			survey.setStudyId(1l);
@@ -108,13 +108,13 @@ public class LoadSurveyQuestions {
 		String filePath = sheetName + ".csv";
 		int gid = 0;
 		try {
-			if (filePath.contains("patient")) {
+			if (filePath.contains("POEM")) {
 				gid = 923230846;
 			}
-			if (filePath.contains("dermatology")) {
+			if (filePath.contains("DLQI")) {
 				gid = 578148417;
 			}
-			if (filePath.contains("itch")) {
+			if (filePath.contains("NRS_itch")) {
 				gid = 902091073;
 			}
 			HttpGet request = new HttpGet("https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=out:csv&sheet="
@@ -165,14 +165,14 @@ public class LoadSurveyQuestions {
 					sc.setDescription(questionDescription);
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
-					if (csvFile.contains("patient")) {
-						sc.setSurveyId(surveyRepository.findByTitle("patient").getId());// repo
+					if (csvFile.contains("POEM")) {
+						sc.setSurveyId(surveyRepository.findByTitle("POEM").getId());// repo
 					}
-					if (csvFile.contains("dermatology")) {
-						sc.setSurveyId(surveyRepository.findByTitle("dermatology").getId());// repo
+					if (csvFile.contains("DLQI")) {
+						sc.setSurveyId(surveyRepository.findByTitle("DLQI").getId());// repo
 					}
-					if (csvFile.contains("itch")) {
-						sc.setSurveyId(surveyRepository.findByTitle("itch").getId());// repo
+					if (csvFile.contains("NRS_itch")) {
+						sc.setSurveyId(surveyRepository.findByTitle("NRS itch").getId());// repo
 					}
 					sc.setIndexValue(counter);
 					surveyQuestionRepository.save(sc);
