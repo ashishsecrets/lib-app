@@ -129,9 +129,9 @@ public class StudyServiceImpl implements StudyService {
 	}
 
 	@Override
-	public StudyReviewResponse reviewStudy(StudyReviewRequest reviewStudy) {
+	public JSONObject reviewStudy(StudyReviewRequest reviewStudy) {
 		JSONObject responseJson = new JSONObject();
-		StudyReviewResponse response = new StudyReviewResponse();
+		List<StudyReviewData> newList = new ArrayList<>();
 		if (reviewStudy != null) {
 			if (reviewStudy.getType().equals("screening")) {
 
@@ -139,8 +139,7 @@ public class StudyServiceImpl implements StudyService {
 						.findByStudyId(reviewStudy.getStudyId());
 
 				String answer;
-
-				List<StudyReviewData> newList = new ArrayList<>();
+				
 				for (ScreeningQuestions question : questionsList) {
 					if (screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(),
 							reviewStudy.getUserId()) == null) {
@@ -150,24 +149,26 @@ public class StudyServiceImpl implements StudyService {
 								.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId())
 								.getAnswerDescription();
 					}
-					newList.add(new StudyReviewData(question.getDescription(), answer));
+					newList.add(new StudyReviewData(question.getDescription(), answer, null));
 				}
-				List<String> imageUrlsList = new ArrayList<>();
-				for(StudyImages image: imageRepository.findByStudyIdAndUserId(reviewStudy.getStudyId(), reviewStudy.getUserId())){
-					imageUrlsList.add(image.getImageUrl());
-				}
-				newList.add(new StudyReviewData("Photos", imageUrlsList.toString()));
-				response.setList(newList);
+				List<StudyImages> imageUrlsList = new ArrayList<StudyImages>();
+				if(newList.size() > 0) {
+					List<StudyImages> images= imageRepository.findByStudyIdAndUserId(reviewStudy.getStudyId(), reviewStudy.getUserId());
+					for(StudyImages image: images){
+						if(image.getCount() > 0) {
+							imageUrlsList.add(image);
+						}
+					}
+					newList.add(new StudyReviewData("Photos", null, imageUrlsList));
+				}	
 			} else {
 				responseJson.put("error",
 						new ErrorResponse(ErrorCodes.INVALID_STUDY.code(), Constants.INVALID_STUDY.errordesc()));
 			}
-		} else {
-			// responseJson.put("error", )
-		}
-		responseJson.put("data", response);
+		} 
+		responseJson.put("data", newList);
 
-		return response;
+		return responseJson;
 	}
 
 	@Override
