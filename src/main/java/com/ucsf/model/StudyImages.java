@@ -1,19 +1,15 @@
 package com.ucsf.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ucsf.auth.model.User;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
-@SuppressWarnings("serial")
 @Entity
 @Table(name = "study_images")
 @Getter
 @Setter
-public class StudyImages extends Auditable<String> implements Serializable {
+public class StudyImages extends Auditable<String> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_id")
@@ -37,9 +33,9 @@ public class StudyImages extends Auditable<String> implements Serializable {
     @Column(name = "study_id")
     private Long studyId;
 
-    @JsonIgnore
+    /*@JsonIgnore
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
+    private User user;*/
 
 }
