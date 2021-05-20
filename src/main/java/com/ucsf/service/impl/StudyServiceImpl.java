@@ -137,20 +137,20 @@ public class StudyServiceImpl implements StudyService {
 
 				List<ScreeningQuestions> questionsList = screeningQuestionRepository
 						.findByStudyId(reviewStudy.getStudyId());
-
-				String answer;
+				
+				if(questionsList.size() < 1) {
+					responseJson.put("error",
+							new ErrorResponse(ErrorCodes.INVALID_STUDY.code(), Constants.INVALID_STUDY.errordesc()));
+				}
 				
 				for (ScreeningQuestions question : questionsList) {
-					if (screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(),
-							reviewStudy.getUserId()) == null) {
-						answer = "User did not enter answer";
-					} else {
-						answer = screeningAnswerRepository
-								.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId())
-								.getAnswerDescription();
-					}
-					newList.add(new StudyReviewData(question.getDescription(), answer, null));
+					ScreeningAnswers screeningAnswer = screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId());
+					if (screeningAnswer != null) {
+						String answer = screeningAnswer.getAnswerDescription();
+						newList.add(new StudyReviewData(question.getDescription(), answer, null));
+					} 					
 				}
+				
 				List<StudyImages> imageUrlsList = new ArrayList<StudyImages>();
 				if(newList.size() > 0) {
 					List<StudyImages> images= imageRepository.findByStudyIdAndUserId(reviewStudy.getStudyId(), reviewStudy.getUserId());
@@ -159,7 +159,8 @@ public class StudyServiceImpl implements StudyService {
 							imageUrlsList.add(image);
 						}
 					}
-					newList.add(new StudyReviewData("Photos", null, imageUrlsList));
+					if(imageUrlsList.size() > 0)
+						newList.add(new StudyReviewData("Photos", null, imageUrlsList));
 				}	
 			} else {
 				responseJson.put("error",
