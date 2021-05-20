@@ -1,5 +1,6 @@
 package com.ucsf.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -26,7 +27,12 @@ public class HistoryService {
 		
 		String sql = "select * from user_history where user_id = "+userId;
 		List<UserHistory> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<UserHistory>(UserHistory.class));
-		
-		return list;
+		List<UserHistory> updatedList = new ArrayList<UserHistory>();
+		for(UserHistory history: list) {
+			if(history.getChangedContent()!=null && !history.getChangedContent().equals("")) {
+				updatedList.add(history);
+			}
+		}
+		return updatedList;
 	}
 }
