@@ -117,11 +117,13 @@ public class StudyServiceImpl implements StudyService {
 		if (userStatus != null) {
 			if (status != null && status.equals("approved")) {
 				userStatus.setUserScreeningStatus(UserScreenStatus.APPROVED);
+				userStatus.setStatusUpdatedDate(new Date());
 				userScreeningStatusRepository.save(userStatus);
 				studyNotificationService.sendApproveNotifications(userId);
 			}
 			if (status != null && status.equals("disapproved")) {
 				userStatus.setUserScreeningStatus(UserScreenStatus.DISAPPROVED);
+				userStatus.setStatusUpdatedDate(new Date());
 				userScreeningStatusRepository.save(userStatus);
 				studyNotificationService.sendDisapproveNotifications(userId);
 			}
