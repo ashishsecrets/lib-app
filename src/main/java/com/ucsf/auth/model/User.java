@@ -76,7 +76,9 @@ public class User extends Auditable<String> implements Diffable<User> {
 	
 	@Column(name = "device_id", columnDefinition = "TEXT")
 	private String devideId;
-
+		
+	@Column(name = "study_week")
+	private Integer studyWeek;
 	
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))

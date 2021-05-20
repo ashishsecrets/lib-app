@@ -1,6 +1,8 @@
 package com.ucsf.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,9 @@ import javax.annotation.PostConstruct;
 import com.ucsf.model.StudyImages;
 import com.ucsf.model.UserSurveyStatus;
 import com.ucsf.repository.*;
+
+import org.joda.time.DateTime;
+import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -404,7 +409,7 @@ public class UserServiceImpl implements UserService {
 		// BeanPropertyRowMapper<User>(User.class));
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -414,6 +419,16 @@ public class UserServiceImpl implements UserService {
 				userId = Long.parseLong(map.get("user_id").toString());
 				user = userRepository.findById(userId);
 				if (user.isPresent()) {
+					if(map.get("status_updated_date") != null) {
+						try {						
+							DateTime statusUpdateDate = new DateTime(new SimpleDateFormat("yyyy-MM-dd").parse(map.get("status_updated_date").toString()));
+							DateTime currDate = new DateTime(new Date());
+							int weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
+							user.get().setStudyWeek(weeks+1);
+						}catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
 					patient = user.get();
 					patients.add(patient);
 				}
@@ -433,7 +448,7 @@ public class UserServiceImpl implements UserService {
 		// BeanPropertyRowMapper<User>(User.class));
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
