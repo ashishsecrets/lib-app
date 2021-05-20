@@ -52,10 +52,11 @@ public class UserEntityListener {
             	DiffResult<?> diff = previousUser.diff(target);
             	JSONObject changedContent = new JSONObject();
                 for(Diff<?> d: diff.getDiffs()) {
-                	changedContent.put(d.getFieldName(), "FROM [" + d.getLeft() + "] TO [" + d.getRight() + "]");
+                	if(!d.getFieldName().equals("authToken")) {
+                    	changedContent.put(d.getFieldName(), "FROM [" + d.getLeft() + "] TO [" + d.getRight() + "]");
+                	}
                 }
-                
-                if(!changedContent.has("authToken")) {
+                if(changedContent.keySet().size() > 1) {
                 	entityManager.persist(new UserHistory(target, action, new Gson().toJson(target), previousContent, changedContent.toString()));
             	}
                	        	
