@@ -129,7 +129,9 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
     	// CHecking for any errors:
 		try {
-				return new ResponseEntity(studyAbstractCall.catchQuestionAnswerError().toMap(), HttpStatus.ACCEPTED);
+				if(!studyAbstractCall.catchQuestionAnswerError().toMap().isEmpty()){
+					responseJson.put("data", studyAbstractCall.response);
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);}
 
 		} catch (NullPointerException e) {
 			e.printStackTrace();

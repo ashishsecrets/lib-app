@@ -231,7 +231,7 @@ public class StudyAbstractCall {
         Optional<ScreeningQuestions> sq = Optional.ofNullable(screeningQuestionRepository
                 .findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()));
 
-        JSONObject responseEntity = null;
+        JSONObject responseEntity = new JSONObject();
 
             if (sq.isPresent()) {
                 if (userScreeningStatus.getIndexValue() != sq.get().getId()) {
