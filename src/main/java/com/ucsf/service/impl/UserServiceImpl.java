@@ -404,8 +404,7 @@ public class UserServiceImpl implements UserService {
 		// BeanPropertyRowMapper<User>(User.class));
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = "
-						+ UserScreenStatus.APPROVED.ordinal() + " and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -434,8 +433,7 @@ public class UserServiceImpl implements UserService {
 		// BeanPropertyRowMapper<User>(User.class));
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = "
-						+ UserScreenStatus.DISAPPROVED.ordinal() + " and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
