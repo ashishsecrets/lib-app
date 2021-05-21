@@ -53,7 +53,7 @@ public class UserEntityListener {
             	JSONObject changedContent = new JSONObject();
                 for(Diff<?> d: diff.getDiffs()) {
                 	if(!d.getFieldName().equals("authToken")) {
-                    	changedContent.put(d.getFieldName(), "FROM [" + d.getLeft() + "] TO [" + d.getRight() + "]");
+                    	changedContent.put(d.getFieldName(), "FROM " + d.getLeft() + " TO " + d.getRight() + "");
                 	}
                 }
                 if(changedContent.keySet().size() > 1) {
