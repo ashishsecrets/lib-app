@@ -35,6 +35,7 @@ import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
 import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.payload.response.HistoryResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.payload.response.UserDataResponse;
 import com.ucsf.repository.UserRepository;
@@ -249,7 +250,7 @@ public class AdminController {
 	public ResponseEntity<?> getActivityLogsByUserId(@PathVariable Long userId) {
 		JSONObject responseJson = new JSONObject();
 		try {
-			List<UserHistory> userHistories = historyService.getUserActivityLogsByUserId(userId);
+			List<HistoryResponse> userHistories = historyService.getUserActivityLogsByUserId(userId);
 			responseJson.put("data", userHistories);
 			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
 			

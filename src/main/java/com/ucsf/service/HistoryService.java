@@ -2,12 +2,15 @@ package com.ucsf.service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.ucsf.auditModel.UserHistory;
+import com.ucsf.payload.response.HistoryResponse;
 
 @Service
 public class HistoryService {
@@ -23,14 +26,20 @@ public class HistoryService {
 		return list;
 	}
 	
-	public List<UserHistory> getUserActivityLogsByUserId(Long userId) {
+	public List<HistoryResponse> getUserActivityLogsByUserId(Long userId) {
 		
 		String sql = "select * from user_history where user_id = "+userId;
 		List<UserHistory> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper<UserHistory>(UserHistory.class));
-		List<UserHistory> updatedList = new ArrayList<UserHistory>();
+		List<HistoryResponse> updatedList = new ArrayList<HistoryResponse>();
 		for(UserHistory history: list) {
 			if(history.getChangedContent()!=null && !history.getChangedContent().equals("")) {
-				updatedList.add(history);
+				
+				HistoryResponse historyResponse = new HistoryResponse();
+				historyResponse.setChangedContent(new JSONObject(history.getChangedContent()));
+				historyResponse.setAction(history.getAction().toString());
+				historyResponse.setModifiedBy(history.getModifiedBy());
+				historyResponse.setModifiedDate(history.getModifiedDate());
+				updatedList.add(historyResponse);
 			}
 		}
 		return updatedList;
