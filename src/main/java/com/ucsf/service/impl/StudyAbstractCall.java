@@ -285,7 +285,7 @@ public class StudyAbstractCall {
         Optional<SurveyQuestion> sq = Optional.ofNullable(surveyQuestionRepository
                 .findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue()));
 
-        JSONObject responseEntity = null;
+        JSONObject responseEntity = new JSONObject();
 
         if (sq.isPresent()) {
             if (userSurveyStatus.getIndexValue() != sq.get().getId()) {
