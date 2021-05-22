@@ -16,4 +16,6 @@ public interface TasksRepository extends JpaRepository<UserTasks, Long> {
     List<UserTasks> findByUserIdAndTaskType(Long userId, String survey);
 
     UserTasks findByUserIdAndTaskId(Long userId, Long taskId);
+
+    UserTasks findByTitle(String photographs);
 }
