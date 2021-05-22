@@ -138,6 +138,7 @@ public class ConsentFormImpl implements ConsentService{
 				photographs.setUserId(user.getId());
 				photographs.setStudyId(1l);
 				photographs.setTaskId(user.getId() + 1000);
+				photographs.setProgress(0);
 				tasksRepository.save(photographs);
 				/*photographs = tasksRepository.findById(tasksRepository.findByTitle("Photographs").getId()).get();
 				photographs.setTaskId(photographs.getId() + 1000);
@@ -152,6 +153,7 @@ public class ConsentFormImpl implements ConsentService{
 				voice.setUserId(user.getId());
 				voice.setStudyId(1l);
 				voice.setTaskId(user.getId() + 1000 + 1);
+				voice.setProgress(0);
 				tasksRepository.save(voice);
 
 				UserTasks medicine = new UserTasks();
@@ -163,6 +165,7 @@ public class ConsentFormImpl implements ConsentService{
 				medicine.setUserId(user.getId());
 				medicine.setStudyId(1l);
 				medicine.setTaskId(user.getId() + 1000 + 2);
+				medicine.setProgress(0);
 				tasksRepository.save(medicine);
 
 				UserTasks reactions = new UserTasks();
@@ -174,6 +177,7 @@ public class ConsentFormImpl implements ConsentService{
 				reactions.setUserId(user.getId());
 				reactions.setStudyId(1l);
 				reactions.setTaskId(user.getId() + 1000 + 3);
+				reactions.setProgress(0);
 				tasksRepository.save(reactions);
 
 			}
