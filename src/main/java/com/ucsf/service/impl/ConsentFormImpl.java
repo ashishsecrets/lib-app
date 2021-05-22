@@ -95,7 +95,9 @@ public class ConsentFormImpl implements ConsentService{
 
 			//To-do - add user tasks
 
-			if(tasksRepository.findByUserId(user.getId()) == null) {
+			List<UserTasks> userTasksList = tasksRepository.findByUserId(user.getId());
+
+			if(userTasksList == null || userTasksList.isEmpty()) {
 
 				Date startDate = new Date();
 
