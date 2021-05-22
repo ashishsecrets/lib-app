@@ -137,10 +137,11 @@ public class ConsentFormImpl implements ConsentService{
 				photographs.setEndDate(endDate);
 				photographs.setUserId(user.getId());
 				photographs.setStudyId(1l);
+				photographs.setTaskId(user.getId() + 1000);
 				tasksRepository.save(photographs);
-				photographs = tasksRepository.findById(tasksRepository.findByTitle("Photographs").getId()).get();
+				/*photographs = tasksRepository.findById(tasksRepository.findByTitle("Photographs").getId()).get();
 				photographs.setTaskId(photographs.getId() + 1000);
-				tasksRepository.save(photographs);
+				tasksRepository.save(photographs);*/
 
 				UserTasks voice = new UserTasks();
 				voice.setTitle("Voice diary");
@@ -150,9 +151,7 @@ public class ConsentFormImpl implements ConsentService{
 				voice.setEndDate(endDate);
 				voice.setUserId(user.getId());
 				voice.setStudyId(1l);
-				tasksRepository.save(voice);
-				voice = tasksRepository.findById(tasksRepository.findByTitle("Voice diary").getId()).get();
-				voice.setTaskId(voice.getId() + 1000);
+				voice.setTaskId(user.getId() + 1000 + 1);
 				tasksRepository.save(voice);
 
 				UserTasks medicine = new UserTasks();
@@ -163,9 +162,7 @@ public class ConsentFormImpl implements ConsentService{
 				medicine.setEndDate(endDate);
 				medicine.setUserId(user.getId());
 				medicine.setStudyId(1l);
-				tasksRepository.save(medicine);
-				medicine = tasksRepository.findById(tasksRepository.findByTitle("Medication usage").getId()).get();
-				medicine.setTaskId(medicine.getId() + 1000);
+				medicine.setTaskId(user.getId() + 1000 + 2);
 				tasksRepository.save(medicine);
 
 				UserTasks reactions = new UserTasks();
@@ -176,9 +173,7 @@ public class ConsentFormImpl implements ConsentService{
 				reactions.setEndDate(endDate);
 				reactions.setUserId(user.getId());
 				reactions.setStudyId(1l);
-				tasksRepository.save(reactions);
-				reactions = tasksRepository.findById(tasksRepository.findByTitle("Adverse events").getId()).get();
-				reactions.setTaskId(reactions.getId() + 1000);
+				reactions.setTaskId(user.getId() + 1000 + 3);
 				tasksRepository.save(reactions);
 
 			}
