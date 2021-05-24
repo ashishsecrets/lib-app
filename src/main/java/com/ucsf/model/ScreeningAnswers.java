@@ -11,8 +11,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "screening_answers", uniqueConstraints=
-@UniqueConstraint(columnNames={"question_id"}))
+@Table(name = "screening_answers")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Getter
 @Setter
