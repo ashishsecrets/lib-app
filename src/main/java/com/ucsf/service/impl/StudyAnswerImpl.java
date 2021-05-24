@@ -160,7 +160,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 			response = studyAbstractCall.displayQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
 
 			try {
-				if (lastSavedAnswer != null) {
+				if (lastSavedAnswer.get() != null) {
 					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
 					if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
 
