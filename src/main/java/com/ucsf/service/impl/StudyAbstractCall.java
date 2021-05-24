@@ -173,7 +173,7 @@ public class StudyAbstractCall {
                 isSuccess = true;
             }
             else{
-                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId())));
+                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId()));
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -439,7 +439,7 @@ public class StudyAbstractCall {
 
     public ScreeningAnswers findAnswerByIndex(int i) {
 
-       return Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), i).getId()))).get();
+       return Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), i).getId()), user.getId())).get();
 
     }
 }
