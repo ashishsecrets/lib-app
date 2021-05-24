@@ -54,5 +54,22 @@ public class ScreeningAnswers extends Auditable<String> implements Serializable 
 	@ManyToOne(targetEntity = UcsfStudy.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinColumn(name = "study_id", insertable = false, updatable = false)
 	private UcsfStudy study;
+
+	@Override
+	public String toString() {
+		return "ScreeningAnswers [id=" + id + ", answerDescription=" + answerDescription + ", answerChoice="
+				+ answerChoice + ", answeredById=" + answeredById + ", questionId=" + questionId + ", studyId="
+				+ studyId + ", indexValue=" + indexValue + ", answeredBy=" + answeredBy + ", question=" + question
+				+ ", study=" + study + ", getId()=" + getId() + ", getAnswerDescription()=" + getAnswerDescription()
+				+ ", getAnswerChoice()=" + getAnswerChoice() + ", getAnsweredById()=" + getAnsweredById()
+				+ ", getQuestionId()=" + getQuestionId() + ", getStudyId()=" + getStudyId() + ", getIndexValue()="
+				+ getIndexValue() + ", getAnsweredBy()=" + getAnsweredBy() + ", getQuestion()=" + getQuestion()
+				+ ", getStudy()=" + getStudy() + ", getCreatedBy()=" + getCreatedBy() + ", getCreatedDate()="
+				+ getCreatedDate() + ", getLastModifiedBy()=" + getLastModifiedBy() + ", getLastModifiedDate()="
+				+ getLastModifiedDate() + ", hashCode()=" + hashCode() + ", toString()=" + super.toString()
+				+ ", getClass()=" + getClass() + "]";
+	}
     
+	
+	
 }
