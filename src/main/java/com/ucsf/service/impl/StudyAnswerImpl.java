@@ -144,7 +144,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		indexValue = studyAbstractCall.getIndexValue();
 
 		// Therefore, here we create two new ints for going next or previous question/answer --
-		// not used currently -> int previous = indexValue - questionDirection;
+		int previous = indexValue - questionDirection;
 		int next = indexValue + questionDirection;
 		int current = indexValue;
 
