@@ -154,7 +154,7 @@ public class StudyAbstractCall {
         Optional<ScreeningAnswers> screenAnswerOp = null;
         try {
             if (!answerRequest.getAnswer().isEmpty()) {
-                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId())));
+                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId()));
                 ScreeningAnswers screenAnswer;
                 if (screenAnswerOp.isPresent()) {
                     screenAnswer = screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
