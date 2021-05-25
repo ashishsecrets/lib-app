@@ -381,7 +381,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<User> getStudyTeam() {
 		List<Map<String, Object>> studyTeam = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN users u ON ur.user_id = u.user_id  and ur.role_id IN(3,5) ORDER BY ur.user_id DESC");
+				"SELECT * FROM user_roles ur JOIN users u ON ur.user_id = u.user_id  and ur.role_id IN(3,4) ORDER BY ur.user_id DESC");
 		List<User> users = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
