@@ -121,6 +121,7 @@ public class ConsentFormImpl implements ConsentService{
 					task.setTaskType("survey");
 					task.setStartDate(startDate);
 					task.setEndDate(endDate);
+					task.setProgress(0);
 					task.setUserId(user.getId());
 					task.setStudyId(item.getStudyId());
 					task.setTaskId(item.getId());

@@ -92,7 +92,7 @@ public class LoadSurveyQuestions {
 
 	private void createUpdateSurveyInDb(String sheetName) {
 
-		if(surveyRepository.findByTitle(sheetName) == null){
+		if(surveyRepository.findByTitle(sheetName.replaceAll("_", " ")) == null){
 			UcsfSurvey survey = new UcsfSurvey();
 			survey.setTitle(sheetName.replaceAll("_", " "));
 			survey.setDescription(sheetName);
