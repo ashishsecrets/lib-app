@@ -161,6 +161,13 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 			try {
 				if (lastSavedAnswer != null) {
+					//if block added to fix backward flow @ question 5 when answer 5 is empty
+					if(lastSavedAnswer.isEmpty()){
+						ScreeningAnswers x = new ScreeningAnswers();
+						x.setIndexValue(5);
+						x.setAnswerDescription("");
+						lastSavedAnswer = Optional.of(x);
+					}
 					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
 					if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
 
