@@ -36,6 +36,7 @@ import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
+import com.ucsf.payload.response.PatientResponse;
 import com.ucsf.payload.response.UserDataResponse;
 import com.ucsf.repository.RoleRepository;
 import com.ucsf.repository.StudyRepository;
@@ -399,69 +400,100 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<User> getApprovedPatients() {
-		// String sql = "SELECT * FROM users u JOIN user_roles ur ON u.user_id =
-		// ur.user_id JOIN user_screening_status uss ON u.user_id = uss.user_id WHERE
-		// ur.role_id = (SELECT id from roles where name =
-		// "+RoleName.PATIENT.toString()+") and uss.user_screening_status =
-		// "+UserScreenStatus.APPROVED.ordinal();
-		// List<User> patients = jdbcTemplate.query(sql, new
-		// BeanPropertyRowMapper<User>(User.class));
+	public List<PatientResponse> getApprovedPatients() {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
 				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
-		List<User> patients = new ArrayList<User>();
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
+		String updatedAt = "";
+		String updatedBy = "";
 		Optional<User> user = null;
-		User patient = null;
+		PatientResponse patient = new PatientResponse();
 		for (Map<String, Object> map : patientList) {
 			if (map.get("user_id") != null) {
 				userId = Long.parseLong(map.get("user_id").toString());
+				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
+				System.out.println(updatedBy);
+				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
+				System.out.println(updatedAt);
+				int weeks = 1;
 				user = userRepository.findById(userId);
 				if (user.isPresent()) {
-					if(map.get("status_updated_date") != null) {
-						try {						
-							DateTime statusUpdateDate = new DateTime(new SimpleDateFormat("yyyy-MM-dd").parse(map.get("status_updated_date").toString()));
+					try {
+						User exited = user.get();
+						patient.setEmail(exited.getEmail());
+						patient.setId(exited.getId());
+						patient.setFirstName(exited.getFirstName());
+						patient.setLastName(exited.getLastName());
+						patient.setPhoneNumber(exited.getPhoneCode() + exited.getPhoneNumber());
+						patient.setUpdatedAt(updatedAt);
+						patient.setUpdatedBy(updatedBy);
+						patient.setStudyWeek(weeks + 1);
+						
+						if (map.get("status_updated_date") != null) {
+
+							DateTime statusUpdateDate = new DateTime(new SimpleDateFormat("yyyy-MM-dd")
+									.parse(map.get("status_updated_date").toString()));
 							DateTime currDate = new DateTime(new Date());
-							int weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
-							user.get().setStudyWeek(weeks+1);
-						}catch (Exception e) {
-							e.printStackTrace();
+							weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
 						}
+						patients.add(patient);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-					patient = user.get();
-					patients.add(patient);
 				}
 			}
+
 		}
 		return patients;
 	}
 
 	@Override
-	public List<User> getDisapprovedPatients() {
-		// String sql = "SELECT * FROM users u JOIN user_roles ur ON u.user_id =
-		// ur.user_id JOIN user_screening_status uss ON u.user_id = uss.user_id WHERE
-		// ur.role_id = (SELECT id from roles where name =
-		// "+RoleName.PATIENT.toString()+") and uss.user_screening_status =
-		// "+UserScreenStatus.APPROVED.ordinal();
-		// List<User> patients = jdbcTemplate.query(sql, new
-		// BeanPropertyRowMapper<User>(User.class));
+	public List<PatientResponse> getDisapprovedPatients() {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
 				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
-		List<User> patients = new ArrayList<User>();
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
+		String updatedAt = "";
+		String updatedBy = "";
 		Optional<User> user = null;
-		User patient = null;
+		PatientResponse patient = new PatientResponse();
 		for (Map<String, Object> map : patientList) {
 			if (map.get("user_id") != null) {
 				userId = Long.parseLong(map.get("user_id").toString());
+				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
+				System.out.println(updatedBy);
+				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
+				System.out.println(updatedAt);
+				int weeks = 1;
 				user = userRepository.findById(userId);
 				if (user.isPresent()) {
-					patient = user.get();
-					patients.add(patient);
+					try {
+						User exited = user.get();
+						patient.setEmail(exited.getEmail());
+						patient.setId(exited.getId());
+						patient.setFirstName(exited.getFirstName());
+						patient.setLastName(exited.getLastName());
+						patient.setPhoneNumber(exited.getPhoneCode() + exited.getPhoneNumber());
+						patient.setUpdatedAt(updatedAt);
+						patient.setUpdatedBy(updatedBy);
+						patient.setStudyWeek(weeks + 1);
+						if (map.get("status_updated_date") != null) {
+
+							DateTime statusUpdateDate = new DateTime(new SimpleDateFormat("yyyy-MM-dd")
+									.parse(map.get("status_updated_date").toString()));
+							DateTime currDate = new DateTime(new Date());
+							weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
+						}
+						patients.add(patient);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
+
 		}
 		return patients;
 	}

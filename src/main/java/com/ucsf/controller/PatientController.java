@@ -20,6 +20,7 @@ import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.payload.response.PatientResponse;
 import com.ucsf.payload.response.StudyStatusResponse;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
@@ -79,7 +80,7 @@ public class PatientController {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of approved patients", response = User.class) })
 	@RequestMapping(value = "/getApprovedPatients", method = RequestMethod.GET)
 	public ResponseEntity<?> getApprovedPatients() {
-		List<User> patients = new ArrayList<User>();
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		JSONObject response = new JSONObject();
 		User user = null;
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -110,7 +111,7 @@ public class PatientController {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of disapproved patients", response = User.class) })
 	@RequestMapping(value = "/getDisapprovedPatients", method = RequestMethod.GET)
 	public ResponseEntity<?> getDisapprovedPatients() {
-		List<User> patients = new ArrayList<User>();
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		JSONObject response = new JSONObject();
 		User user = null;
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
