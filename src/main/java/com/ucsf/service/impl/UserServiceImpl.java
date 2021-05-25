@@ -428,7 +428,7 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(exited.getLastName());
 						patient.setPhoneNumber(exited.getPhoneCode() + exited.getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy);
+						patient.setUpdatedBy(updatedBy+" "+updatedAt);
 						patient.setStudyWeek(weeks + 1);
 						
 						if (map.get("status_updated_date") != null) {
@@ -478,7 +478,7 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(user.get().getLastName());
 						patient.setPhoneNumber(user.get().getPhoneCode() + user.get().getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy);
+						patient.setUpdatedBy(updatedBy+" "+updatedAt);
 						patient.setStudyWeek(weeks + 1);
 						if (map.get("status_updated_date") != null) {
 
