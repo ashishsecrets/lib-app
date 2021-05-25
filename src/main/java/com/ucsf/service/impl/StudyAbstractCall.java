@@ -157,11 +157,8 @@ public class StudyAbstractCall {
                 screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId()));
                 ScreeningAnswers screenAnswer;
                 if (screenAnswerOp.isPresent()) {
-                	
-                	System.out.println("Hello");
                     screenAnswer = screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
                 } else {
-                	System.out.println("Hello else");
                     screenAnswer = new ScreeningAnswers();
                 }
                 screenAnswer.setAnswerDescription(answerRequest.getAnswerDescription().toString());
@@ -172,7 +169,7 @@ public class StudyAbstractCall {
                 screenAnswer.setStudyId(answerRequest.getStudyId());
                 screenAnswer.setAnsweredById(user.getId());
                 screenAnswer.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
-                System.out.println(screenAnswer.toString());
+                screenAnswerOp = Optional.of(screenAnswer);
                 screeningAnswerRepository.save(screenAnswer);
                 isSuccess = true;
             }
