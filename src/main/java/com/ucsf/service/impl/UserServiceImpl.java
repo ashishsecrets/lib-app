@@ -283,7 +283,7 @@ public class UserServiceImpl implements UserService {
 				newUser.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
 			}
 			if (user.getUserRoles().equals("STUDYTEAM")) {
-				newUser.getRoles().add(roleRepository.findByName(RoleName.STUDYTEAM));
+				newUser.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
 			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
@@ -313,10 +313,10 @@ public class UserServiceImpl implements UserService {
 			role.setName(RoleName.PHYSICIAN);
 			roleRepository.save(role);
 		}
-		Role studyTeam = roleRepository.findByName(RoleName.STUDYTEAM);
+		Role studyTeam = roleRepository.findByName(RoleName.STUDY_TEAM);
 		if (studyTeam == null) {
 			Role role = new Role();
-			role.setName(RoleName.STUDYTEAM);
+			role.setName(RoleName.STUDY_TEAM);
 			roleRepository.save(role);
 		}
 	}
@@ -345,7 +345,7 @@ public class UserServiceImpl implements UserService {
 					user.setRoles(newRole);
 				}
 				if (updateRequest.getUserRoles().equals("STUDYTEAM")) {
-					newRole.add(roleRepository.findByName(RoleName.STUDYTEAM));
+					newRole.add(roleRepository.findByName(RoleName.STUDY_TEAM));
 					user.setRoles(newRole);
 				}
 			}
@@ -381,7 +381,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<User> getStudyTeam() {
 		List<Map<String, Object>> studyTeam = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN users u ON ur.user_id = u.user_id  and ur.role_id IN(3,4) ORDER BY ur.user_id DESC");
+				"SELECT * FROM user_roles ur JOIN users u ON ur.user_id = u.user_id  and ur.role_id IN(3,5) ORDER BY ur.user_id DESC");
 		List<User> users = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
