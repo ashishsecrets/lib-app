@@ -283,7 +283,7 @@ public class UserServiceImpl implements UserService {
 				newUser.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
 			}
 			if (user.getUserRoles().equals("STUDYTEAM")) {
-				newUser.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
+				newUser.getRoles().add(roleRepository.findByName(RoleName.STUDYTEAM));
 			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
@@ -313,10 +313,10 @@ public class UserServiceImpl implements UserService {
 			role.setName(RoleName.PHYSICIAN);
 			roleRepository.save(role);
 		}
-		Role studyTeam = roleRepository.findByName(RoleName.STUDY_TEAM);
+		Role studyTeam = roleRepository.findByName(RoleName.STUDYTEAM);
 		if (studyTeam == null) {
 			Role role = new Role();
-			role.setName(RoleName.STUDY_TEAM);
+			role.setName(RoleName.STUDYTEAM);
 			roleRepository.save(role);
 		}
 	}
@@ -345,7 +345,7 @@ public class UserServiceImpl implements UserService {
 					user.setRoles(newRole);
 				}
 				if (updateRequest.getUserRoles().equals("STUDYTEAM")) {
-					newRole.add(roleRepository.findByName(RoleName.STUDY_TEAM));
+					newRole.add(roleRepository.findByName(RoleName.STUDYTEAM));
 					user.setRoles(newRole);
 				}
 			}
