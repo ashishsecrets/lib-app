@@ -227,7 +227,7 @@ public class AdminController {
 	
 	@ApiOperation(value = "getActivityLogs", notes = "getActivityLogs", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "list of activity logs", response = UserHistory.class) })
-	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/getActivityLogs", method = RequestMethod.GET)
 	public ResponseEntity<?> getActivityLogs() {
 		JSONObject responseJson = new JSONObject();
@@ -261,7 +261,7 @@ public class AdminController {
 		}		
 	}
 	
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@RequestMapping(value = "/getUser/{userId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getUserById(@PathVariable Long userId) {
 		loggerService.printLogs(log, "getUserById", "Getting user with id : "+userId);		
