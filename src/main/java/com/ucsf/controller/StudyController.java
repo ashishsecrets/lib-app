@@ -191,6 +191,7 @@ public class StudyController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Study reviewed successfully", response = StudyReviewResponse.class) })
 	@RequestMapping(value = "/reviewStudy", method = RequestMethod.POST)
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	public ResponseEntity<?> reviewStudy(@RequestBody StudyReviewRequest reviewStudy) throws Exception {
 
 		JSONObject responseJson = new JSONObject();
@@ -210,6 +211,7 @@ public class StudyController {
 	}
 	
 	@RequestMapping(value = "/getImage", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	public void getStudyImage(@RequestParam String imagePath, HttpServletResponse response) {
 
 		try {
