@@ -152,7 +152,7 @@ public class StudyController {
 	@ApiOperation(value = "Update Study Status", notes = "Approve study", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Study Status Updated successfully", response = SuccessResponse.class) })
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@RequestMapping(value = "/updateStudyStatus/{userId}", method = RequestMethod.POST)
 	public ResponseEntity<?> updateStudyStatus(@PathVariable Long userId, @RequestParam String status)
 			throws Exception {

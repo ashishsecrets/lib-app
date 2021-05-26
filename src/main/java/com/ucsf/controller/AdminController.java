@@ -129,7 +129,7 @@ public class AdminController {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ApiOperation(value = "getLoggedInUser", notes = "getLoggedInUser", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "getLoggedInUser", response = User.class) })
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@RequestMapping(value = "/getLoggedInUser", method = RequestMethod.GET)
 	public ResponseEntity<?> getLoggedInUser() {
 		User user = null;
@@ -227,7 +227,7 @@ public class AdminController {
 	
 	@ApiOperation(value = "getActivityLogs", notes = "getActivityLogs", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "list of activity logs", response = UserHistory.class) })
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@RequestMapping(value = "/getActivityLogs", method = RequestMethod.GET)
 	public ResponseEntity<?> getActivityLogs() {
 		JSONObject responseJson = new JSONObject();
@@ -280,10 +280,11 @@ public class AdminController {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	//@PreAuthorize("hasRole('ROLE_ADMIN','STUDYTEAM')")
 	@ApiOperation(value = "Get studyTeam/physician", notes = "Get studyTeam/physician", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of Get studyTeam/physician", response = User.class) })
 	@RequestMapping(value = "/getStudyTeam", method = RequestMethod.GET)
-	public ResponseEntity<?> getPatients() {
+	public ResponseEntity<?> getStudyTeam() {
 		List<User> patients = new ArrayList<User>();
 		JSONObject response = new JSONObject();
 		User user = null;
