@@ -44,7 +44,7 @@ public class PatientController {
 	private static final Logger log = LoggerFactory.getLogger(PatientController.class);
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@ApiOperation(value = "Get all patients", notes = "Get all patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all patients", response = User.class) })
 	@RequestMapping(value = "/getAllPatients", method = RequestMethod.GET)
@@ -75,7 +75,7 @@ public class PatientController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@ApiOperation(value = "Get approved patients", notes = "Get approved patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of approved patients", response = User.class) })
 	@RequestMapping(value = "/getApprovedPatients", method = RequestMethod.GET)
@@ -106,7 +106,7 @@ public class PatientController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@ApiOperation(value = "Get disapproved patients", notes = "Get disapproved patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of disapproved patients", response = User.class) })
 	@RequestMapping(value = "/getDisapprovedPatients", method = RequestMethod.GET)

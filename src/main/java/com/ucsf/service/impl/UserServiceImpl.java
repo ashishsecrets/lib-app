@@ -283,7 +283,7 @@ public class UserServiceImpl implements UserService {
 				newUser.getRoles().add(roleRepository.findByName(RoleName.PHYSICIAN));
 			}
 			if (user.getUserRoles().equals("STUDYTEAM")) {
-				newUser.getRoles().add(roleRepository.findByName(RoleName.STUDY_TEAM));
+				newUser.getRoles().add(roleRepository.findByName(RoleName.STUDYTEAM));
 			}
 		} else {
 			newUser.getRoles().add(roleRepository.findByName(RoleName.PATIENT));
@@ -313,10 +313,10 @@ public class UserServiceImpl implements UserService {
 			role.setName(RoleName.PHYSICIAN);
 			roleRepository.save(role);
 		}
-		Role studyTeam = roleRepository.findByName(RoleName.STUDY_TEAM);
+		Role studyTeam = roleRepository.findByName(RoleName.STUDYTEAM);
 		if (studyTeam == null) {
 			Role role = new Role();
-			role.setName(RoleName.STUDY_TEAM);
+			role.setName(RoleName.STUDYTEAM);
 			roleRepository.save(role);
 		}
 	}
@@ -344,8 +344,8 @@ public class UserServiceImpl implements UserService {
 					newRole.add(roleRepository.findByName(RoleName.PHYSICIAN));
 					user.setRoles(newRole);
 				}
-				if (updateRequest.getUserRoles().equals("STUDY_TEAM")) {
-					newRole.add(roleRepository.findByName(RoleName.STUDY_TEAM));
+				if (updateRequest.getUserRoles().equals("STUDYTEAM")) {
+					newRole.add(roleRepository.findByName(RoleName.STUDYTEAM));
 					user.setRoles(newRole);
 				}
 			}
@@ -409,7 +409,6 @@ public class UserServiceImpl implements UserService {
 		String updatedAt = "";
 		String updatedBy = "";
 		Optional<User> user = null;
-		PatientResponse patient = new PatientResponse();
 		for (Map<String, Object> map : patientList) {
 			if (map.get("user_id") != null) {
 				userId = Long.parseLong(map.get("user_id").toString());
@@ -420,6 +419,7 @@ public class UserServiceImpl implements UserService {
 				int weeks = 1;
 				user = userRepository.findById(userId);
 				if (user.isPresent()) {
+					PatientResponse patient = new PatientResponse();
 					try {
 						User exited = user.get();
 						patient.setEmail(exited.getEmail());
@@ -428,7 +428,7 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(exited.getLastName());
 						patient.setPhoneNumber(exited.getPhoneCode() + exited.getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy);
+						patient.setUpdatedBy(updatedBy+" "+updatedAt);
 						patient.setStudyWeek(weeks + 1);
 						
 						if (map.get("status_updated_date") != null) {
@@ -459,7 +459,7 @@ public class UserServiceImpl implements UserService {
 		String updatedAt = "";
 		String updatedBy = "";
 		Optional<User> user = null;
-		PatientResponse patient = new PatientResponse();
+		User exited = new User();
 		for (Map<String, Object> map : patientList) {
 			if (map.get("user_id") != null) {
 				userId = Long.parseLong(map.get("user_id").toString());
@@ -470,15 +470,15 @@ public class UserServiceImpl implements UserService {
 				int weeks = 1;
 				user = userRepository.findById(userId);
 				if (user.isPresent()) {
+					PatientResponse patient = new PatientResponse();
 					try {
-						User exited = user.get();
-						patient.setEmail(exited.getEmail());
-						patient.setId(exited.getId());
-						patient.setFirstName(exited.getFirstName());
-						patient.setLastName(exited.getLastName());
-						patient.setPhoneNumber(exited.getPhoneCode() + exited.getPhoneNumber());
+						patient.setEmail(user.get().getEmail());
+						patient.setId(user.get().getId());
+						patient.setFirstName(user.get().getFirstName());
+						patient.setLastName(user.get().getLastName());
+						patient.setPhoneNumber(user.get().getPhoneCode() + user.get().getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy);
+						patient.setUpdatedBy(updatedBy+" "+updatedAt);
 						patient.setStudyWeek(weeks + 1);
 						if (map.get("status_updated_date") != null) {
 
@@ -488,12 +488,15 @@ public class UserServiceImpl implements UserService {
 							weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
 						}
 						patients.add(patient);
-					} catch (Exception e) {
+					} 
+					
+					catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
+				
 			}
-
+			
 		}
 		return patients;
 	}
