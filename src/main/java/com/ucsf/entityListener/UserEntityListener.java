@@ -56,7 +56,7 @@ public class UserEntityListener {
                     	changedContent.put(d.getFieldName(), "FROM " + d.getLeft() + " TO " + d.getRight() + "");
                 	}
                 }
-                if(changedContent.keySet().size() > 1) {
+                if(changedContent.keySet().size() > 0) {
                 	entityManager.persist(new UserHistory(target, action, new Gson().toJson(target), previousContent, changedContent.toString()));
             	}
                	        	
