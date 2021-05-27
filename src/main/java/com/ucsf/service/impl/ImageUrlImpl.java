@@ -75,7 +75,7 @@ public class ImageUrlImpl implements ImageUrlService {
             List<String> fileDescriptionList = studyImages.getFileDescription();
             fileDescriptionList.add(request.getDescription());
             //Parameter Description is Obslete - comenting out.
-            //studyImages.setDescription(request.getDescription());
+
             imageRepository.save(studyImages);
 
             bodyPartFile.delete();
