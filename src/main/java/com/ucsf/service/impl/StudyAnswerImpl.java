@@ -164,7 +164,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 					//if block added to fix backward flow
 					if(lastSavedAnswer.isEmpty()){
 						ScreeningAnswers x = new ScreeningAnswers();
-						x.setIndexValue(studyAbstractCall.getIndexValue()+questionDirection);
+						x.setIndexValue(previous);
 						x.setAnswerDescription("");
 						lastSavedAnswer = Optional.of(x);
 					}
