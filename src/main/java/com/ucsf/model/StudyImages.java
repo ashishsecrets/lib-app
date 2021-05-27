@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "study_images")
@@ -20,6 +21,14 @@ public class StudyImages extends Auditable<String> {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @Column(name = "filename")
+    @ElementCollection(targetClass=String.class)
+    private List<String> filename;
+
+    @Column(name = "file_description")
+    @ElementCollection(targetClass=String.class)
+    private List<String> fileDescription;
 
     @Column(name = "user_id")
     private Long userId;
