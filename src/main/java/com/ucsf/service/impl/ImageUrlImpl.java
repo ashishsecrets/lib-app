@@ -70,7 +70,7 @@ public class ImageUrlImpl implements ImageUrlService {
             int count = studyImages.getCount();
             studyImages.setCount(count+1);
             List<String> fileNameList = studyImages.getFilename();
-            fileNameList.add(fileName);
+            fileNameList.add(fileName+".jpeg");
             studyImages.setFilename(fileNameList);
             List<String> fileDescriptionList = studyImages.getFileDescription();
             fileDescriptionList.add(request.getDescription());
