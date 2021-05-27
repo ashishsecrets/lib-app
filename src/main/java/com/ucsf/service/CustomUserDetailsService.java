@@ -97,7 +97,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 			isEnable = false;
 		}
 		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
-			if (role.getName().toString().equals("ADMIN")) {
+			if (role.getName().toString().equals("ADMIN") || role.getName().toString().equals("STUDYTEAM") || role.getName().toString().equals("PHYSICIAN")) {
 				isVerified = true;
 			}
 		}

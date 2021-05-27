@@ -8,7 +8,8 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
-import lombok.Data;
+import com.ucsf.model.UcsfSurvey;
+import com.ucsf.repository.SurveyRepository;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,7 +17,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -40,7 +40,10 @@ public class LoadSurveyQuestions {
 	SurveyChoiceRepository surveyChoiceRepository;
 
 	@Autowired
-	SurveyQuestionRepository surveyRepository;
+	SurveyQuestionRepository surveyQuestionRepository;
+
+	@Autowired
+	SurveyRepository surveyRepository;
 
 	//@Value("${survey-patient-questions-file}")
 	private String filePath;
@@ -70,15 +73,16 @@ public class LoadSurveyQuestions {
 
 		Map<String, Sheet> sheetName = new HashMap();
 		List<Sheet> list = new ArrayList<>();
-		list.add(new Sheet("12Q-7nq9fhUM8BeEBWrn8hy26eLdDjx9g3R_ZeixjRVw", "patient"));
-		list.add(new Sheet("1MK20TCV04yCB_md1JV-OL0QyZkkXI6b8LrO4zvHW8dk", "dermatology"));
-		list.add(new Sheet("1DoSxuwLDnqzYHIzsCbi85I1KMS8yfmjv4s1vJRbUtnw", "itch"));
+		list.add(new Sheet("12Q-7nq9fhUM8BeEBWrn8hy26eLdDjx9g3R_ZeixjRVw", "POEM"));
+		list.add(new Sheet("1MK20TCV04yCB_md1JV-OL0QyZkkXI6b8LrO4zvHW8dk", "DLQI"));
+		list.add(new Sheet("1DoSxuwLDnqzYHIzsCbi85I1KMS8yfmjv4s1vJRbUtnw", "NRS_itch"));
 		sheetName.put("patient", list.get(0));
 		sheetName.put("dermatology", list.get(1));
 		sheetName.put("itch", list.get(2));
 		for(Map.Entry<String, Sheet> sheet : sheetName.entrySet()) {
 			filePath = downloadSheetData(sheet.getValue().id, sheet.getValue().sheetName);
 			try {
+				createUpdateSurveyInDb(sheet.getValue().sheetName);
 				readDownloadedContentCsvData(filePath);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -86,18 +90,31 @@ public class LoadSurveyQuestions {
 		}
 	}
 
+	private void createUpdateSurveyInDb(String sheetName) {
+
+		if(surveyRepository.findByTitle(sheetName.replaceAll("_", " ")) == null){
+			UcsfSurvey survey = new UcsfSurvey();
+			survey.setTitle(sheetName.replaceAll("_", " "));
+			survey.setDescription(sheetName);
+			survey.setEnabled(true);
+			survey.setStudyId(1l);
+			surveyRepository.save(survey);
+		}
+
+	}
+
 	public String downloadSheetData(String id, String sheetName) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		String filePath = sheetName + ".csv";
 		int gid = 0;
 		try {
-			if (filePath.contains("patient")) {
+			if (filePath.contains("POEM")) {
 				gid = 923230846;
 			}
-			if (filePath.contains("dermatology")) {
+			if (filePath.contains("DLQI")) {
 				gid = 578148417;
 			}
-			if (filePath.contains("itch")) {
+			if (filePath.contains("NRS_itch")) {
 				gid = 902091073;
 			}
 			HttpGet request = new HttpGet("https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?tqx=out:csv&sheet="
@@ -148,17 +165,17 @@ public class LoadSurveyQuestions {
 					sc.setDescription(questionDescription);
 					sc.setEnabled(true);
 					sc.setQuestionType(questionType);
-					/*if (csvFile.contains("patient")) {
-						sc.setSurveyId(null);// repo
+					if (csvFile.contains("POEM")) {
+						sc.setSurveyId(surveyRepository.findByTitle("POEM").getId());// repo
 					}
-					if (csvFile.contains("dermatology")) {
-						sc.setSurveyId(null);// repo
+					if (csvFile.contains("DLQI")) {
+						sc.setSurveyId(surveyRepository.findByTitle("DLQI").getId());// repo
 					}
-					if (csvFile.contains("itch")) {
-						sc.setSurveyId(null);// repo
-					}*/
+					if (csvFile.contains("NRS_itch")) {
+						sc.setSurveyId(surveyRepository.findByTitle("NRS itch").getId());// repo
+					}
 					sc.setIndexValue(counter);
-					surveyRepository.save(sc);
+					surveyQuestionRepository.save(sc);
 					if (choices != null && !choices.equals("")) {
 						String[] split = choices.split("//");
 						for (String c : split) {

@@ -85,11 +85,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/swagger-ui/index.html").permitAll()
 				.antMatchers("/swagger-ui/**").permitAll()
 				.antMatchers("/swagger-resources/**").permitAll()
-				.antMatchers("/configuration/**").permitAll()		
+				.antMatchers("/configuration/**").permitAll()
 				.antMatchers("/v2/**").permitAll()
 				.antMatchers("/api/password/**").permitAll().antMatchers("/api/questions/**").hasRole("PATIENT")
 				.antMatchers("/api/answers/**").hasRole("PATIENT")
-				.antMatchers("/api/images/**").hasRole("PATIENT")
+				.antMatchers("/api/images/**").hasAnyRole("PATIENT", "ADMIN")
+				.antMatchers("/notifications/**").hasRole("PATIENT")
 				.antMatchers("/api/survey/**").hasRole("PATIENT").antMatchers("/api/users/**").hasRole("ADMIN").anyRequest()
 				.authenticated().and().
 

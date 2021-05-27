@@ -11,7 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.util.ResourceUtils;
 
-public class testemailattachemnt {
+class testemailattachemnt {
 	
 	@Autowired
 	JavaMailSender javaMailSender;

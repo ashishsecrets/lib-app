@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
-import com.ucsf.model.UserMetadata;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.response.ErrorResponse;
+import com.ucsf.payload.response.PatientResponse;
 import com.ucsf.payload.response.StudyStatusResponse;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
@@ -44,7 +44,7 @@ public class PatientController {
 	private static final Logger log = LoggerFactory.getLogger(PatientController.class);
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@ApiOperation(value = "Get all patients", notes = "Get all patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all patients", response = User.class) })
 	@RequestMapping(value = "/getAllPatients", method = RequestMethod.GET)
@@ -75,12 +75,12 @@ public class PatientController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@ApiOperation(value = "Get approved patients", notes = "Get approved patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of approved patients", response = User.class) })
 	@RequestMapping(value = "/getApprovedPatients", method = RequestMethod.GET)
 	public ResponseEntity<?> getApprovedPatients() {
-		List<User> patients = new ArrayList<User>();
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		JSONObject response = new JSONObject();
 		User user = null;
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -97,6 +97,37 @@ public class PatientController {
 		try {
 			patients = userService.getApprovedPatients();
 			loggerService.printLogs(log, "getPatients", "Fetched approved patients successfully!");
+			response.put("data", patients);
+			return new ResponseEntity(response.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			response.put("error", patients);
+			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
+	@ApiOperation(value = "Get disapproved patients", notes = "Get disapproved patients", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of disapproved patients", response = User.class) })
+	@RequestMapping(value = "/getDisapprovedPatients", method = RequestMethod.GET)
+	public ResponseEntity<?> getDisapprovedPatients() {
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
+		JSONObject response = new JSONObject();
+		User user = null;
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			loggerService.printLogs(log, "getDisapprovedPatients", "getting list of disapproved patients");
+		} else {
+			loggerService.printLogs(log, "getDisapprovedPatients", "Invalid JWT signature.");
+			response.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			patients = userService.getDisapprovedPatients();
+			loggerService.printLogs(log, "getDisapprovedPatients", "Fetched disapproved patients successfully!");
 			response.put("data", patients);
 			return new ResponseEntity(response.toMap(), HttpStatus.OK);
 		} catch (Exception e) {

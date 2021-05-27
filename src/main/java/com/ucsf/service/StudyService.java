@@ -2,11 +2,12 @@ package com.ucsf.service;
 
 import java.util.List;
 
+import org.json.JSONObject;
+
 import com.ucsf.auth.model.User;
 import com.ucsf.payload.request.StudyRequest;
 import com.ucsf.payload.request.StudyReviewRequest;
 import com.ucsf.payload.response.StudyResponse;
-import com.ucsf.payload.response.StudyReviewResponse;
 
 public interface StudyService {
   
@@ -15,7 +16,7 @@ public interface StudyService {
 	int getImageCount(Long studyId, Long userId);
     
 	void updateStudyStatus(Long userId, String status);
-	StudyReviewResponse reviewStudy(StudyReviewRequest reviewStudy);
+	JSONObject reviewStudy(StudyReviewRequest reviewStudy);
 	List<User> getApprovedPatients();
-
+    List<User> getDisapprovedPatients();
 }

@@ -117,11 +117,13 @@ public class StudyServiceImpl implements StudyService {
 		if (userStatus != null) {
 			if (status != null && status.equals("approved")) {
 				userStatus.setUserScreeningStatus(UserScreenStatus.APPROVED);
+				userStatus.setStatusUpdatedDate(new Date());
 				userScreeningStatusRepository.save(userStatus);
 				studyNotificationService.sendApproveNotifications(userId);
 			}
 			if (status != null && status.equals("disapproved")) {
 				userStatus.setUserScreeningStatus(UserScreenStatus.DISAPPROVED);
+				userStatus.setStatusUpdatedDate(new Date());
 				userScreeningStatusRepository.save(userStatus);
 				studyNotificationService.sendDisapproveNotifications(userId);
 			}
@@ -129,45 +131,47 @@ public class StudyServiceImpl implements StudyService {
 	}
 
 	@Override
-	public StudyReviewResponse reviewStudy(StudyReviewRequest reviewStudy) {
+	public JSONObject reviewStudy(StudyReviewRequest reviewStudy) {
 		JSONObject responseJson = new JSONObject();
-		StudyReviewResponse response = new StudyReviewResponse();
+		List<StudyReviewData> newList = new ArrayList<>();
 		if (reviewStudy != null) {
 			if (reviewStudy.getType().equals("screening")) {
 
 				List<ScreeningQuestions> questionsList = screeningQuestionRepository
 						.findByStudyId(reviewStudy.getStudyId());
-
-				String answer;
-
-				List<StudyReviewData> newList = new ArrayList<>();
+				
+				if(questionsList.size() < 1) {
+					responseJson.put("error",
+							new ErrorResponse(ErrorCodes.INVALID_STUDY.code(), Constants.INVALID_STUDY.errordesc()));
+				}
+				
 				for (ScreeningQuestions question : questionsList) {
-					if (screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(),
-							reviewStudy.getUserId()) == null) {
-						answer = "User did not enter answer";
-					} else {
-						answer = screeningAnswerRepository
-								.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId())
-								.getAnswerDescription();
+					ScreeningAnswers screeningAnswer = screeningAnswerRepository.findByIndexValueAndAnsweredById(question.getIndexValue(), reviewStudy.getUserId());
+					if (screeningAnswer != null) {
+						String answer = screeningAnswer.getAnswerDescription();
+						newList.add(new StudyReviewData(question.getDescription(), answer, null));
+					} 					
+				}
+				
+				List<StudyImages> imageUrlsList = new ArrayList<StudyImages>();
+				if(newList.size() > 0) {
+					List<StudyImages> images= imageRepository.findByStudyIdAndUserId(reviewStudy.getStudyId(), reviewStudy.getUserId());
+					for(StudyImages image: images){
+						if(image.getCount() > 0) {
+							imageUrlsList.add(image);
+						}
 					}
-					newList.add(new StudyReviewData(question.getDescription(), answer));
-				}
-				List<String> imageUrlsList = new ArrayList<>();
-				for(StudyImages image: imageRepository.findByStudyIdAndUserId(reviewStudy.getStudyId(), reviewStudy.getUserId())){
-					imageUrlsList.add(image.getImageUrl());
-				}
-				newList.add(new StudyReviewData("Photos", imageUrlsList.toString()));
-				response.setList(newList);
+					if(imageUrlsList.size() > 0)
+						newList.add(new StudyReviewData("Photos", null, imageUrlsList));
+				}	
 			} else {
 				responseJson.put("error",
 						new ErrorResponse(ErrorCodes.INVALID_STUDY.code(), Constants.INVALID_STUDY.errordesc()));
 			}
-		} else {
-			// responseJson.put("error", )
-		}
-		responseJson.put("data", response);
+		} 
+		responseJson.put("data", newList);
 
-		return response;
+		return responseJson;
 	}
 
 	@Override
@@ -187,5 +191,24 @@ public class StudyServiceImpl implements StudyService {
 			}
 		}
 		return approvedUsers;
+	}
+
+	@Override
+	public List<User> getDisapprovedPatients() {
+		Optional<User> user = null;
+		List<User> disapprovedUsers = new ArrayList<User>();
+		// Need to get enrolled patients bcoz status updated after approval notification
+		List<UserMetadata> userMetaData = userMetaDataRepository.findByStudyStatus(StudyStatus.DISAPPROVED);
+		if (userMetaData != null && userMetaData.size() > 0) {
+			for (UserMetadata metaData : userMetaData) {
+				user = userRepository.findById(metaData.getUserId());
+				if (user.isPresent()) {
+					User approvedUser = userRepository.findByEmail(user.get().getEmail());
+					disapprovedUsers.add(user.get());
+					disapprovedUsers.add(approvedUser);
+				}
+			}
+		}
+		return disapprovedUsers;
 	}
 }

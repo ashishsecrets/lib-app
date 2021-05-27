@@ -1,5 +1,7 @@
 package com.ucsf.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -20,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "user_screening_status")
 @Data
 @NoArgsConstructor
-public class UserScreeningStatus {
+public class UserScreeningStatus extends Auditable<String> {
 
 	public enum UserScreenStatus {
 		NEWLY_ADDED,INPROGRESS,UNDER_REVIEW, ENROLLED, AVAILABLE, DISQUALIFIED,APPROVED,DISAPPROVED,NOT_ELIGIBLE
@@ -43,7 +45,7 @@ public class UserScreeningStatus {
 
 	@Column(name = "user_id")
 	private Long userId;
-	
+
 	@Column(name = "index_value")
 	private int indexValue;
 
@@ -52,4 +54,6 @@ public class UserScreeningStatus {
 	@JsonIgnore
 	private User users;
 
+	@Column(name = "status_updated_date")
+	private Date statusUpdatedDate;
 }

@@ -32,6 +32,7 @@ import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @CrossOrigin
@@ -107,7 +108,20 @@ public class StudyImageController {
 
         if(list != null){
             for(StudyImages item : list){
-                StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount(), item.getDescription());
+                StudyImageUrlData.BodyPartType type = null;
+                if(item.getName().toLowerCase().contains("front"))
+                    type = StudyImageUrlData.BodyPartType.FRONT;
+                else if(item.getName().toLowerCase().contains("back"))
+                    type = StudyImageUrlData.BodyPartType.BACK;
+
+                if(item.getName().toLowerCase().contains("special")){
+                    type = StudyImageUrlData.BodyPartType.FRONT;
+                    StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount(), item.getDescription(), type);
+                    newList.add(data);
+                    type = StudyImageUrlData.BodyPartType.BACK;
+                }
+
+                StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount(), item.getDescription(), type);
                 totalCount += item.getCount();
                 newList.add(data);
             }

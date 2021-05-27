@@ -1,8 +1,11 @@
 package com.ucsf.controller;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import com.ucsf.payload.response.*;
@@ -30,6 +33,7 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UcsfStudy;
 import com.ucsf.payload.request.StudyRequest;
 import com.ucsf.payload.request.StudyReviewRequest;
+import com.ucsf.service.AmazonClientService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.StudyService;
 import com.ucsf.service.UserService;
@@ -38,6 +42,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.MediaType;
 
 @RestController
 @CrossOrigin
@@ -56,6 +61,9 @@ public class StudyController {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	AmazonClientService amazonClientService;
 
 	private static Logger log = LoggerFactory.getLogger(StudyController.class);
 
@@ -144,7 +152,7 @@ public class StudyController {
 	@ApiOperation(value = "Update Study Status", notes = "Approve study", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Study Status Updated successfully", response = SuccessResponse.class) })
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@RequestMapping(value = "/updateStudyStatus/{userId}", method = RequestMethod.POST)
 	public ResponseEntity<?> updateStudyStatus(@PathVariable Long userId, @RequestParam String status)
 			throws Exception {
@@ -173,7 +181,7 @@ public class StudyController {
 					"Error while updating Study " + status + "  for user with id " + userId);
 			responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
 					Constants.USER_NOT_FOUND.errordesc()));
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -182,22 +190,52 @@ public class StudyController {
 	@ApiOperation(value = "Review Patient's Study", notes = "Review Patient's Study", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Study reviewed successfully", response = StudyReviewResponse.class) })
-	@RequestMapping(value = "/reviewStudy", method = RequestMethod.GET)
+	@RequestMapping(value = "/reviewStudy", method = RequestMethod.POST)
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	public ResponseEntity<?> reviewStudy(@RequestBody StudyReviewRequest reviewStudy) throws Exception {
 
 		JSONObject responseJson = new JSONObject();
-		StudyReviewResponse response = null;
+		JSONObject response = null;
 		try {
 			response = studyService.reviewStudy(reviewStudy);
 			loggerService.printLogs(log, "reviewStudy",
 					"Study " + reviewStudy.getStudyId() + "  for user with id " + reviewStudy.getUserId());
-			responseJson.put("data", response);
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			return new ResponseEntity(response.toMap(), HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			loggerService.printErrorLogs(log, "reviewStudy", "Error while reviewing Study " + reviewStudy.getStudyId()
 					+ "  for user with id " + reviewStudy.getUserId());
-			responseJson.put("data", response);
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_STUDY.code(), Constants.INVALID_STUDY.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@RequestMapping(value = "/getImage", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
+	public void getStudyImage(@RequestParam String imagePath, HttpServletResponse response) {
+
+		try {
+			InputStream inputStream = amazonClientService.awsGetObject(imagePath).getObjectContent();
+			
+			final int BUFFER_SIZE = 4096;			
+			
+			//response.setContentType("image/png");
+			OutputStream outputStream = response.getOutputStream();
+			
+			byte[] buffer = new byte[BUFFER_SIZE];
+		    int bytesRead = -1;
+		    
+		    while ((bytesRead = inputStream.read(buffer)) != -1) {
+		    	outputStream.write(buffer, 0, bytesRead);
+		    }
+			outputStream.flush();
+			inputStream.close();
+			outputStream.close();
+			loggerService.printLogs(log, "getStudyImage", "Study image fetched successfully.");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			loggerService.printErrorLogs(log, "reviewStudy", "Error while fetching study image.");
 		}
 	}
 
@@ -238,6 +276,48 @@ public class StudyController {
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		} catch (Exception e) {
 			loggerService.printErrorLogs(log, "fetchApprovedPatients", "Error while fetching approved patients fetched  for Physicain "+user.getEmail());
+			responseJson.put("data", response);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
+	}
+
+	@Transactional
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	/*
+	 * @ApiOperation(value = "Get Approved Patients", notes =
+	 * "Get Approved Patients", code = 200, httpMethod = "GET", produces =
+	 * "application/json")
+	 *
+	 * @ApiResponses(value = {
+	 *
+	 * @ApiResponse(code = 200, message = "Approved Patients fetched successfully",
+	 * response = User.class) })
+	 */	@RequestMapping(value = "/disapprovedPatients", method = RequestMethod.GET)
+	public ResponseEntity<?> fetchDisapprovedPatients() throws Exception {
+
+		JSONObject responseJson = new JSONObject();
+		StudyApprovedPatientsResponse response = new StudyApprovedPatientsResponse();
+		User user = null;
+		List<User> disapprovedPatients = new ArrayList<User>();
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			if (user != null) {
+				loggerService.printLogs(log, "fetchDisapprovedPatients", "Disapproved patients fetched for Physician  " + user.getEmail());
+			}
+		} else {
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			disapprovedPatients = studyService.getDisapprovedPatients();
+			response.setList(disapprovedPatients);
+			loggerService.printLogs(log, "fetchApprovedPatients", "Disapproved patients fetched Successfully for Physicain "+user.getEmail());
+			responseJson.put("data", response);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			loggerService.printErrorLogs(log, "fetchApprovedPatients", "Error while fetching disapproved patients fetched  for Physicain "+user.getEmail());
 			responseJson.put("data", response);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		}

@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import com.ucsf.model.Notifications;
+import com.ucsf.repository.NotificationsRepository;
 import com.ucsf.service.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +65,9 @@ public class OtpController {
 
 	@Autowired
 	EmailService emailService;
+
+	@Autowired
+	NotificationsRepository notificationsRepository;
 
 	@Value("${spring.mail.from}")
 	String fromEmail;
@@ -173,6 +178,7 @@ public class OtpController {
 		JSONObject responseJson = new JSONObject();
 		String token = "";
 		String message = "Otp Verified";
+		UserOtp otp = null;
 		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		if (userDetail != null && userDetail.getUsername() != null) {
@@ -186,7 +192,7 @@ public class OtpController {
 		}
 
 		if (verifyRequest.getCode() != null && verifyRequest.getCode().length() > 0) {
-			UserOtp otp = otpService.findByUserId(user.getId());
+			otp = otpService.findByUserId(user.getId());
 
 			// Verify BY SMS AUTHY
 			if (otp.getType() != null && !otp.getType().equals("") && otp.getType().equals("sms")) {
@@ -197,6 +203,19 @@ public class OtpController {
 						token = jwtTokenUtil.generateToken(userDetails);
 						user.setAuthToken(token);
 						userRepository.save(user);
+
+						if (verifyRequest.getIsNew()){
+
+						//Adding notification sent to user via sms to db
+						Notifications notification = new Notifications();
+						notification.setDate(new Date());
+						notification.setDescription("User Verified by OTP-SMS");
+						notification.setKind(Notifications.NotificationKind.AUTHENTICATE);
+						notification.setKindDescription("Register");
+						notification.setType(Notifications.NotificationType.SMS);
+						notification.setUserId(user.getId());
+						notificationsRepository.save(notification);
+						}
 
 					} else {
 						responseJson.put("error", new ErrorResponse(ErrorCodes.OTP_NOT_VERIFIED.code(),
@@ -230,6 +249,19 @@ public class OtpController {
 				emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Welcome to Skintracker.",
 						user.getFirstName() + " " + user.getLastName(), user.getFirstName(),
 						"classpath:template/signUpEmail.html");
+
+				if(otp.getType().equals("email")) {
+					//Adding notification sent to user via email to db
+					Notifications notification = new Notifications();
+					notification.setDate(new Date());
+					notification.setDescription("User Verified by OTP-EMAIL");
+					notification.setKind(Notifications.NotificationKind.AUTHENTICATE);
+					notification.setKindDescription("Register/Login");
+					notification.setType(Notifications.NotificationType.EMAIL);
+					notification.setUserId(user.getId());
+					notificationsRepository.save(notification);
+				}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
