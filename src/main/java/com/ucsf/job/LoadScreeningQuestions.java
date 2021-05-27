@@ -123,6 +123,7 @@ public class LoadScreeningQuestions {
 						for (String c : split) {
 							ScreeningAnsChoice choice = new ScreeningAnsChoice();
 							choice.setChoice(c);
+							choice.setStudyId(sc.getStudyId());
 							choice.setQuestionId(sc.getId());
 							choiceRepository.save(choice);
 						}

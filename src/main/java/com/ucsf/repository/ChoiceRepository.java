@@ -9,4 +9,6 @@ import com.ucsf.model.ScreeningAnsChoice;
 public interface ChoiceRepository extends CrudRepository<ScreeningAnsChoice, Long> {
 	
 	List<ScreeningAnsChoice> findByQuestionId(Long questionId);
+
+    List<ScreeningAnsChoice> findByQuestionIdAndStudyId(Long id, Long studyId);
 }

@@ -110,7 +110,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 
      try {
-		 studyAbstractCall.userScreeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+		 studyAbstractCall.userScreeningStatus = userScreeningStatusRepository.findByUserIdAndStudyId(user.getId(), answerRequest.getStudyId());
 	 } catch (NullPointerException e) {
 		 e.printStackTrace();
 	 }

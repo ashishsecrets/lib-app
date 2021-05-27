@@ -154,7 +154,7 @@ public class StudyAbstractCall {
         Optional<ScreeningAnswers> screenAnswerOp = null;
         try {
             if (!answerRequest.getAnswer().isEmpty()) {
-                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId()));
+                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId(), answerRequest.getStudyId()));
                 ScreeningAnswers screenAnswer;
                 if (screenAnswerOp.isPresent()) {
                     screenAnswer = screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
@@ -174,7 +174,7 @@ public class StudyAbstractCall {
                 isSuccess = true;
             }
             else{
-                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId()));
+                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId(), answerRequest.getStudyId()));
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -338,7 +338,7 @@ public class StudyAbstractCall {
     public ScreeningQuestions getQuestionToDisplayToUser(int index) {
 
         return screeningQuestionRepository.findByStudyIdAndIndexValue(
-                userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), index);
+                userScreeningStatusRepository.findByUserIdAndStudyId(user.getId(), answerRequest.getStudyId()).getStudyId(), index);
     }
 
     public void setQuestionToDisplayToUser(int index) {
@@ -348,7 +348,7 @@ public class StudyAbstractCall {
     }
 
     public ScreeningAnswers getAnswerToDisplayToUser(Long index) {
-        return screeningAnswerRepository.findByQuestionIdAndAnsweredById(index, user.getId());
+        return screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId(index, user.getId(), answerRequest.getStudyId());
     }
 
     public Boolean getIsLastQuestionBool() {
@@ -379,7 +379,7 @@ public class StudyAbstractCall {
 
     public ScreeningQuestionResponse displayQuesNAns(ScreeningQuestions questionToDisplayToUser, ScreeningAnswers answerToDisplayToUser) {
 
-        List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(questionToDisplayToUser.getId());
+        List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionIdAndStudyId(questionToDisplayToUser.getId(), answerRequest.getStudyId());
         response.setScreeningQuestions(questionToDisplayToUser);
         if (answerToDisplayToUser == null) {
             answerToDisplayToUser = new ScreeningAnswers();
@@ -388,8 +388,8 @@ public class StudyAbstractCall {
         response.setChoices(choices);
         response.setIsLastQuestion(getIsLastQuestionBool());
         response.setMessage("");
-        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l) != null){
-            response.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l).getInfoDescription());
+        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), answerRequest.getStudyId()) != null){
+            response.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), answerRequest.getStudyId()).getInfoDescription());
         }
         else{
             response.setInformation("");
@@ -440,7 +440,7 @@ public class StudyAbstractCall {
 
     public ScreeningAnswers findAnswerByIndex(int i) {
 
-       return Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), i).getId()), user.getId())).get();
+       return Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), i).getId()), user.getId(), answerRequest.getStudyId())).get();
 
     }
 }
