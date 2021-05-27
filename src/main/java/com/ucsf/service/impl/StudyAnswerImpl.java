@@ -168,7 +168,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 						x.setAnswerDescription("");
 						lastSavedAnswer = Optional.of(x);
 					}
-					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
+					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection, answerRequest.getStudyId());
 					if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
 
 						studyAbstractCall.setQuestionToDisplayToUser(current);
