@@ -129,12 +129,13 @@ public class EmailService {
 		File file = ResourceUtils.getFile("classpath:template/userConsentEmail.html");
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", user.getFirstName()+" "+user.getLastName());
-		
+		body = body.replaceAll("\\{\\{type\\}\\}", type.toLowerCase());
+
         formContent = formContent.replaceAll("\\{\\{date\\}\\}", userConsent.getDate())
 								 .replaceAll("\\{\\{patientName\\}\\}", userConsent.getPatientName())
 								// .replaceAll("\\{\\{patientSignature\\}\\}", patientSignatureFile.getPath())
 								 .replaceAll("\\{\\{parentName\\}\\}", userConsent.getParentName())
-								 .replaceAll("\\{\\{type\\}\\}", type.toLowerCase())
+								// .replaceAll("\\{\\{type\\}\\}", type.toLowerCase())
 								 .replaceAll("\\{\\{age\\}\\}", age);
         if(parentSignatureFile != null) {
         	formContent = formContent.replaceAll("\\{\\{parentSignature\\}\\}", parentSignatureFile.getPath());
