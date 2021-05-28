@@ -187,7 +187,7 @@ public class StudyAbstractCall {
         Optional<SurveyAnswer> surveyAnswerOp = null;
         try {
             if (!surveyAnswerRequest.getAnswer().isEmpty()) {
-                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId())));
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredById((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()), user.getId()));
                 SurveyAnswer surveyAnswer;
                 if (surveyAnswerOp.isPresent()) {
                     surveyAnswer = surveyAnswerRepository.findById(surveyAnswerOp.get().getId()).get();
@@ -202,11 +202,12 @@ public class StudyAbstractCall {
                 surveyAnswer.setSurveyId(surveyAnswerRequest.getSurveyId());
                 surveyAnswer.setAnsweredById(user.getId());
                 surveyAnswer.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
+                surveyAnswerOp = Optional.of(surveyAnswer);
                 surveyAnswerRepository.save(surveyAnswer);
                 isSuccess = true;
             }
             else{
-                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId())));
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredById((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()), user.getId()));
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
