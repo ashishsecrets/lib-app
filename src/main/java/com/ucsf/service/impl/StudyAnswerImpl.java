@@ -234,6 +234,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
 		}
 
+		response.setTotalQuestions(studyAbstractCall.getTotalQuestionsCount());
+
 		responseJson.put("data", response);
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);

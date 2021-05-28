@@ -444,4 +444,10 @@ public class StudyAbstractCall {
        return Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), i).getId()), user.getId(), answerRequest.getStudyId())).get();
 
     }
+
+    public int getTotalQuestionsCount() {
+        List<ScreeningQuestions> list = screeningQuestionRepository.findByStudyId(answerRequest.getStudyId());
+
+        return list.size();
+    }
 }
