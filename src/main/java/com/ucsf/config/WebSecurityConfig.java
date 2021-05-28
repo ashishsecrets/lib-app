@@ -124,7 +124,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		AmazonS3 s3client = AmazonS3ClientBuilder
 				.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(credentials))
-				.withRegion(Regions.US_WEST_2)
+				.withRegion(Regions.US_EAST_2)
 				.build();
 		return s3client;
     }

@@ -134,6 +134,7 @@ public class EmailService {
 								 .replaceAll("\\{\\{patientName\\}\\}", userConsent.getPatientName())
 								// .replaceAll("\\{\\{patientSignature\\}\\}", patientSignatureFile.getPath())
 								 .replaceAll("\\{\\{parentName\\}\\}", userConsent.getParentName())
+								 .replaceAll("\\{\\{type\\}\\}", type.toLowerCase())
 								 .replaceAll("\\{\\{age\\}\\}", age);
         if(parentSignatureFile != null) {
         	formContent = formContent.replaceAll("\\{\\{parentSignature\\}\\}", parentSignatureFile.getPath());
@@ -148,7 +149,7 @@ public class EmailService {
         userConsent.setPdfFile(consentService.saveFile(pdfFile, user.getId().toString()));
         
         FileSystemResource attachmentFile = new FileSystemResource(pdfFile);
-        helper.addAttachment(type+"_"+user.getFirstName()+user.getLastName().replace(" ", "")+".pdf", attachmentFile);
+        helper.addAttachment(type.toLowerCase()+"_"+user.getFirstName()+user.getLastName().replace(" ", "")+".pdf", attachmentFile);
         helper.setText(body, true);
      
 		javaMailSender.send(msg);
