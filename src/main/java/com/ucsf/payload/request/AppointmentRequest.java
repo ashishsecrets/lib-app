@@ -9,7 +9,7 @@ public class AppointmentRequest {
 
 	private Long physicianId;
 	
-	private Long patientId;
+	private String patientEmail;
 	
 	private String appointmentTitle;
 	

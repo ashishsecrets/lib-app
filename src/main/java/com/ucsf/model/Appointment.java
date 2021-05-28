@@ -37,9 +37,6 @@ public class Appointment extends Auditable<String> {
 	@JsonIgnore
 	private User users;	
 	
-	@Column(name = "patient_email")
-	private String patientEmail;
-	
 	@Column(name = "appointment_title")
 	private String appointmentTitle;
 	
