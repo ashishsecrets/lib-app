@@ -431,6 +431,11 @@ public class UserServiceImpl implements UserService {
 				userId = Long.parseLong(map.get("user_id").toString());
 				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
 				System.out.println(updatedBy);
+				User studyMember = userRepository.findByEmail(updatedBy);
+				if(studyMember != null) {
+					updatedBy = studyMember.getFirstName() + " " + studyMember.getLastName();
+				}
+				System.out.println(updatedBy);
 				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
 				System.out.println(updatedAt);
 				int weeks = 1;
@@ -445,7 +450,7 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(exited.getLastName());
 						patient.setPhoneNumber(exited.getPhoneCode() + exited.getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy + " " + updatedAt);
+						patient.setUpdatedBy(updatedBy);
 						patient.setStudyWeek(weeks + 1);
 
 						if (map.get("status_updated_date") != null) {
@@ -482,6 +487,10 @@ public class UserServiceImpl implements UserService {
 				userId = Long.parseLong(map.get("user_id").toString());
 				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
 				System.out.println(updatedBy);
+				User studyMember = userRepository.findByEmail(updatedBy);
+				if(studyMember != null) {
+					updatedBy = studyMember.getFirstName() + " " + studyMember.getLastName();
+				}
 				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
 				System.out.println(updatedAt);
 				int weeks = 1;
@@ -495,7 +504,7 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(user.get().getLastName());
 						patient.setPhoneNumber(user.get().getPhoneCode() + user.get().getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy + " " + updatedAt);
+						patient.setUpdatedBy(updatedBy);
 						patient.setStudyWeek(weeks + 1);
 						if (map.get("status_updated_date") != null) {
 
