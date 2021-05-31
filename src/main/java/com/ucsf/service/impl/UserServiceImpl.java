@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
 		metadata.setConsentAccepted(false);
 		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
-		if (user.getDateOfBirth() != null) {
+		if (user.getDateOfBirth() != null && !user.getDateOfBirth().isEmpty()) {
 			if (!AppUtil.validateDOB(user.getDateOfBirth())) {
 				return savedUser;
 			}
