@@ -21,7 +21,7 @@ public class StudyInfoCheck {
         if(studyId == 1){
 
         if (lastAnswer.getIndexValue() == 1) {
-            if (Integer.parseInt(lastAnswer.getAnswerDescription()) < 12 || Integer.parseInt(lastAnswer.getAnswerDescription()) > 65) {
+            if (!lastAnswer.getAnswerDescription().equals("")  && (Integer.parseInt(lastAnswer.getAnswerDescription()) < 12 || Integer.parseInt(lastAnswer.getAnswerDescription()) > 65)) {
                 screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.TRUE);
                 screenTestData.setMessage("Sorry, this study is only for individuals between the ages of 12 and 65!");
             } else {
