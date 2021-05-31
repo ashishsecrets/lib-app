@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import javax.mail.internet.MimeMessage;
 
@@ -49,6 +50,21 @@ public class EmailService {
 		body = body.replaceAll("\\{\\{url\\}\\}", url);
 		String redirectUrl = webSiteUrl + "?token=" + url;
 		body = body.replaceAll("\\{\\{webSiteUrl\\}\\}", redirectUrl);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
+	
+	public void informStudyTeam(String from, String[] to, String subject, String name,String email)
+			throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(from);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/informStudyTeamAboutNewPatient.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		body = body.replaceAll("\\{\\{email\\}\\}", email);
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
