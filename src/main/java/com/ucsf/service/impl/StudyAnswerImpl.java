@@ -17,7 +17,6 @@ import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.repository.UserSurveyStatusRepository;
 import com.ucsf.service.AnswerSaveService;
 import com.ucsf.service.LoggerService;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 

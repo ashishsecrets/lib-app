@@ -1,15 +1,7 @@
 package com.ucsf.service.impl;
 
-
 import com.ucsf.model.ScreeningAnswers;
-import com.ucsf.model.ScreeningQuestions;
-import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.response.StudyInfoData;
-import com.ucsf.repository.ScreeningAnswerRepository;
-import com.ucsf.repository.ScreeningQuestionRepository;
-import com.ucsf.repository.UserScreeningStatusRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
