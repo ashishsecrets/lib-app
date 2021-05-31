@@ -164,6 +164,10 @@ public class UcsfAuthenticationController {
 		}
 
 		User user = userService.save(signUpRequest);
+		if(user==null) {
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_DOB.code(), Constants.INVALID_DOB.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 
 		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 			if (role.getName().toString().equals("ADMIN")) {
