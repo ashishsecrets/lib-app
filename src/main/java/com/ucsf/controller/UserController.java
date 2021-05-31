@@ -63,6 +63,7 @@ public class UserController {
 		loadStudyInformatives.loadSheetContent();
 		loadConsentFormData.loadFormContent();
 		System.out.println("2222222222");
+		loadStudyTasks.loadSheetContent();
 		loadSurveyQuestions.loadSheetContent();
 		System.out.println("3333333333");
 		return ResponseEntity.ok("success");

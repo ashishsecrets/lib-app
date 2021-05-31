@@ -1,32 +1,24 @@
 package com.ucsf.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.ucsf.auth.model.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.*;
+import java.util.Date;
+
 @Entity
-@Table(name = "ucsf_survey")
+@Table(name = "tasks")
 @NoArgsConstructor
 @Getter
 @Setter
-public class UcsfSurvey {
+public class Tasks {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "survey_id")
+	@Column
 	private Long id;
 
 	@Column
@@ -38,8 +30,8 @@ public class UcsfSurvey {
 	@Column
 	private Integer duration; //duration in weeks
 
-	@Column
-	private Boolean enabled;
+	@Column(name = "task_type")
+	private String taskType;
 
 	@Column(name = "study_id")
 	private Long studyId;
@@ -48,5 +40,6 @@ public class UcsfSurvey {
 	@JoinColumn(name = "study_id", insertable = false, updatable = false)
 	@JsonIgnore
 	private UcsfStudy ucsfStudy;
+
 
 }

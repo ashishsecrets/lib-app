@@ -33,6 +33,9 @@ public class UserSurveyStatus {
 	@Column(name = "survey_id")
 	private Long surveyId;
 
+	@Column(name = "task_true_id")
+	private Long taskTrueId;
+
 	@ManyToOne(targetEntity = UcsfSurvey.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "survey_id", insertable = false, updatable = false)
 	@JsonIgnore

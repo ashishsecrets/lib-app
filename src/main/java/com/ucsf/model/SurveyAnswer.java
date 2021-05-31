@@ -33,6 +33,9 @@ public class SurveyAnswer extends Auditable<String> {
 	
 	@Column(name = "survey_id")
 	private Long surveyId;
+
+	@Column(name = "task_true_id")
+	private Long taskTrueId;
 	
 	@Column(name = "index_value")
 	private int indexValue;

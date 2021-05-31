@@ -31,7 +31,8 @@ public class ConsentFormImpl implements ConsentService{
 	@Autowired private UserConsentRepository userConsentRepository;
 	@Autowired EmailService emailService;
 	@Autowired SurveyRepository surveyRepository;
-	@Autowired TasksRepository tasksRepository;
+	@Autowired
+	UserTasksRepository userTasksRepository;
 	
 	@Override
 	public List<ConsentForms> getConsent() {
@@ -95,7 +96,7 @@ public class ConsentFormImpl implements ConsentService{
 
 			//To-do - add user tasks
 
-			List<UserTasks> userTasksList = tasksRepository.findByUserId(user.getId());
+			List<UserTasks> userTasksList = userTasksRepository.findByUserId(user.getId());
 
 			if(userTasksList == null || userTasksList.isEmpty()) {
 
@@ -126,7 +127,7 @@ public class ConsentFormImpl implements ConsentService{
 					task.setStudyId(item.getStudyId());
 					task.setTaskId(item.getId());
 
-					tasksRepository.save(task);
+					userTasksRepository.save(task);
 
 				}
 
@@ -140,7 +141,7 @@ public class ConsentFormImpl implements ConsentService{
 				photographs.setStudyId(1l);
 				photographs.setTaskId(user.getId() + 1000);
 				photographs.setProgress(0);
-				tasksRepository.save(photographs);
+				userTasksRepository.save(photographs);
 				/*photographs = tasksRepository.findById(tasksRepository.findByTitle("Photographs").getId()).get();
 				photographs.setTaskId(photographs.getId() + 1000);
 				tasksRepository.save(photographs);*/
@@ -155,7 +156,7 @@ public class ConsentFormImpl implements ConsentService{
 				voice.setStudyId(1l);
 				voice.setTaskId(user.getId() + 1000 + 1);
 				voice.setProgress(0);
-				tasksRepository.save(voice);
+				userTasksRepository.save(voice);
 
 				UserTasks medicine = new UserTasks();
 				medicine.setTitle("Medication usage");
@@ -167,7 +168,7 @@ public class ConsentFormImpl implements ConsentService{
 				medicine.setStudyId(1l);
 				medicine.setTaskId(user.getId() + 1000 + 2);
 				medicine.setProgress(0);
-				tasksRepository.save(medicine);
+				userTasksRepository.save(medicine);
 
 				UserTasks reactions = new UserTasks();
 				reactions.setTitle("Adverse events");
@@ -179,7 +180,7 @@ public class ConsentFormImpl implements ConsentService{
 				reactions.setStudyId(1l);
 				reactions.setTaskId(user.getId() + 1000 + 3);
 				reactions.setProgress(0);
-				tasksRepository.save(reactions);
+				userTasksRepository.save(reactions);
 
 			}
 

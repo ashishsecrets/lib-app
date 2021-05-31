@@ -6,7 +6,7 @@ import com.ucsf.model.UserSurveyStatus;
 import com.ucsf.model.UserTasks;
 import com.ucsf.payload.response.TaskResponse;
 import com.ucsf.repository.SurveyQuestionRepository;
-import com.ucsf.repository.TasksRepository;
+import com.ucsf.repository.UserTasksRepository;
 import com.ucsf.repository.UserSurveyStatusRepository;
 import com.ucsf.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.Optional;
 public class TaskServiceImpl implements TaskService {
 
     @Autowired
-    TasksRepository tasksRepository;
+    UserTasksRepository userTasksRepository;
 
     @Autowired
     UserSurveyStatusRepository userSurveyStatusRepository;
@@ -35,8 +35,8 @@ public class TaskServiceImpl implements TaskService {
 
         List<UserTasks> surveyTasklist = null;
 
-        if(tasksRepository.findByUserIdAndTaskType(user.getId(), "survey") != null)
-        surveyTasklist = tasksRepository.findByUserIdAndTaskType(user.getId(), "survey");
+        if(userTasksRepository.findByUserIdAndTaskType(user.getId(), "survey") != null)
+        surveyTasklist = userTasksRepository.findByUserIdAndTaskType(user.getId(), "survey");
 
 
         assert surveyTasklist != null;
@@ -62,8 +62,8 @@ public class TaskServiceImpl implements TaskService {
 
         List<UserTasks> tasksList = null;
 
-        if(tasksRepository.findByUserId(user.getId())!= null)
-        tasksList = tasksRepository.findByUserId(user.getId());
+        if(userTasksRepository.findByUserId(user.getId())!= null)
+        tasksList = userTasksRepository.findByUserId(user.getId());
 
         return tasksList;
     }
@@ -114,13 +114,13 @@ public class TaskServiceImpl implements TaskService {
 
        percentage = surveyStatus.getIndexValue()/surveyQuestionList.size()*100;
 
-        Optional<UserTasks> taskOp = tasksRepository.findById(tasksRepository.findByUserIdAndTaskId(userId, taskId).getId());
+        Optional<UserTasks> taskOp = userTasksRepository.findById(userTasksRepository.findByUserIdAndTaskId(userId, taskId).getId());
         UserTasks task = taskOp.get();
         task.setProgress(percentage);
-        tasksRepository.save(task);
+        userTasksRepository.save(task);
         }
         else{
-            percentage = tasksRepository.findByUserIdAndTaskType(userId, taskType).get(0).getProgress();
+            percentage = userTasksRepository.findByUserIdAndTaskType(userId, taskType).get(0).getProgress();
         }
 
        return percentage;
