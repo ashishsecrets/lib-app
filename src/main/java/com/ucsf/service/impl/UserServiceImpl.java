@@ -108,25 +108,29 @@ public class UserServiceImpl implements UserService {
 		}
 		newUser.setUserStatus(UserStatus.ACTIVE);
 		newUser.setDevideId(user.getDeviceId());
-		User savedUser = userRepository.save(newUser);
+		User savedUser = null;
 		UserMetadata metadata = new UserMetadata();
 		metadata.setConsentAccepted(false);
 		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
-		metadata.setUserId(savedUser.getId());
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
 		if (user.getDateOfBirth() != null) {
+			if (!AppUtil.validateDOB(user.getDateOfBirth())) {
+				return savedUser;
+			}
 			metadata.setDateOfBith(user.getDateOfBirth());
 			metadata.setAge(AppUtil.getAge(user.getDateOfBirth()));
 		}
+		savedUser = userRepository.save(newUser);
+		metadata.setUserId(savedUser.getId());
 		userMetaDataRepository.save(metadata);
 		// save metadata in metadatarepo
 		// newUser.setMetadata(metadata);
 
 		List<UcsfStudy> studiesList = studyRepo.findAll();
 
-		if(studiesList != null || !studiesList.isEmpty()) {
+		if (studiesList != null || !studiesList.isEmpty()) {
 
-			for(UcsfStudy item : studiesList) {
+			for (UcsfStudy item : studiesList) {
 
 				UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
 				userScreeningStatus.setStudyId(item.getId());
@@ -154,10 +158,9 @@ public class UserServiceImpl implements UserService {
 		 */
 		// Making the changes below
 
-		if(studiesList != null || !studiesList.isEmpty()) {
+		if (studiesList != null || !studiesList.isEmpty()) {
 
-			for(UcsfStudy item : studiesList) {
-
+			for (UcsfStudy item : studiesList) {
 
 				StudyImages full_body_front = new StudyImages();
 				full_body_front.setName("Full body front");
@@ -442,9 +445,9 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(exited.getLastName());
 						patient.setPhoneNumber(exited.getPhoneCode() + exited.getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy+" "+updatedAt);
+						patient.setUpdatedBy(updatedBy + " " + updatedAt);
 						patient.setStudyWeek(weeks + 1);
-						
+
 						if (map.get("status_updated_date") != null) {
 
 							DateTime statusUpdateDate = new DateTime(new SimpleDateFormat("yyyy-MM-dd")
@@ -492,7 +495,7 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(user.get().getLastName());
 						patient.setPhoneNumber(user.get().getPhoneCode() + user.get().getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy+" "+updatedAt);
+						patient.setUpdatedBy(updatedBy + " " + updatedAt);
 						patient.setStudyWeek(weeks + 1);
 						if (map.get("status_updated_date") != null) {
 
@@ -502,15 +505,15 @@ public class UserServiceImpl implements UserService {
 							weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
 						}
 						patients.add(patient);
-					} 
-					
+					}
+
 					catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-				
+
 			}
-			
+
 		}
 		return patients;
 	}
