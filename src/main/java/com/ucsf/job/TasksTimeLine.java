@@ -43,7 +43,9 @@ public class TasksTimeLine {
                 userTask.setProgress(0);
                 userTask.setDescription(item.getDescription());
                 userTask.setTitle(item.getTitle());
-                userTask.setDuration(item.getDuration());
+                if(item.getDuration() != null){
+                userTask.setDuration(item.getDuration());}
+                else{userTask.setDuration(1);}
                 userTask.setStudyId(item.getStudyId());
                 userTask.setStartDate(dateNow);
                 Calendar cal = Calendar.getInstance();
