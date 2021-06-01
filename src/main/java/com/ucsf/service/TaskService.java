@@ -18,7 +18,7 @@ public interface TaskService {
 
     List<TaskResponse> getAlteredTaskList(List<UserTasks> tasks);
 
-    int getTaskProgress(Long taskId, Long userId, String taskType);
+    int getTaskProgress(Long taskId, Long userId, String taskType, Long taskTrueId);
 
     String getTaskStatus(Date startDate, Date endDate, int taskProgress);
 }
