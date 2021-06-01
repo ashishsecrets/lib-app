@@ -90,7 +90,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/password/**").permitAll().antMatchers("/api/questions/**").hasRole("PATIENT")
 				.antMatchers("/api/answers/**").hasRole("PATIENT")
 				.antMatchers("/api/images/**").hasAnyRole("PATIENT", "ADMIN")
-				.antMatchers("/notifications/**").hasRole("PATIENT")
 				.antMatchers("/api/survey/**").hasRole("PATIENT").antMatchers("/api/users/**").hasRole("ADMIN").anyRequest()
 				.authenticated().and().
 

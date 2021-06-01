@@ -49,7 +49,7 @@ public class OtpService {
 	public void  informStudyTeam(User user) {
 		List<String> list = new ArrayList<String>();
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM users u JOIN user_roles ur ON u.user_id = ur.user_id and   ur.role_id IN(3,4)");
+				"SELECT * FROM users u JOIN user_roles ur ON u.user_id = ur.user_id and ur.role_id IN(3,4)");
 		Long userId ;
 		for (Map<String, Object> map : patientList) {
 			if (map.get("user_id") != null) {

@@ -8,23 +8,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service("NotificationsService")
 public class NotificationServiceImpl implements NotificationsService {
 
-    @Autowired
-    NotificationsRepository notificationsRepository;
+	@Autowired
+	NotificationsRepository notificationsRepository;
 
-    @Override
-    public List<Notifications> getListByUser(User user) {
+	@Override
+	public List<Notifications> getListByUser(User user) {
 
-        List<Notifications> list = null;
+		List<Notifications> list = null;
 
-        if(notificationsRepository.findByUserId(user.getId()) != null){
-            list = notificationsRepository.findByUserId(user.getId());
-        }
+		if (notificationsRepository.findByUserId(user.getId()) != null) {
+			list = notificationsRepository.findByUserId(user.getId());
+		}
 
-        return list;
-    }
+		return list;
+	}
+
+	@Override
+	public List<Notifications> getListBySentToAndIsRead(String sentTo, Boolean isRead) {
+
+		List<Notifications> notifications = notificationsRepository.getListBySentTOAndIsRead("studyTeam", false);
+		return notifications;
+	}
+
+	@Override
+	public Notifications updateStatus(Long id,Boolean isRead) {
+		Optional<Notifications> notification = notificationsRepository.findById(id);
+		Notifications notify = notification.get();
+		notify.setIsRead(isRead);
+		notificationsRepository.save(notify);
+		return notify;
+	}
 
 }
