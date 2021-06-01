@@ -11,5 +11,7 @@ public interface UserSurveyStatusRepository extends CrudRepository<UserSurveySta
 	List<UserSurveyStatus> findBySurveyId(Long studyId);
 
     UserSurveyStatus findByUserIdAndSurveyId(Long userId, Long taskId);
+
+    UserSurveyStatus findByUserIdAndSurveyIdAndTaskTrueId(Long userId, Long surveyId, Long surveyTrueId);
 }
 

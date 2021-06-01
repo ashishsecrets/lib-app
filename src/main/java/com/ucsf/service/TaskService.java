@@ -20,5 +20,5 @@ public interface TaskService {
 
     int getTaskProgress(Long taskId, Long userId, String taskType);
 
-    String getTaskStatus(Date startDate, Date endDate);
+    String getTaskStatus(Date startDate, Date endDate, int taskProgress);
 }

@@ -42,12 +42,13 @@ public class TaskServiceImpl implements TaskService {
         assert surveyTasklist != null;
         for(UserTasks task: surveyTasklist){
 
-            if(userSurveyStatusRepository.findByUserIdAndSurveyId(user.getId(), task.getTaskId()) == null){
+            if(userSurveyStatusRepository.findByUserIdAndSurveyIdAndTaskTrueId(user.getId(), task.getTaskId(), task.getTaskTrueId()) == null){
 
                 UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
                 userSurveyStatus.setSurveyId(task.getTaskId());
                 userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.NEWLY_ADDED);
                 userSurveyStatus.setUserId(user.getId());
+                userSurveyStatus.setTaskTrueId(task.getTaskTrueId());
                 userSurveyStatus.setIndexValue(1);
                 userSurveyStatusRepository.save(userSurveyStatus);
 
@@ -71,7 +72,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public int getTotalProgress(List<TaskResponse> alteredTaskList) {
         int totalProgress = 0;
-        // This can be done from repository instead as UserTasks table also has stored progress values
+        // This can be done from repository also as UserTasks table also has stored progress values
         for(TaskResponse item : alteredTaskList){
             totalProgress += item.getTaskPercentage();
         }
@@ -87,12 +88,13 @@ public class TaskServiceImpl implements TaskService {
 
         for(UserTasks task : tasks){
             TaskResponse taskResponse = new TaskResponse();
-            taskResponse.setTaskId(task.getTaskId());
+            taskResponse.setTaskId(task.getTaskTrueId());
             taskResponse.setTaskName(task.getTitle());
             taskResponse.setStartDate(task.getStartDate());
             taskResponse.setDueDate(task.getEndDate());
-            taskResponse.setTaskStatus(getTaskStatus(task.getStartDate(), task.getEndDate()));
-            taskResponse.setTaskPercentage(getTaskProgress(task.getTaskId(), task.getUserId(), task.getTaskType()));
+            int taskProgress = getTaskProgress(task.getTaskId(), task.getUserId(), task.getTaskType());
+            taskResponse.setTaskPercentage(taskProgress);
+            taskResponse.setTaskStatus(getTaskStatus(task.getStartDate(), task.getEndDate(), taskProgress));
             taskResponseList.add(taskResponse);
 
         }
@@ -120,6 +122,7 @@ public class TaskServiceImpl implements TaskService {
         userTasksRepository.save(task);
         }
         else{
+            // To be changed when we start saving other tasks
             percentage = userTasksRepository.findByUserIdAndTaskType(userId, taskType).get(0).getProgress();
         }
 
@@ -128,14 +131,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public String getTaskStatus(Date startDate, Date endDate) {
+    public String getTaskStatus(Date startDate, Date endDate, int taskProgress) {
 
         String status = "";
 
         Date todaysDate = new Date();
 
-    if (todaysDate.after(startDate) && todaysDate.before(endDate)){
+        //Another can be added as completedOld which can be removed the list above
+        //it can be calculated based on the endDate and progress value
+
+    if (todaysDate.after(startDate) && todaysDate.before(endDate) && taskProgress < 100){
         status = "current";
+    }
+    else if(todaysDate.after(startDate) && todaysDate.before(endDate) && taskProgress == 100){
+        status = "completed";
     }
     else if(todaysDate.after(endDate)){
         status = "overdue";

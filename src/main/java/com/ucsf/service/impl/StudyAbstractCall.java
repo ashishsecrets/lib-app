@@ -67,10 +67,15 @@ public class StudyAbstractCall {
     @Autowired
     InformativeRepository informativeRepository;
 
+    @Autowired
+    UserTasksRepository userTasksRepository;
+
 
     private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
     Boolean isSuccess = false;
+
+    Long surveyTrueId;
 
     JSONObject responseJson = new JSONObject();
     JSONObject surveyresponseJson = new JSONObject();
@@ -187,7 +192,7 @@ public class StudyAbstractCall {
         Optional<SurveyAnswer> surveyAnswerOp = null;
         try {
             if (!surveyAnswerRequest.getAnswer().isEmpty()) {
-                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredById((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()), user.getId()));
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()), user.getId(), surveyTrueId));
                 SurveyAnswer surveyAnswer;
                 if (surveyAnswerOp.isPresent()) {
                     surveyAnswer = surveyAnswerRepository.findById(surveyAnswerOp.get().getId()).get();
@@ -207,7 +212,7 @@ public class StudyAbstractCall {
                 isSuccess = true;
             }
             else{
-                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredById((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()), user.getId()));
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()), user.getId(), surveyTrueId));
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -447,6 +452,19 @@ public class StudyAbstractCall {
 
     public int getTotalQuestionsCount() {
         List<ScreeningQuestions> list = screeningQuestionRepository.findByStudyId(answerRequest.getStudyId());
+
+        return list.size();
+    }
+
+    public void correctSurveyId() {
+        Optional<UserTasks> userTaskOp = userTasksRepository.findById(surveyAnswerRequest.getSurveyId());
+        UserTasks userTask = userTaskOp.get();
+        surveyTrueId = surveyAnswerRequest.getSurveyId();
+        surveyAnswerRequest.setSurveyId(userTask.getTaskId());
+    }
+
+    public int getTotalSurveyQuestionsCount() {
+        List<SurveyQuestion> list = surveyQuestionRepository.findBySurveyId(surveyAnswerRequest.getSurveyId());
 
         return list.size();
     }

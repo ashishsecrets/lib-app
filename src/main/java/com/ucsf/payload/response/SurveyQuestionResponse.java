@@ -16,5 +16,5 @@ public class SurveyQuestionResponse {
     String message;
     String information;
     Boolean isDisqualified;
-
+    int totalQuestions;
 }

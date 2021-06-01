@@ -240,7 +240,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 	}
 
 	@Override
-	public ResponseEntity saveSurveyAnswer(SurveyAnswerRequest answerRequest) {
+	public ResponseEntity saveSurveyAnswer(SurveyAnswerRequest surveyAnswerRequest) {
 		User user = null;
 
 		//Enabling logging;
@@ -248,7 +248,9 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		loggerService.printLogs(log, "saveScreeningAnswers", "Saving screening Answers");
 
 		//Calling studyAbstract's member to pass request
-		studyAbstractCall.surveyAnswerRequest = answerRequest;
+		studyAbstractCall.surveyAnswerRequest = surveyAnswerRequest;
+
+		studyAbstractCall.correctSurveyId();
 
 		Boolean isSuccess = false;
 
@@ -290,7 +292,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 
 		try {
-			studyAbstractCall.userSurveyStatus = userSurveyStatusRepository.findByUserIdAndSurveyId(user.getId(), answerRequest.getSurveyId());
+			studyAbstractCall.userSurveyStatus = userSurveyStatusRepository.findByUserIdAndSurveyIdAndTaskTrueId(user.getId(), studyAbstractCall.surveyAnswerRequest.getSurveyId(), studyAbstractCall.surveyTrueId);
 			surveyStatusBool = true;
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -412,6 +414,8 @@ public class StudyAnswerImpl implements AnswerSaveService {
 			studyAbstractCall.userSurveyStatus.setIndexValue(studyAbstractCall.userSurveyStatus.getIndexValue());
 			userSurveyStatusRepository.save(studyAbstractCall.userSurveyStatus);
 		}
+
+		response.setTotalQuestions(studyAbstractCall.getTotalSurveyQuestionsCount());
 
 		responseJson.put("data", response);
 
