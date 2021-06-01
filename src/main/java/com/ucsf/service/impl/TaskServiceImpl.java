@@ -114,7 +114,7 @@ public class TaskServiceImpl implements TaskService {
 
        percentage = surveyStatus.getIndexValue()/surveyQuestionList.size()*100;
 
-        Optional<UserTasks> taskOp = userTasksRepository.findById(userTasksRepository.findByUserIdAndTaskId(userId, taskId).getId());
+        Optional<UserTasks> taskOp = userTasksRepository.findById(userTasksRepository.findByUserIdAndTaskId(userId, taskId).getTaskTrueId());
         UserTasks task = taskOp.get();
         task.setProgress(percentage);
         userTasksRepository.save(task);

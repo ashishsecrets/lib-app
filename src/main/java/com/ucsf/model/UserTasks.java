@@ -19,8 +19,8 @@ public class UserTasks {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column
-	private Long id;
+	@Column(name = "id")
+	private Long taskTrueId;
 
 	@Column
 	private String title;
