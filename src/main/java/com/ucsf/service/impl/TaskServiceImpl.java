@@ -106,7 +106,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public int getTaskProgress(Long taskId, Long userId, String taskType, Long taskTrueId) {
 
-        int percentage = 0;
+        float percentage = 0;
         UserSurveyStatus surveyStatus = null;
         List<SurveyQuestion> surveyQuestionList = null;
 
@@ -114,13 +114,13 @@ public class TaskServiceImpl implements TaskService {
             surveyStatus = userSurveyStatusRepository.findByUserIdAndSurveyIdAndTaskTrueId(userId, taskId, taskTrueId);
             surveyQuestionList = surveyQuestionRepository.findBySurveyId(taskId);
 
-       percentage = surveyStatus.getIndexValue()/surveyQuestionList.size()*100;
+       percentage = (float) surveyStatus.getIndexValue()/surveyQuestionList.size()*100;
 
         //Optional<UserTasks> taskOp = userTasksRepository.findById(userTasksRepository.findByUserIdAndTaskId(userId, taskId).getTaskTrueId());
             Optional<UserTasks> taskOp = userTasksRepository.findById(taskTrueId);
 
             UserTasks task = taskOp.get();
-            task.setProgress(percentage);
+            task.setProgress(Math.round(percentage));
             userTasksRepository.save(task);
             }
         else{
@@ -128,7 +128,7 @@ public class TaskServiceImpl implements TaskService {
             percentage = userTasksRepository.findByUserIdAndTaskType(userId, taskType).get(0).getProgress();
         }
 
-       return percentage;
+       return Math.round(percentage);
 
     }
 
