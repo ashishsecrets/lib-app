@@ -28,13 +28,15 @@ public class TasksTimeLine {
 
         Date dateNow = new Date();
 
-
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, 2);
+        Date dateNowPlus2 = calendar.getTime();
 
         List<UserTasks> list = userTasksRepository.findAll();
 
         for(UserTasks item : list){
 
-            if (DateUtils.isSameDay(dateNow, item.getEndDate())) {
+            if (DateUtils.isSameDay(dateNowPlus2, item.getEndDate())) {
                 // it's same
                 UserTasks userTask = new UserTasks();
                 userTask.setUserId(item.getUserId());
@@ -47,7 +49,7 @@ public class TasksTimeLine {
                 userTask.setDuration(item.getDuration());}
                 else{userTask.setDuration(1);}
                 userTask.setStudyId(item.getStudyId());
-                userTask.setStartDate(dateNow);
+                userTask.setStartDate(dateNowPlus2);
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.WEEK_OF_MONTH, item.getDuration());
                 userTask.setEndDate(cal.getTime());

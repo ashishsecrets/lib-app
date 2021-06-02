@@ -51,6 +51,9 @@ public class UserController {
 	@Autowired
 	LoadSurveyQuestions loadSurveyQuestions;
 
+	@Autowired
+	TasksTimeLine tasksTimeLine;
+
 
 	@Autowired
 	LoadStudyTasks loadStudyTasks;
@@ -65,6 +68,7 @@ public class UserController {
 		System.out.println("2222222222");
 		loadStudyTasks.loadSheetContent();
 		loadSurveyQuestions.loadSheetContent();
+		tasksTimeLine.addTasksWithFrequency();
 		System.out.println("3333333333");
 		return ResponseEntity.ok("success");
 	}
