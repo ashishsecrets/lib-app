@@ -50,7 +50,7 @@ public class LoadStudyTasks {
     public void loadSheetContent() throws ClientProtocolException, IOException, GeneralSecurityException {
         // clear all previous data
         jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
-        jdbcTemplate.update("TRUNCATE TABLE user_tasks");
+        jdbcTemplate.update("TRUNCATE TABLE tasks");
         jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
         String id = "1tf9ftfhTOE0vO8BV4tms2oTAO24l9tNZnM072KDH2TI";
 
