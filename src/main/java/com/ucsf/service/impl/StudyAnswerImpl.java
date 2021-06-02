@@ -178,7 +178,6 @@ public class StudyAnswerImpl implements AnswerSaveService {
 					}
 						if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
 
-							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
 							studyAbstractCall.userScreeningStatus.setIndexValue(current);
 							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
 							userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
