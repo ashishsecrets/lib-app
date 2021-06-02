@@ -173,6 +173,7 @@ public class StudyAbstractCall {
                                 userScreeningStatus.getIndexValue() - quesIncrement).getId()));
                 screenAnswer.setStudyId(answerRequest.getStudyId());
                 screenAnswer.setAnsweredById(user.getId());
+
                 screenAnswer.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
                 screenAnswerOp = Optional.of(screenAnswer);
                 screeningAnswerRepository.save(screenAnswer);
@@ -206,6 +207,7 @@ public class StudyAbstractCall {
                                 userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()));
                 surveyAnswer.setSurveyId(surveyAnswerRequest.getSurveyId());
                 surveyAnswer.setAnsweredById(user.getId());
+                surveyAnswer.setTaskTrueId(surveyTrueId);
                 surveyAnswer.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
                 surveyAnswerOp = Optional.of(surveyAnswer);
                 surveyAnswerRepository.save(surveyAnswer);
