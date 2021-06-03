@@ -10,6 +10,7 @@ import java.util.List;
 public interface NotificationsRepository extends JpaRepository<Notifications, Long> {
 
     List<Notifications> findByUserId(Long userId);
+    List<Notifications> getListBySentTOAndIsRead(String sentTo,Boolean isRead);
     List<Notifications> findBySentTOOrderByIdDesc(String sentTo);
 
 }

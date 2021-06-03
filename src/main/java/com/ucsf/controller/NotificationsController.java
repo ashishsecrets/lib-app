@@ -128,6 +128,31 @@ public class NotificationsController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@ApiOperation(value = "Get study team notifications count", notes = "Get notifications list by studyteam", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all notifications by studyteam", response = NotificationListResponse.class) })
+	@RequestMapping(value = "/listUnReadNotifications", method = RequestMethod.GET)
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
+	public ResponseEntity<?> getStudyTeamUnreadNotification() {
+		User user = null;
+		JSONObject responseJson = new JSONObject();
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			loggerService.printLogs(log, "getAllPatients", "Saving user consent for user " + user.getId());
+		} else {
+			loggerService.printLogs(log, "getAllPatients", "Invalid JWT signature.");
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
+		}
+		NotificationListResponse response = new NotificationListResponse();	
+		 response.setNotificationsList(notificationsService.getListBySentToAndIsRead("studyTeam",false));
+		responseJson.put("data", response);
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@ApiOperation(value = "Mark Read/Unread Notification", notes = "Mark Read/Unread Notification", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Mark Read/Unread Notification", response = SuccessResponse.class) })
 	@RequestMapping(value = "/read-unread/{id}", method = RequestMethod.POST)

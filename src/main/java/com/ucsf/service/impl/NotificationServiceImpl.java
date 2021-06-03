@@ -34,7 +34,13 @@ public class NotificationServiceImpl implements NotificationsService {
 		List<Notifications> notifications = notificationsRepository.findBySentTOOrderByIdDesc("studyTeam");
 		return notifications;
 	}
-
+	
+	@Override
+	public List<Notifications> getListBySentToAndIsRead(String sentTo,Boolean isRead) {
+		List<Notifications> notifications = notificationsRepository.getListBySentTOAndIsRead("studyTeam",isRead);
+		return notifications;
+	}
+	
 	@Override
 	public Notifications updateStatus(Long id,Boolean isRead) {
 		Optional<Notifications> notification = notificationsRepository.findById(id);
