@@ -12,16 +12,16 @@ import com.ucsf.payload.response.UserDataResponse;
 
 public interface UserService {
 	Page<User> findAll(int page, int size);
-	List<User> getPatients();
+	List<User> getPatients(Long studyId);
 	User save(SignUpRequest signUpRequest);
 	User findByEmail(String email);
 	User findById(Long id);
 	User addUser(AddUserRequest user);
 	User updateUser(Long userId,UserUpdateRequest updateUser);
-	List<PatientResponse> getApprovedPatients();
+	List<PatientResponse> getApprovedPatients(Long studyId);
 	UserScreeningStatus getUserStatus(Long userId);
 	List<UserDataResponse> getUserById(Long userId);
-	List<PatientResponse> getDisapprovedPatients();
+	List<PatientResponse> getDisapprovedPatients(Long studyId);
 	List<User> getStudyTeam();
 	User updateUserStatus(Long userId,Boolean status);
 }
