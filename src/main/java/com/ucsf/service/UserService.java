@@ -22,6 +22,7 @@ public interface UserService {
 	UserScreeningStatus getUserStatus(Long userId);
 	List<UserDataResponse> getUserById(Long userId);
 	List<PatientResponse> getDisapprovedPatients(Long studyId);
+	List<PatientResponse> getDisqualifiedPatients(Long studyId);
 	List<User> getStudyTeam();
 	User updateUserStatus(Long userId,Boolean status);
 }

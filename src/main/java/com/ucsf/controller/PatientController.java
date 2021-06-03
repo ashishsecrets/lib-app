@@ -138,6 +138,37 @@ public class PatientController {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
+	@ApiOperation(value = "Get disqualified patients", notes = "Get disqualified patients", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of disqualified patients", response = User.class) })
+	@RequestMapping(value = "/getDisqualifiedPatients/{studyId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getDisqualifiedPatients(@PathVariable Long studyId) {
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
+		JSONObject response = new JSONObject();
+		User user = null;
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			loggerService.printLogs(log, "getDisapprovedPatients", "getting list of disapproved patients");
+		} else {
+			loggerService.printLogs(log, "getDisapprovedPatients", "Invalid JWT signature.");
+			response.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			patients = userService.getDisqualifiedPatients(studyId);
+			loggerService.printLogs(log, "getDisapprovedPatients", "Fetched disapproved patients successfully!");
+			response.put("data", patients);
+			return new ResponseEntity(response.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			response.put("error", patients);
+			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@PreAuthorize("hasRole('ROLE_PATIENT')")
 	@ApiOperation(value = "Check patient approval", notes = "Check Patient Approved or not", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Fetched Approved Patient", response = StudyStatusResponse.class) })
