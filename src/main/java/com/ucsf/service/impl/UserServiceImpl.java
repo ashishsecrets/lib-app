@@ -375,9 +375,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<User> getPatients() {
+	public List<User> getPatients(Long studyId) {
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -417,10 +417,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<PatientResponse> getApprovedPatients() {
+	public List<PatientResponse> getApprovedPatients(Long studyId) {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
 		String updatedAt = "";
@@ -472,10 +472,66 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<PatientResponse> getDisapprovedPatients() {
+	public List<PatientResponse> getDisapprovedPatients(Long studyId) {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
+		Long userId = 0l;
+		String updatedAt = "";
+		String updatedBy = "";
+		Optional<User> user = null;
+		User exited = new User();
+		for (Map<String, Object> map : patientList) {
+			if (map.get("user_id") != null) {
+				userId = Long.parseLong(map.get("user_id").toString());
+				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
+				System.out.println(updatedBy);
+				User studyMember = userRepository.findByEmail(updatedBy);
+				if(studyMember != null) {
+					updatedBy = studyMember.getFirstName() + " " + studyMember.getLastName();
+				}
+				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
+				System.out.println(updatedAt);
+				int weeks = 1;
+				user = userRepository.findById(userId);
+				if (user.isPresent()) {
+					PatientResponse patient = new PatientResponse();
+					try {
+						patient.setEmail(user.get().getEmail());
+						patient.setId(user.get().getId());
+						patient.setFirstName(user.get().getFirstName());
+						patient.setLastName(user.get().getLastName());
+						patient.setPhoneNumber(user.get().getPhoneCode() + user.get().getPhoneNumber());
+						patient.setUpdatedAt(updatedAt);
+						patient.setUpdatedBy(updatedBy);
+						patient.setStudyWeek(weeks + 1);
+						if (map.get("status_updated_date") != null) {
+
+							DateTime statusUpdateDate = new DateTime(new SimpleDateFormat("yyyy-MM-dd")
+									.parse(map.get("status_updated_date").toString()));
+							DateTime currDate = new DateTime(new Date());
+							weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
+						}
+						patients.add(patient);
+					}
+
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+
+		}
+		return patients;
+	}
+	
+	@Override
+	public List<PatientResponse> getDisqualifiedPatients(Long studyId) {
+
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 5 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
 		String updatedAt = "";
