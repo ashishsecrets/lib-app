@@ -29,9 +29,9 @@ public class NotificationServiceImpl implements NotificationsService {
 	}
 
 	@Override
-	public List<Notifications> getListBySentToAndIsRead(String sentTo, Boolean isRead) {
+	public List<Notifications> getListBySentTo(String sentTo) {
 
-		List<Notifications> notifications = notificationsRepository.getListBySentTOAndIsRead("studyTeam", false);
+		List<Notifications> notifications = notificationsRepository.findBySentTOOrderByIdDesc("studyTeam");
 		return notifications;
 	}
 

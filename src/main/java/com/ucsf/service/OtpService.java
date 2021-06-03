@@ -64,9 +64,9 @@ public class OtpService {
 			
 			Notifications notification = new Notifications();
 			notification.setDate(new Date());
-			notification.setDescription("New patient Registered");
+			notification.setDescription("Patient Registered");
 			notification.setKind(Notifications.NotificationKind.AUTHENTICATE);
-			notification.setKindDescription("Register/Login");
+			notification.setKindDescription("New Patient has been registered named: "+user.getFirstName());
 			notification.setType(Notifications.NotificationType.EMAIL);
 			notification.setUserId(user.getId());
 			notification.setSentTO("studyTeam");

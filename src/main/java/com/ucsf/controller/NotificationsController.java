@@ -122,7 +122,7 @@ public class NotificationsController {
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
 		}
 		NotificationListResponse response = new NotificationListResponse();	
-		 response.setNotificationsList(notificationsService.getListBySentToAndIsRead("studyTeam",false));
+		 response.setNotificationsList(notificationsService.getListBySentTo("studyTeam"));
 		responseJson.put("data", response);
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
