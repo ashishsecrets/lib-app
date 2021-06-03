@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,8 +48,8 @@ public class PatientController {
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@ApiOperation(value = "Get all patients", notes = "Get all patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all patients", response = User.class) })
-	@RequestMapping(value = "/getAllPatients", method = RequestMethod.GET)
-	public ResponseEntity<?> getPatients() {
+	@RequestMapping(value = "/getAllPatients/{studyId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getPatients(@PathVariable Long studyId) {
 		List<User> patients = new ArrayList<User>();
 		JSONObject response = new JSONObject();
 		User user = null;
@@ -64,7 +65,7 @@ public class PatientController {
 			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
 		}
 		try {
-			patients = userService.getPatients();
+			patients = userService.getPatients(studyId);
 			loggerService.printLogs(log, "getPatients", "Fetched patients successfully!");
 			response.put("data", patients);
 			return new ResponseEntity(response.toMap(), HttpStatus.OK);
@@ -78,8 +79,8 @@ public class PatientController {
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@ApiOperation(value = "Get approved patients", notes = "Get approved patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of approved patients", response = User.class) })
-	@RequestMapping(value = "/getApprovedPatients", method = RequestMethod.GET)
-	public ResponseEntity<?> getApprovedPatients() {
+	@RequestMapping(value = "/getApprovedPatients/{studyId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getApprovedPatients(@PathVariable Long studyId) {
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		JSONObject response = new JSONObject();
 		User user = null;
@@ -95,7 +96,7 @@ public class PatientController {
 			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
 		}
 		try {
-			patients = userService.getApprovedPatients();
+			patients = userService.getApprovedPatients(studyId);
 			loggerService.printLogs(log, "getPatients", "Fetched approved patients successfully!");
 			response.put("data", patients);
 			return new ResponseEntity(response.toMap(), HttpStatus.OK);
@@ -109,8 +110,8 @@ public class PatientController {
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
 	@ApiOperation(value = "Get disapproved patients", notes = "Get disapproved patients", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of disapproved patients", response = User.class) })
-	@RequestMapping(value = "/getDisapprovedPatients", method = RequestMethod.GET)
-	public ResponseEntity<?> getDisapprovedPatients() {
+	@RequestMapping(value = "/getDisapprovedPatients/{studyId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getDisapprovedPatients(@PathVariable Long studyId) {
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		JSONObject response = new JSONObject();
 		User user = null;
@@ -126,7 +127,7 @@ public class PatientController {
 			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
 		}
 		try {
-			patients = userService.getDisapprovedPatients();
+			patients = userService.getDisapprovedPatients(studyId);
 			loggerService.printLogs(log, "getDisapprovedPatients", "Fetched disapproved patients successfully!");
 			response.put("data", patients);
 			return new ResponseEntity(response.toMap(), HttpStatus.OK);

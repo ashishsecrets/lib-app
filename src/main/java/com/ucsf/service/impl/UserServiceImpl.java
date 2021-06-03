@@ -375,9 +375,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<User> getPatients() {
+	public List<User> getPatients(Long studyId) {
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -417,10 +417,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<PatientResponse> getApprovedPatients() {
+	public List<PatientResponse> getApprovedPatients(Long studyId) {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
 		String updatedAt = "";
@@ -472,10 +472,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<PatientResponse> getDisapprovedPatients() {
+	public List<PatientResponse> getDisapprovedPatients(Long studyId) {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
 		String updatedAt = "";
