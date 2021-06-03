@@ -70,6 +70,9 @@ public class StudyAbstractCall {
     @Autowired
     UserTasksRepository userTasksRepository;
 
+    @Autowired
+    SurveyRepository surveyRepository;
+
 
     private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
@@ -275,7 +278,7 @@ public class StudyAbstractCall {
                     response.setScreeningAnswers(sa);
                     response.setChoices(choices);
                     response.setMessage("Please go forward and answer first question.");
-                    response.setInformation(informativeRepository.findByIndexValueAndStudyId(0, 1l).getInfoDescription());
+                    response.setInformation(informativeRepository.findByIndexValueAndStudyId(0, answerRequest.getStudyId()).getInfoDescription());
                     response.setIsLastQuestion(false);
                     responseJson.put("data", response);
                     responseEntity = responseJson;
@@ -329,7 +332,7 @@ public class StudyAbstractCall {
                 surveyResponse.setSurveyAnswer(sa);
                 surveyResponse.setChoices(choices);
                 surveyResponse.setMessage("Please go forward and answer first question.");
-                surveyResponse.setInformation("");
+                surveyResponse.setInformation(informativeRepository.findByIndexValueAndInfoTypeAndTypeId(0, "survey", surveyAnswerRequest.getSurveyId()).getInfoDescription());
                 surveyResponse.setIsLastQuestion(false);
                 surveyresponseJson.put("data", surveyResponse);
                 responseEntity = surveyresponseJson;

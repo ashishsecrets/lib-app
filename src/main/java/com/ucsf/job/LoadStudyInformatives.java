@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 
 import com.ucsf.model.StudyInformative;
+import com.ucsf.model.UcsfSurvey;
 import com.ucsf.repository.InformativeRepository;
+import com.ucsf.repository.SurveyRepository;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -38,6 +40,9 @@ public class LoadStudyInformatives {
 
     @Autowired
     InformativeRepository informativeRepository;
+
+    @Autowired
+    SurveyRepository surveyRepository;
 
     @Value("${screening-questions-file}")
     private String filePath;
@@ -100,21 +105,36 @@ public class LoadStudyInformatives {
             String informationDescription = null;
             String indexValue = null;
             String studyId = null;
+            String infoType = null;
+            String typeTitle = null;
             int counter = 0;
             while ((eczemaDataArray = reader.readNext()) != null) {
                 if (counter > 0) {
                     StudyInformative sc = new StudyInformative();
                     String informationDescription2 = eczemaDataArray[0].replaceAll("\"", "");
-                    informationDescription = (informationDescription2 == null || informationDescription2.equals(""))
-                            ? informationDescription
-                            : informationDescription2;
+                    informationDescription = (informationDescription2 == null || informationDescription2.equals("")) ? informationDescription : informationDescription2;
                     String indexValue2 = eczemaDataArray[1].replaceAll("\"", "");
                     indexValue = (indexValue2 == null || indexValue2.equals("")) ? indexValue : indexValue2;
                     String studyId2 = eczemaDataArray[2].replaceAll("\"", "");
                     studyId = (studyId2 == null || studyId2.equals("")) ? studyId : studyId2;
+                    String infoType2 = eczemaDataArray[3].replaceAll("\"", "");
+                    infoType = (infoType2 == null || infoType2.equals("")) ? infoType : infoType2;
+                    String typeTitle2 = eczemaDataArray[4].replaceAll("\"", "");
+                    typeTitle = (typeTitle2 == null || typeTitle2.equals("")) ? typeTitle : typeTitle2;
                     sc.setInfoDescription(informationDescription);
                     sc.setIndexValue(Integer.parseInt(indexValue));
                     sc.setStudyId(Long.parseLong(studyId));//repo
+                    sc.setInfoType(infoType);
+                    sc.setTypeTitle(typeTitle);
+
+                    if(surveyRepository.findByTitle(typeTitle) != null){
+                        UcsfSurvey x = surveyRepository.findByTitle(typeTitle);
+                        sc.setTypeId(x.getId());
+                    }
+                    else{
+                        sc.setTypeId(Long.parseLong(studyId));
+                    }
+
                     //sc.setIndexValue(questionRepository.findFirstByStudyIdOrderByIndexValueDesc(1l).getIndexValue());
                     //sc.setIndexValue(counter);
                     informativeRepository.save(sc);
