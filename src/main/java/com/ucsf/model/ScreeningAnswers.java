@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ucsf.auth.model.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.context.annotation.Primary;
 
 import javax.persistence.*;
@@ -15,7 +19,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Getter
 @Setter
-public class ScreeningAnswers extends Auditable<String> implements Serializable {
+public class ScreeningAnswers extends Auditable<String> implements Serializable, Diffable<ScreeningAnswers> {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "screening_answer_id")
@@ -69,7 +73,17 @@ public class ScreeningAnswers extends Auditable<String> implements Serializable 
 				+ getLastModifiedDate() + ", hashCode()=" + hashCode() + ", toString()=" + super.toString()
 				+ ", getClass()=" + getClass() + "]";
 	}
-    
-	
-	
+
+
+	@Override
+	public DiffResult<ScreeningAnswers> diff(ScreeningAnswers obj) {
+		return new DiffBuilder(this, obj, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("answerDescription", this.answerDescription, obj.answerDescription)
+				.append("answerChoice", this.answerChoice, obj.answerChoice)
+				.append("answeredById", this.answeredById, obj.answeredById)
+				.append("questionId", this.questionId, obj.questionId)
+				.append("studyId", this.studyId, obj.studyId)
+				.append("indexValue", this.indexValue, obj.indexValue)
+				.build();
+	}
 }
