@@ -322,6 +322,7 @@ public class StudyAbstractCall {
                 surveyresponseJson.put("data", surveyResponse);
                 responseEntity = surveyresponseJson;
                 userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
+                userSurveyStatus.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
             } else if (userSurveyStatus.getIndexValue() <= 0) {
                 surveyresponseJson.remove("error");
                 surveyResponse = new SurveyQuestionResponse();
@@ -336,10 +337,10 @@ public class StudyAbstractCall {
                 surveyResponse.setIsLastQuestion(false);
                 surveyresponseJson.put("data", surveyResponse);
                 responseEntity = surveyresponseJson;
-                userSurveyStatus.setIndexValue(-1);
+                userSurveyStatus.setIndexValue(0);
                 userSurveyStatusRepository.save(userSurveyStatus);
             }
-            userSurveyStatus.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
+
             userSurveyStatusRepository.save(userSurveyStatus);
         }
         //returning responseJson
