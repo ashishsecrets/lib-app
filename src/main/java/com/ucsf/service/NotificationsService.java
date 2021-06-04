@@ -9,5 +9,7 @@ public interface NotificationsService {
 
     List<Notifications> getListByUser(User user);
     List<Notifications> getListBySentTo(String sentTo);
+    List<Notifications> getListBySentToAndIsRead(String sentTo,Boolean isRead);
     Notifications updateStatus(Long id,Boolean isRead);
+    void updateAll(Boolean isRead);
 }
