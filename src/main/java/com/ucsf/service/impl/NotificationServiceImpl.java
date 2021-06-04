@@ -5,9 +5,11 @@ import com.ucsf.model.Notifications;
 import com.ucsf.repository.NotificationsRepository;
 import com.ucsf.service.NotificationsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service("NotificationsService")
@@ -15,6 +17,9 @@ public class NotificationServiceImpl implements NotificationsService {
 
 	@Autowired
 	NotificationsRepository notificationsRepository;
+	
+	@Autowired
+	JdbcTemplate jdbcTemplate;
 
 	@Override
 	public List<Notifications> getListByUser(User user) {
@@ -49,5 +54,9 @@ public class NotificationServiceImpl implements NotificationsService {
 		notificationsRepository.save(notify);
 		return notify;
 	}
-
+	
+	@Override
+	public void updateAll(Boolean isRead) {
+	 jdbcTemplate.update("update notifications set is_read "+isRead);
+	}
 }

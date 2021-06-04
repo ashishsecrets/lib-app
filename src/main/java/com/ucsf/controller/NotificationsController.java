@@ -169,4 +169,20 @@ public class NotificationsController {
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@ApiOperation(value = "Update All Read/Unread Notification", notes = "Update All Read/Unread Notification", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Update All Read/Unread Notification", response = SuccessResponse.class) })
+	@RequestMapping(value = "/updateAll", method = RequestMethod.POST)
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
+	public ResponseEntity<?> updateAllNotifications(@RequestParam Boolean isRead) {
+		JSONObject responseJson = new JSONObject();
+		try {
+			 notificationsService.updateAll(isRead);
+			 responseJson.put("data", new SuccessResponse(true,"Notification status updated"));
+		}
+		catch (Exception e) {
+			responseJson.put("error", new ErrorResponse(118,"Error while updating notification status"));
+		}
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+	}
 }
