@@ -13,7 +13,7 @@ public class StudyInfoCheck {
         if(studyId == 1){
 
         if (lastAnswer.getIndexValue() == 1) {
-            if (!lastAnswer.getAnswerDescription().equals("")  && (Integer.parseInt(lastAnswer.getAnswerDescription()) < 12 || Integer.parseInt(lastAnswer.getAnswerDescription()) > 65)) {
+            if (!lastAnswer.getAnswerDescription().equals("") && quesIncrement == 1  && (Integer.parseInt(lastAnswer.getAnswerDescription()) < 12 || Integer.parseInt(lastAnswer.getAnswerDescription()) > 65)) {
                 screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.TRUE);
                 screenTestData.setMessage("Sorry, this study is only for individuals between the ages of 12 and 65!");
             } else {
@@ -21,7 +21,7 @@ public class StudyInfoCheck {
             }
         }
         if (lastAnswer.getIndexValue() == 2) {
-            if (lastAnswer.getAnswerDescription() != null && lastAnswer.getAnswerDescription().equals("No")) {
+            if (lastAnswer.getAnswerDescription() != null && quesIncrement == 1 && lastAnswer.getAnswerDescription().equals("No")) {
                 screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.TRUE);
                 screenTestData.setMessage("Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center");
                 // screenTestData.setMessage("");
@@ -32,7 +32,7 @@ public class StudyInfoCheck {
         }
 
         if (lastAnswer.getIndexValue() == 3) {
-            if (lastAnswer.getAnswerDescription() != null && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
+            if (lastAnswer.getAnswerDescription() != null && quesIncrement == 1 && !lastAnswer.getAnswerDescription().equals("Primary care doctor")) {
                 screenTestData.setMessage("");
                 screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.FALSE);
             } else {
@@ -54,7 +54,7 @@ public class StudyInfoCheck {
         }
 
         if (lastAnswer.getIndexValue() == 6) {
-            if (!lastAnswer.getAnswerDescription().equals("") && !lastAnswer.getAnswerDescription().equals("None of Above")) {
+            if (!lastAnswer.getAnswerDescription().equals("") && quesIncrement == 1 && !lastAnswer.getAnswerDescription().equals("None of Above")) {
                 screenTestData.setMessage("Thank you for your interest! It looks like you do not qualify for this study, but if anything changes in the future please feel free to reach out. - UCSF Psoriasis and Skin Treatment Center");
                 screenTestData.setIsFinished(StudyInfoData.StudyInfoSatus.TRUE);
             } else {
