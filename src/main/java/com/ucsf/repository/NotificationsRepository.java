@@ -12,5 +12,6 @@ public interface NotificationsRepository extends JpaRepository<Notifications, Lo
     List<Notifications> findByUserId(Long userId);
     List<Notifications> getListBySentTOAndIsRead(String sentTo,Boolean isRead);
     List<Notifications> findBySentTOOrderByIdDesc(String sentTo);
+    List<Notifications> findAllByIsRead(Boolean isRead);
 
 }

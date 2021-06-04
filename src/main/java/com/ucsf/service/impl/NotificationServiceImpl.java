@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,6 +58,11 @@ public class NotificationServiceImpl implements NotificationsService {
 	
 	@Override
 	public void updateAll(Boolean isRead) {
-	 jdbcTemplate.update("update notifications set is_read "+isRead);
+		List<Notifications> notifications = new ArrayList<Notifications>();
+		notifications = notificationsRepository.findAllByIsRead(!isRead);
+		for(Notifications notify:notifications) {
+			notify.setIsRead(isRead);
+			notificationsRepository.save(notify);
+		}
 	}
 }
