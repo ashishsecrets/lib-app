@@ -405,7 +405,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		Boolean isLastQuestion = studyAbstractCall.getIsLastSurveyQuestionBool();
 
-		if(isLastQuestion){
+		if(isLastQuestion && !lastSavedAnswer.get().getAnswerDescription().equals("")){
 			studyAbstractCall.userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
 			studyAbstractCall.userSurveyStatus.setIndexValue(studyAbstractCall.userSurveyStatus.getIndexValue());
 			userSurveyStatusRepository.save(studyAbstractCall.userSurveyStatus);
