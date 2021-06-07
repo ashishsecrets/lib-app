@@ -7,5 +7,7 @@ import com.ucsf.payload.request.AppointmentRequest;
 public interface AppointmentService {
 
 	Appointment saveAppointment(AppointmentRequest appointmentRequest, User user, User patient);
+	Appointment updateAppointment(AppointmentRequest appointmentRequest, User user, User patient);
+
 
 }

@@ -11,6 +11,10 @@ public class AppointmentRequest {
 	
 	private String title;
 	
+	private String guid;
+	
+	private Long id;
+	
 	private String description;
 	
 	private Date startDate;
