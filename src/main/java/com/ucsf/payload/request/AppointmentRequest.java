@@ -7,13 +7,14 @@ import lombok.Data;
 @Data
 public class AppointmentRequest {
 
-	private Long physicianId;
+	private String email;
 	
-	private String patientEmail;
+	private String title;
 	
-	private String appointmentTitle;
+	private String description;
 	
-	private String appointmentDesc;
+	private Date startDate;
 	
-	private Date appointmentDate;
+	private Date endDate;
+	
 }

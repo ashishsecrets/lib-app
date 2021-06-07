@@ -43,6 +43,9 @@ public class Appointment extends Auditable<String> {
 	@Column(name = "appointment_desc")
 	private String appointmentDesc;
 	
-	@Column(name = "appointment_date")
-	private Date appointmentDate;
+	@Column(name = "start_date")
+	private Date startDate;
+	
+	@Column(name = "end_date")
+	private Date endDate;
 }

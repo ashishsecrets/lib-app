@@ -32,12 +32,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 	private PushNotificationService pushNotificationService;
 
 	@Override
-	public void saveAppointment(AppointmentRequest appointmentRequest, User physician, User patient) {
+	public Appointment saveAppointment(AppointmentRequest appointmentRequest, User physician, User patient) {
 		
 		Appointment appointment = new Appointment();
-		appointment.setAppointmentDate(appointmentRequest.getAppointmentDate());
-		appointment.setAppointmentDesc(appointmentRequest.getAppointmentDesc());
-		appointment.setAppointmentTitle(appointmentRequest.getAppointmentTitle());
+		appointment.setStartDate(appointmentRequest.getStartDate());
+		appointment.setAppointmentDesc(appointmentRequest.getDescription());
+		appointment.setAppointmentTitle(appointmentRequest.getTitle());
+		appointment.setEndDate(appointmentRequest.getEndDate());
 		appointment.setUserId(patient.getId());
 		appointment.setPhysicianId(physician.getId());
 		appointmentRepository.save(appointment);
@@ -45,7 +46,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 		//send push to patient
 		try {
 			Note note = new Note();
-			note.setContent("Dear " + patient.getFirstName() + "Your appointment has been scheduled for "+ appointment.getAppointmentDate());
+			note.setContent("Dear " + patient.getFirstName() + "Your appointment has been scheduled for "+ appointment.getStartDate());
 			note.setSubject("Appointment Confirmation");
 			String msgId = pushNotificationService.sendNotification(note, patient.getDevideId());
 			loggerService.printLogs(log, "saveAppointment", "Appointment push notification sent to user: "
@@ -54,6 +55,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 			loggerService.printErrorLogs(log, "saveAppointment",
 					"Error while sending appointment push notification to user: "+patient.getEmail()+" At: " + new Date());
 		}
+		try {
+		//send email to patient
+			loggerService.printLogs(log, "saveAppointment", "Appointment email notification sent to user: "
+					+ patient.getEmail() + "At: " + new Date());
+			}catch (Exception e) {
+			loggerService.printErrorLogs(log, "saveAppointment",
+					"Error while sending appointment email notification to user: "+patient.getEmail()+" At: " + new Date());
+		}
+		return appointment;
 	}
 
 }

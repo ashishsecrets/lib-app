@@ -64,7 +64,7 @@ public class AppointmentController {
 					.getPrincipal();
 			if (userDetail != null && userDetail.getUsername() != null) {
 				user = userService.findByEmail(userDetail.getUsername());
-				loggerService.printLogs(log, "saveAppointment", "Saving appointment by physician: "+user.getId()+" for patient: " + appointmentRequest.getPatientEmail());
+				loggerService.printLogs(log, "saveAppointment", "Saving appointment by physician: "+user.getId()+" for patient: " + appointmentRequest.getEmail());
 			} else {
 				loggerService.printErrorLogs(log, "saveAppointment", "Invalid JWT signature.");
 				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
@@ -72,7 +72,7 @@ public class AppointmentController {
 				return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
 			}
 
-			User patient =  userService.findByEmail(appointmentRequest.getPatientEmail());
+			User patient =  userService.findByEmail(appointmentRequest.getEmail());
 
 			if(patient == null) {
 				loggerService.printErrorLogs(log, "saveAppointment", "User not found.");
@@ -81,8 +81,8 @@ public class AppointmentController {
 				return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 			}
 			
-			appointmentservice.saveAppointment(appointmentRequest, user, patient);			
-
+			Appointment appointment = appointmentservice.saveAppointment(appointmentRequest, user, patient);			
+             System.out.println(appointment);
 			responseJson.put("data", new SuccessResponse(true, "Appointment saved successfully."));
 			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
 
