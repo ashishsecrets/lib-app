@@ -4,6 +4,7 @@ import com.ucsf.auth.model.User;
 import com.ucsf.model.SurveyQuestion;
 import com.ucsf.model.UserSurveyStatus;
 import com.ucsf.model.UserTasks;
+import com.ucsf.payload.response.SurveyResponse;
 import com.ucsf.payload.response.TaskResponse;
 import com.ucsf.repository.SurveyQuestionRepository;
 import com.ucsf.repository.UserTasksRepository;
@@ -97,6 +98,27 @@ public class TaskServiceImpl implements TaskService {
             taskResponse.setTaskStatus(getTaskStatus(task.getStartDate(), task.getEndDate(), taskProgress));
             taskResponseList.add(taskResponse);
 
+        }
+
+
+        return taskResponseList;
+    }
+    @Override
+    public List<SurveyResponse> getAlteredTaskListSurvey(List<UserTasks> tasks) {
+
+        List<SurveyResponse> taskResponseList = new ArrayList<>();
+
+        for(UserTasks task : tasks){
+            if(task.getTaskType().equals("survey")) {
+                SurveyResponse surveyResponse = new SurveyResponse();
+                surveyResponse.setSurveyTrueId(task.getTaskTrueId());
+                surveyResponse.setSurveyName(task.getTitle());
+                surveyResponse.setStartDate(task.getStartDate());
+                surveyResponse.setDueDate(task.getEndDate());
+                int surveyProgress = getTaskProgress(task.getTaskId(), task.getUserId(), task.getTaskType(), task.getTaskTrueId());
+                surveyResponse.setSurveyStatus(getTaskStatus(task.getStartDate(), task.getEndDate(), surveyProgress));
+                taskResponseList.add(surveyResponse);
+            }
         }
 
 
