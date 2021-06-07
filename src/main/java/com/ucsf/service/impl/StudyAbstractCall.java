@@ -456,6 +456,12 @@ public class StudyAbstractCall {
 
     }
 
+    public SurveyAnswer findSurveyAnswerByIndex(int i) {
+
+        return Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), i).getId()), user.getId(), surveyTrueId)).get();
+
+    }
+
     public int getTotalQuestionsCount() {
         List<ScreeningQuestions> list = screeningQuestionRepository.findByStudyId(answerRequest.getStudyId());
 

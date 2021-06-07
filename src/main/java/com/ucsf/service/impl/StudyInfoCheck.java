@@ -1,11 +1,18 @@
 package com.ucsf.service.impl;
 
 import com.ucsf.model.ScreeningAnswers;
+import com.ucsf.model.SurveyAnswer;
+import com.ucsf.model.UcsfSurvey;
 import com.ucsf.payload.response.StudyInfoData;
+import com.ucsf.repository.SurveyRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class StudyInfoCheck {
+
+    @Autowired
+    SurveyRepository surveyRepository;
 	
     public StudyInfoData screenTest(ScreeningAnswers lastAnswer, int quesIncrement, Long studyId) {
         StudyInfoData screenTestData = new StudyInfoData();
@@ -66,4 +73,38 @@ public class StudyInfoCheck {
         return screenTestData;
     }
 
+    public StudyInfoData surveyScreenTest(SurveyAnswer surveyAnswer, int questionDirection, Long surveyId) {
+        StudyInfoData surveyTestData = new StudyInfoData();
+
+        UcsfSurvey survey = surveyRepository.findById(surveyId).get();
+
+        if(survey.getTitle().equals("DLQI")){
+
+
+            if (surveyAnswer.getIndexValue() == 9 && questionDirection == -1) {
+                if (surveyAnswer.getAnswerDescription() != null && !surveyAnswer.getAnswerDescription().equals("No")) {
+                    surveyTestData.setMessage("");
+                    surveyTestData.setIsFinished(StudyInfoData.StudyInfoSatus.FALSE);
+                } else {
+                    surveyTestData.setIsFinished(StudyInfoData.StudyInfoSatus.NONE);
+
+                }
+            }
+
+
+            if (surveyAnswer.getIndexValue() == 7) {
+                if (surveyAnswer.getAnswerDescription() != null && questionDirection == 1 && !surveyAnswer.getAnswerDescription().equals("No")) {
+                    surveyTestData.setMessage("");
+                    surveyTestData.setIsFinished(StudyInfoData.StudyInfoSatus.FALSE);
+                } else {
+                    surveyTestData.setIsFinished(StudyInfoData.StudyInfoSatus.NONE);
+
+                }
+            }
+
+
+        }
+
+        return surveyTestData;
+    }
 }
