@@ -29,6 +29,7 @@ import com.ucsf.payload.response.AppointmentResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.AppointmentRepository;
+import com.ucsf.repository.UserRepository;
 import com.ucsf.service.AppointmentService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
@@ -53,6 +54,9 @@ public class AppointmentController {
 	
 	@Autowired
 	private AppointmentService appointmentservice;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@PostMapping(value = "/saveAppointment")
 	@ResponseBody
@@ -129,6 +133,7 @@ public class AppointmentController {
 				response.setId(appointment.getAppointmentId());
 				response.setStartTime(appointment.getStartDate());
 				response.setEndTime(appointment.getEndDate());
+				response.setPatient(userRepository.findById(appointment.getUserId()).get().getEmail());
 				list.add(response);
 				//response.setPatient(appointment.get);
 			}
