@@ -12,4 +12,5 @@ public class SurveyResponse {
     Date startDate;
     Date dueDate;
     String surveyStatus;
+    int surveyPercentage;
 }

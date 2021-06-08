@@ -116,8 +116,18 @@ public class TaskServiceImpl implements TaskService {
                 surveyResponse.setStartDate(task.getStartDate());
                 surveyResponse.setDueDate(task.getEndDate());
                 int surveyProgress = getTaskProgress(task.getTaskId(), task.getUserId(), task.getTaskType(), task.getTaskTrueId());
-                surveyResponse.setSurveyStatus(getTaskStatus(task.getStartDate(), task.getEndDate(), surveyProgress));
+                String surveyStatus = getTaskStatus(task.getStartDate(), task.getEndDate(), surveyProgress);
+                surveyResponse.setSurveyPercentage(surveyProgress);
+
+                if(surveyStatus.equals("upcoming")){
+                surveyResponse.setSurveyStatus("Yet to Start");
                 taskResponseList.add(surveyResponse);
+                }
+                else if(surveyStatus.equals("current")){
+                    surveyResponse.setSurveyStatus("current");
+                    taskResponseList.add(surveyResponse);
+                }
+
             }
         }
 
