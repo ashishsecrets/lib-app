@@ -222,7 +222,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		Boolean isLastQuestion = studyAbstractCall.getIsLastQuestionBool();
 
-		if(isLastQuestion && !response.getIsDisqualified() && !studyAbstractCall.getCurrentAnswer().get().getAnswerDescription().equals("")){
+		if(isLastQuestion && !response.getIsDisqualified()){
 			studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
 			studyAbstractCall.userScreeningStatus.setIndexValue(studyAbstractCall.userScreeningStatus.getIndexValue());
 			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
