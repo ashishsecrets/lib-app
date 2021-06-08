@@ -94,6 +94,23 @@ public class EmailService {
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
+	
+	
+	public void sendAppointmentEmail(String to, String subject, String patientName,String physicianName,String status ,String time) throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(fromEmail);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/appointmentEmail.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{patient\\}\\}", patientName);
+		body = body.replaceAll("\\{\\{doctor\\}\\}", physicianName);
+		body = body.replaceAll("\\{\\{status\\}\\}", status);
+		body = body.replaceAll("\\{\\{time\\}\\}", time);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
 
 	public void sendOtpEmail(String from, String to, String subject, String name, String otp) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();

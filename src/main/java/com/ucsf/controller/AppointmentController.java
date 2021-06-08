@@ -1,7 +1,6 @@
 package com.ucsf.controller;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -26,14 +25,12 @@ import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.Appointment;
 import com.ucsf.payload.request.AppointmentRequest;
-import com.ucsf.payload.request.Note;
 import com.ucsf.payload.response.AppointmentResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.AppointmentRepository;
 import com.ucsf.service.AppointmentService;
 import com.ucsf.service.LoggerService;
-import com.ucsf.service.PushNotificationService;
 import com.ucsf.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -64,7 +61,6 @@ public class AppointmentController {
 		JSONObject responseJson = new JSONObject();
 		Appointment appointment = null;
 		try {
-
 			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
 					.getPrincipal();
 			if (userDetail != null && userDetail.getUsername() != null) {
@@ -165,7 +161,8 @@ public class AppointmentController {
 				return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
 			}
 			try {
-				appointmentRepository.deleteById(id);
+				appointmentservice.deleteAppointmentById(id,user);
+				
 				responseJson.put("data", new SuccessResponse(true, "Appointment deleted successfully."));
 			}
 			catch(Exception e) {
@@ -181,6 +178,5 @@ public class AppointmentController {
 			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
 	
 }
