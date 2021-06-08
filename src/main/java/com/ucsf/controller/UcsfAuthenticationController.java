@@ -141,7 +141,7 @@ public class UcsfAuthenticationController {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "User registered successfully", response = User.class) })
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public ResponseEntity<?> saveUser(@RequestBody SignUpRequest signUpRequest) throws Exception {
-		loggerService.printLogs(log, "saveUser", "Register User");
+		loggerService.printLogs(log, "saveUser", "Register User" + signUpRequest.toString());
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		String message = "";
 		boolean isEnable = true;
@@ -190,6 +190,8 @@ public class UcsfAuthenticationController {
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		user.setAuthToken(token);
 		responseJson.put("data", new AuthResponse(userDetails, user, message));
+		loggerService.printLogs(log, "saveUser", "User Registered Successfully");
+
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
