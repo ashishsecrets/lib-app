@@ -1,6 +1,7 @@
 package com.ucsf.service.impl;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ucsf.auth.model.User;
-import com.ucsf.controller.AppointmentController;
 import com.ucsf.model.Appointment;
 import com.ucsf.payload.request.AppointmentRequest;
 import com.ucsf.payload.request.Note;
@@ -61,6 +61,44 @@ public class AppointmentServiceImpl implements AppointmentService {
 					+ patient.getEmail() + "At: " + new Date());
 			}catch (Exception e) {
 			loggerService.printErrorLogs(log, "saveAppointment",
+					"Error while sending appointment email notification to user: "+patient.getEmail()+" At: " + new Date());
+		}
+		return appointment;
+	}
+	
+	@Override
+	public Appointment updateAppointment(AppointmentRequest appointmentRequest, User physician, User patient) {
+		Appointment appointment = null;
+		Optional<Appointment> appment = appointmentRepository.findById(appointmentRequest.getId());
+		if(appment.isPresent()) {
+		    appointment = appment.get();
+			appointment.setStartDate(appointmentRequest.getStartDate());
+			appointment.setAppointmentDesc(appointmentRequest.getDescription());
+			appointment.setAppointmentTitle(appointmentRequest.getTitle());
+			appointment.setEndDate(appointmentRequest.getEndDate());
+			appointment.setUserId(patient.getId());
+			appointment.setPhysicianId(physician.getId());
+			appointmentRepository.save(appointment);
+		}
+
+		//send push to patient
+		try {
+			Note note = new Note();
+			note.setContent("Dear " + patient.getFirstName() + "Your appointment has been re-scheduled for "+ appointment.getStartDate());
+			note.setSubject("Appointment Updated");
+			String msgId = pushNotificationService.sendNotification(note, patient.getDevideId());
+			loggerService.printLogs(log, "updateAppointment", "Appointment updation push notification sent to user: "
+					+ patient.getEmail() + "At: " + new Date() + "msgId = " + msgId);
+		}catch (Exception e) {
+			loggerService.printErrorLogs(log, "updateAppointment",
+					"Error while sending appointment push notification to user: "+patient.getEmail()+" At: " + new Date());
+		}
+		try {
+		//send email to patient
+			loggerService.printLogs(log, "updateAppointment", "Appointment update email notification sent to user: "
+					+ patient.getEmail() + "At: " + new Date());
+			}catch (Exception e) {
+			loggerService.printErrorLogs(log, "updateAppointment",
 					"Error while sending appointment email notification to user: "+patient.getEmail()+" At: " + new Date());
 		}
 		return appointment;

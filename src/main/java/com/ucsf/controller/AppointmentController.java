@@ -1,5 +1,6 @@
 package com.ucsf.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +27,7 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.Appointment;
 import com.ucsf.payload.request.AppointmentRequest;
 import com.ucsf.payload.request.Note;
+import com.ucsf.payload.response.AppointmentResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.AppointmentRepository;
@@ -58,6 +62,7 @@ public class AppointmentController {
 	public ResponseEntity<?> saveAppointment(@RequestBody AppointmentRequest appointmentRequest) {
 		User user = null;
 		JSONObject responseJson = new JSONObject();
+		Appointment appointment = null;
 		try {
 
 			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -80,11 +85,17 @@ public class AppointmentController {
 						Constants.USER_NOT_FOUND.errordesc()));
 				return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 			}
-			
-			Appointment appointment = appointmentservice.saveAppointment(appointmentRequest, user, patient);			
-             System.out.println(appointment);
-			responseJson.put("data", new SuccessResponse(true, "Appointment saved successfully."));
-			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
+			if(appointmentRequest.getGuid() != null && !appointmentRequest.getGuid().isEmpty()) {
+				 appointment = appointmentservice.updateAppointment(appointmentRequest, user, patient);
+				 responseJson.put("data", new SuccessResponse(true, "Appointment updated successfully."));
+				return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
+			}
+			else {
+				 appointment = appointmentservice.saveAppointment(appointmentRequest, user, patient);			
+	             System.out.println(appointment);
+				responseJson.put("data", new SuccessResponse(true, "Appointment saved successfully."));
+				return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -94,7 +105,7 @@ public class AppointmentController {
 		}
 	}
 
-	@GetMapping(value = "/getAppointment")
+	@GetMapping(value = "/getAppointments")
 	@ResponseBody
 	public ResponseEntity<?> getAppointment() {
 		User user = null;
@@ -114,8 +125,18 @@ public class AppointmentController {
 			}
 
 			List<Appointment> appointments = appointmentRepository.getAppointmentByPhysicianId(user.getId());
-			
-			responseJson.put("data", appointments);
+			List<AppointmentResponse> list = new ArrayList<AppointmentResponse>();
+			for(Appointment appointment : appointments) {
+				AppointmentResponse response = new AppointmentResponse();
+				response.setDescription(appointment.getAppointmentDesc());
+				response.setTitle(appointment.getAppointmentTitle());
+				response.setId(appointment.getAppointmentId());
+				response.setStartTime(appointment.getStartDate());
+				response.setEndTime(appointment.getEndDate());
+				list.add(response);
+				//response.setPatient(appointment.get);
+			}
+			responseJson.put("data", list);
 			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
 
 		} catch (Exception e) {
@@ -125,4 +146,41 @@ public class AppointmentController {
 			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@DeleteMapping(value = "/deleteAppointment/{id}")
+	@ResponseBody
+	public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
+		User user = null;
+		JSONObject responseJson = new JSONObject();
+		try {
+			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+					.getPrincipal();
+			if (userDetail != null && userDetail.getUsername() != null) {
+				user = userService.findByEmail(userDetail.getUsername());
+				loggerService.printLogs(log, "getAppointment", "Getting appointments for physician: "+user.getId());
+			} else {
+				loggerService.printErrorLogs(log, "getAppointment", "Invalid JWT signature.");
+				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+						Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+				return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
+			}
+			try {
+				appointmentRepository.deleteById(id);
+				responseJson.put("data", new SuccessResponse(true, "Appointment deleted successfully."));
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			//responseJson.put("data", list);
+			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.OK);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			loggerService.printErrorLogs(log, "getAppointment", "Error while getting appointments.");
+			responseJson.put("error", new ErrorResponse(116, e.getMessage()));
+			return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	
 }
