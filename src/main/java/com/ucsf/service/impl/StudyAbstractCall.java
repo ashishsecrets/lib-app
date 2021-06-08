@@ -9,7 +9,6 @@ import com.ucsf.payload.request.ScreeningAnswerRequest;
 import com.ucsf.payload.request.SurveyAnswerRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
-import com.ucsf.payload.response.StudyInfoData;
 import com.ucsf.payload.response.SurveyQuestionResponse;
 import com.ucsf.repository.*;
 import com.ucsf.service.LoggerService;
@@ -18,9 +17,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -479,5 +475,9 @@ public class StudyAbstractCall {
         List<SurveyQuestion> list = surveyQuestionRepository.findBySurveyId(surveyAnswerRequest.getSurveyId());
 
         return list.size();
+    }
+
+    public Optional<SurveyAnswer> getCurrentAnswer() {
+        return Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue()).getId()), user.getId(), surveyTrueId));
     }
 }
