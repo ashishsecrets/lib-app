@@ -477,7 +477,13 @@ public class StudyAbstractCall {
         return list.size();
     }
 
-    public Optional<SurveyAnswer> getCurrentAnswer() {
-        return Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue()).getId()), user.getId(), surveyTrueId));
+    public Optional<ScreeningAnswers> getCurrentAnswer() {
+        Optional<ScreeningAnswers> currentAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId()), user.getId(), answerRequest.getStudyId()));
+        ScreeningAnswers currentAnswer = new ScreeningAnswers();
+        if(!currentAnswerOp.isPresent()){
+            currentAnswerOp = Optional.of(currentAnswer);
+            currentAnswerOp.get().setAnswerDescription("");
+        }
+        return currentAnswerOp;
     }
 }
