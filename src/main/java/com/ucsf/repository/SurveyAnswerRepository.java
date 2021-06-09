@@ -14,4 +14,6 @@ public interface SurveyAnswerRepository extends CrudRepository<SurveyAnswer, Lon
 	SurveyAnswer findByIndexValueAndAnsweredById(int indexValue, Long userId);
 
     SurveyAnswer findByQuestionIdAndAnsweredByIdAndTaskTrueId(Long quesId, Long userId, Long surveyTrueId);
+
+	List<SurveyAnswer> findByTaskTrueIdAndAnsweredById(Long taskTrueId, Long userId);
 }

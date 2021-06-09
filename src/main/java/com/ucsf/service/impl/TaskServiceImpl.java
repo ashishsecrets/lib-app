@@ -1,11 +1,13 @@
 package com.ucsf.service.impl;
 
 import com.ucsf.auth.model.User;
+import com.ucsf.model.SurveyAnswer;
 import com.ucsf.model.SurveyQuestion;
 import com.ucsf.model.UserSurveyStatus;
 import com.ucsf.model.UserTasks;
 import com.ucsf.payload.response.SurveyResponse;
 import com.ucsf.payload.response.TaskResponse;
+import com.ucsf.repository.SurveyAnswerRepository;
 import com.ucsf.repository.SurveyQuestionRepository;
 import com.ucsf.repository.UserTasksRepository;
 import com.ucsf.repository.UserSurveyStatusRepository;
@@ -29,6 +31,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     SurveyQuestionRepository surveyQuestionRepository;
+
+    @Autowired
+    SurveyAnswerRepository surveyAnswerRepository;
 
 
     @Override
@@ -139,6 +144,43 @@ public class TaskServiceImpl implements TaskService {
     public int getTaskProgress(Long taskId, Long userId, String taskType, Long taskTrueId) {
 
         float percentage = 0;
+        float totalAnswers = 0;
+        UserSurveyStatus surveyStatus = null;
+        List<SurveyQuestion> surveyQuestionList = null;
+        List<SurveyAnswer> surveyAnswersList = null;
+
+        if(userSurveyStatusRepository.findByUserIdAndSurveyIdAndTaskTrueId(userId, taskId, taskTrueId) != null){
+            surveyStatus = userSurveyStatusRepository.findByUserIdAndSurveyIdAndTaskTrueId(userId, taskId, taskTrueId);
+            surveyQuestionList = surveyQuestionRepository.findBySurveyId(taskId);
+            surveyAnswersList = surveyAnswerRepository.findByTaskTrueIdAndAnsweredById(taskTrueId, userId);
+            if(surveyAnswersList != null){totalAnswers = surveyAnswersList.size();}
+
+       percentage = (float) totalAnswers/surveyQuestionList.size()*100;
+
+            if(percentage == (float) (surveyQuestionList.size()-1)/surveyQuestionList.size()*100){
+                percentage = 100;
+            }
+
+        //Optional<UserTasks> taskOp = userTasksRepository.findById(userTasksRepository.findByUserIdAndTaskId(userId, taskId).getTaskTrueId());
+            Optional<UserTasks> taskOp = userTasksRepository.findById(taskTrueId);
+
+            UserTasks task = taskOp.get();
+            task.setProgress(Math.round(percentage));
+            userTasksRepository.save(task);
+            }
+        else{
+            // To be changed when we start saving other tasks
+            percentage = userTasksRepository.findByUserIdAndTaskType(userId, taskType).get(0).getProgress();
+        }
+
+       return Math.round(percentage);
+
+    }
+
+    /*@Override
+    public int getTaskProgress(Long taskId, Long userId, String taskType, Long taskTrueId) {
+
+        float percentage = 0;
         UserSurveyStatus surveyStatus = null;
         List<SurveyQuestion> surveyQuestionList = null;
 
@@ -162,7 +204,7 @@ public class TaskServiceImpl implements TaskService {
 
        return Math.round(percentage);
 
-    }
+    }*/
 
     @Override
     public String getTaskStatus(Date startDate, Date endDate, int taskProgress) {
