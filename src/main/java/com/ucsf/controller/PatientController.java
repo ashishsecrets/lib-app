@@ -224,7 +224,7 @@ public class PatientController {
 			taskService.updateSurveyStatuses(user);
 
 			if(taskService.getTaskList(user) != null && !taskService.getTaskList(user).isEmpty()){
-				response.setList(taskService.getAlteredTaskListStudy(tasks));
+				response.setList(taskService.getAlteredTaskList(tasks));
 				response.setTotalProgress(taskService.getTotalProgress(taskService.getAlteredTaskList(tasks)));
 				responseJson.put("data", response);
 				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
