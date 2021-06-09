@@ -34,7 +34,6 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     SurveyAnswerRepository surveyAnswerRepository;
 
-    Date todaysDate = new Date();
 
     @Autowired
     UserRepository userRepository;
@@ -165,6 +164,8 @@ public class TaskServiceImpl implements TaskService {
 
                 for (UserTasks item : userTasks) {
 
+                    Date todaysDate = new Date();
+
                     if (todaysDate.after(item.getEndDate())) {
 
                         OverdueTaskResponse taskResponse = new OverdueTaskResponse();
@@ -268,7 +269,7 @@ public class TaskServiceImpl implements TaskService {
 
         String status = "";
 
-
+        Date todaysDate = new Date();
 
         //Another can be added as completedOld which can be removed the list above
         //it can be calculated based on the endDate and progress value
