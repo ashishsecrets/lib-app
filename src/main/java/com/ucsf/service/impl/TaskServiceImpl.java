@@ -141,6 +141,31 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<TaskResponse> getAlteredTaskListStudy(List<UserTasks> tasks) {
+
+        List<TaskResponse> taskResponseList = new ArrayList<>();
+
+        for(UserTasks task : tasks){
+                TaskResponse surveyResponse = new TaskResponse();
+                surveyResponse.setTaskId(task.getTaskTrueId());
+                surveyResponse.setTaskName(task.getTitle());
+                surveyResponse.setStartDate(task.getStartDate());
+                surveyResponse.setDueDate(task.getEndDate());
+                int surveyProgress = getTaskProgress(task.getTaskId(), task.getUserId(), task.getTaskType(), task.getTaskTrueId());
+                String surveyStatus = getTaskStatus(task.getStartDate(), task.getEndDate(), surveyProgress);
+                surveyResponse.setTaskPercentage(surveyProgress);
+
+                if(surveyStatus.equals("overdue")){
+                    surveyResponse.setTaskStatus("overdue");
+                    taskResponseList.add(surveyResponse);
+                }
+        }
+
+
+        return taskResponseList;
+    }
+
+    @Override
     public int getTaskProgress(Long taskId, Long userId, String taskType, Long taskTrueId) {
 
         float percentage = 0;

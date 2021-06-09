@@ -21,6 +21,8 @@ public interface TaskService {
 
     List<SurveyResponse> getAlteredTaskListSurvey(List<UserTasks> tasks);
 
+    List<TaskResponse> getAlteredTaskListStudy(List<UserTasks> tasks);
+
     int getTaskProgress(Long taskId, Long userId, String taskType, Long taskTrueId);
 
     String getTaskStatus(Date startDate, Date endDate, int taskProgress);

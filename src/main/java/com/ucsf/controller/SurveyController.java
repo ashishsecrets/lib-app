@@ -16,11 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ucsf.model.UcsfSurvey;
 import com.ucsf.payload.request.SurveyRequest;
 import com.ucsf.repository.ChoiceRepository;
@@ -171,6 +167,7 @@ public class SurveyController {
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
+
 
 
 	@ApiOperation(value = "Get list of surveys", notes = "Get list of surveys by user", code = 200, httpMethod = "GET", produces = "application/json")
