@@ -5,12 +5,11 @@ import com.ucsf.model.SurveyAnswer;
 import com.ucsf.model.SurveyQuestion;
 import com.ucsf.model.UserSurveyStatus;
 import com.ucsf.model.UserTasks;
+import com.ucsf.payload.response.OverDuePatientTasksListResponse;
+import com.ucsf.payload.response.OverdueTaskResponse;
 import com.ucsf.payload.response.SurveyResponse;
 import com.ucsf.payload.response.TaskResponse;
-import com.ucsf.repository.SurveyAnswerRepository;
-import com.ucsf.repository.SurveyQuestionRepository;
-import com.ucsf.repository.UserTasksRepository;
-import com.ucsf.repository.UserSurveyStatusRepository;
+import com.ucsf.repository.*;
 import com.ucsf.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +33,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     SurveyAnswerRepository surveyAnswerRepository;
+
+    Date todaysDate = new Date();
+
+    @Autowired
+    UserRepository userRepository;
 
 
     @Override
@@ -141,28 +145,56 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskResponse> getAlteredTaskListStudy(List<UserTasks> tasks) {
+    public List<OverDuePatientTasksListResponse> getAlteredTaskListStudy() {
 
-        List<TaskResponse> taskResponseList = new ArrayList<>();
+        List<OverDuePatientTasksListResponse> overDuePatientList = new ArrayList<>();
 
-        for(UserTasks task : tasks){
-                TaskResponse surveyResponse = new TaskResponse();
-                surveyResponse.setTaskId(task.getTaskTrueId());
-                surveyResponse.setTaskName(task.getTitle());
-                surveyResponse.setStartDate(task.getStartDate());
-                surveyResponse.setDueDate(task.getEndDate());
-                int surveyProgress = getTaskProgress(task.getTaskId(), task.getUserId(), task.getTaskType(), task.getTaskTrueId());
-                String surveyStatus = getTaskStatus(task.getStartDate(), task.getEndDate(), surveyProgress);
-                surveyResponse.setTaskPercentage(surveyProgress);
 
-                if(surveyStatus.equals("overdue")){
-                    surveyResponse.setTaskStatus("overdue");
-                    taskResponseList.add(surveyResponse);
+
+        Iterable<User> userList = userRepository.findAll();
+
+        Long userId = null;
+
+        for(User user : userList) {
+
+            List<UserTasks> userTasks = userTasksRepository.findByUserId(user.getId());
+
+            if(userTasks != null || !userTasks.isEmpty()) {
+
+                List<OverdueTaskResponse> taskResponseList = new ArrayList<>();
+
+                for (UserTasks item : userTasks) {
+
+                    if (todaysDate.after(item.getEndDate())) {
+
+                        OverdueTaskResponse taskResponse = new OverdueTaskResponse();
+                        taskResponse.setTaskId(item.getTaskTrueId());
+                        taskResponse.setTaskName(item.getTitle());
+                        taskResponse.setStartDate(item.getStartDate());
+                        taskResponse.setDueDate(item.getEndDate());
+                        taskResponse.setTaskStatus("overdue");
+                        taskResponseList.add(taskResponse);
+                        userId = item.getUserId();
+                    }
+
+
                 }
+
+                OverDuePatientTasksListResponse overDuePatientResponse = new OverDuePatientTasksListResponse();
+                if(!taskResponseList.isEmpty()){
+                overDuePatientResponse.setPatientOverDueList(taskResponseList);
+                overDuePatientResponse.setUserId(userId);
+                overDuePatientList.add(overDuePatientResponse);}
+
+            }
+
+
         }
 
 
-        return taskResponseList;
+
+        return overDuePatientList;
+
     }
 
     @Override
@@ -236,7 +268,7 @@ public class TaskServiceImpl implements TaskService {
 
         String status = "";
 
-        Date todaysDate = new Date();
+
 
         //Another can be added as completedOld which can be removed the list above
         //it can be calculated based on the endDate and progress value

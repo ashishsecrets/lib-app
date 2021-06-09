@@ -2,6 +2,7 @@ package com.ucsf.service;
 
 import com.ucsf.auth.model.User;
 import com.ucsf.model.UserTasks;
+import com.ucsf.payload.response.OverDuePatientTasksListResponse;
 import com.ucsf.payload.response.SurveyResponse;
 import com.ucsf.payload.response.TaskResponse;
 
@@ -21,7 +22,7 @@ public interface TaskService {
 
     List<SurveyResponse> getAlteredTaskListSurvey(List<UserTasks> tasks);
 
-    List<TaskResponse> getAlteredTaskListStudy(List<UserTasks> tasks);
+    List<OverDuePatientTasksListResponse> getAlteredTaskListStudy();
 
     int getTaskProgress(Long taskId, Long userId, String taskType, Long taskTrueId);
 

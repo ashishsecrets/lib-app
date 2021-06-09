@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ucsf.model.UserTasks;
-import com.ucsf.payload.response.TasksListResponse;
+import com.ucsf.payload.response.*;
 import com.ucsf.repository.SurveyRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.TaskService;
@@ -26,9 +26,6 @@ import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UserScreeningStatus;
-import com.ucsf.payload.response.ErrorResponse;
-import com.ucsf.payload.response.PatientResponse;
-import com.ucsf.payload.response.StudyStatusResponse;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
 import io.swagger.annotations.Api;
@@ -242,7 +239,68 @@ public class PatientController {
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 	}
-	
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
+	@ApiOperation(value = "Get list of tasks/surveys for study", notes = "Get list of tasks/surveys by user for study", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all tasks by user", response = OverDuePatientTasksListResponse.class) })
+	@RequestMapping(value = "/overdue-task-list/{studyId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getOverDueTasksForStudyList(@PathVariable Long studyId) {
+
+		JSONObject responseJson = new JSONObject();
+
+		User user = null;
+
+		Boolean isSuccess = false;
+
+		try {
+			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+			if (userDetail != null && userDetail.getUsername() != null) {
+				String email = userDetail.getUsername();
+				user = userRepository.findByEmail(email);
+				isSuccess = true;
+
+			} else {
+				loggerService.printLogs(log, "notificationsService", "Invalid User");
+				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
+						Constants.USER_NOT_FOUND.errordesc()));
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
+			}
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+		}
+
+		if(!isSuccess){
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+		try {
+
+
+			taskService.updateSurveyStatuses(user);
+
+			if(taskService.getAlteredTaskListStudy() != null && !taskService.getAlteredTaskListStudy().isEmpty()){
+				List<OverDuePatientTasksListResponse> response = taskService.getAlteredTaskListStudy();
+				responseJson.put("data", response);
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			}
+			else{
+				responseJson.put("error", new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(), Constants.NO_STUDY_FOUND.errordesc()));
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.NO_CONTENT);
+			}
+
+
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+	}
+
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@PreAuthorize("hasRole('ROLE_PATIENT')")
 	@ApiOperation(value = "Check patient approval", notes = "Check Patient Approved or not", code = 200, httpMethod = "GET", produces = "application/json")
