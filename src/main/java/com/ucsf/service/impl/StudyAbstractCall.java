@@ -486,4 +486,18 @@ public class StudyAbstractCall {
         }
         return currentAnswerOp;
     }
+
+    public int getSurveySkipCount() {
+
+        int skipSurveyCount = getTotalSurveyQuestionsCount() - getTotalSurveyAnswersCount();
+
+        return skipSurveyCount;
+    }
+
+    private int getTotalSurveyAnswersCount() {
+        int totalAnswers = 0;
+        List<SurveyAnswer> surveyAnswersList = surveyAnswerRepository.findByTaskTrueIdAndAnsweredById(surveyTrueId, user.getId());
+        if(surveyAnswersList != null){totalAnswers = surveyAnswersList.size();}
+        return totalAnswers;
+    }
 }

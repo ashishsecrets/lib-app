@@ -17,4 +17,5 @@ public class SurveyQuestionResponse {
     String information;
     Boolean isDisqualified;
     int totalQuestions;
+    int skipCount;
 }
