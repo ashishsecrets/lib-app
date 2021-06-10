@@ -185,6 +185,7 @@ public class TaskServiceImpl implements TaskService {
                 if(!taskResponseList.isEmpty()){
                 overDuePatientResponse.setPatientOverDueList(taskResponseList);
                 overDuePatientResponse.setUserId(userId);
+                overDuePatientResponse.setPatient(userRepository.findById(userId).get().getFirstName());
                 overDuePatientList.add(overDuePatientResponse);}
 
             }

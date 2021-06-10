@@ -8,5 +8,6 @@ import java.util.List;
 public class OverDuePatientTasksListResponse {
 
 	List<OverdueTaskResponse> patientOverDueList;
+	String patient;
 	Long userId;
 }
