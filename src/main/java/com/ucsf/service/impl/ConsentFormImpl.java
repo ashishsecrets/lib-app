@@ -31,8 +31,8 @@ public class ConsentFormImpl implements ConsentService{
 	@Autowired private UserConsentRepository userConsentRepository;
 	@Autowired EmailService emailService;
 	@Autowired SurveyRepository surveyRepository;
-	@Autowired
-	UserTasksRepository userTasksRepository;
+	@Autowired UserTasksRepository userTasksRepository;
+	@Autowired UserScreeningStatusRepository userScreeningStatusRepository;
 	
 	@Override
 	public List<ConsentForms> getConsent() {
@@ -93,6 +93,10 @@ public class ConsentFormImpl implements ConsentService{
 			userConsent = emailService.sendUserConsentEmail(user, "UCSF  Skin Tracker "+userConsent.getType().toString().toLowerCase()+" Form", consentForm.getContent(), userConsent, fileName, patientSignatureFile, parentSignatureFile, consent.getAge(),userConsent.getType().toString());
 
 			userConsentRepository.save(userConsent);
+
+			UserScreeningStatus screeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+			screeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.TERMS_ACCEPTED);
+			userScreeningStatusRepository.save(screeningStatus);
 
 			//To-do - make this section dynamic with values from repositories.
 
