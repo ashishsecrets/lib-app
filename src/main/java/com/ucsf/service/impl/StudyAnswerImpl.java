@@ -331,6 +331,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		// It does not matter whether you are going forward or backward questionDirection takes care of that.
 
 		indexValue = studyAbstractCall.getSurveyIndexValue();
+		studyAbstractCall.setMaxSurveyIndex(indexValue);
 
 		// Therefore, here we create two new ints for going next or previous question/answer --
 		int previous = indexValue - questionDirection;

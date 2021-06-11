@@ -82,6 +82,8 @@ public class StudyAbstractCall {
     int quesIncrement = 0;
     int quesSurveyIncrement = 0;
 
+    int maxSurveyIndex = 0;
+
     ScreeningQuestions questionToDisplayToUser;
 
     ScreeningQuestionResponse response = new ScreeningQuestionResponse();
@@ -489,7 +491,17 @@ public class StudyAbstractCall {
 
     public int getSurveySkipCount() {
 
-        return getMaxSurveyAnswerSaved() - getTotalSurveyAnswersCount();
+        return getMaxSurveyIndex() - getTotalSurveyAnswersCount();
+    }
+
+    private int getMaxSurveyIndex() {
+        return maxSurveyIndex;
+    }
+
+    void setMaxSurveyIndex(int indexValue) {
+        if(indexValue > maxSurveyIndex){
+        maxSurveyIndex = indexValue;}
+        userSurveyStatus.setMaxIndexValue(maxSurveyIndex);
     }
 
     private int getMaxSurveyAnswerSaved() {
@@ -500,8 +512,6 @@ public class StudyAbstractCall {
                 answer = item;
             }
         }
-        System.out.println(answer.getIndexValue());
-        System.out.println(answerList.size());
         return answer.getIndexValue();
     }
 
