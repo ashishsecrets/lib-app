@@ -490,7 +490,7 @@ public class StudyAbstractCall {
     public int getSurveySkipCount() {
         //if calculation is incorrect need to set initial value of maxIndex in db to 1 instead of 0
         //& perhaps add -1 here
-        return getMaxSurveyIndex() - getTotalSurveyAnswersCount();
+        return getMaxSurveyIndex() - getTotalSurveyAnswersCount() - 1;
     }
 
     private int getMaxSurveyIndex() {
