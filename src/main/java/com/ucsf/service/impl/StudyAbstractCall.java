@@ -491,7 +491,7 @@ public class StudyAbstractCall {
 
     public int getSurveySkipCount() {
 
-        return getMaxSurveyIndex() - getTotalSurveyAnswersCount() - 1;
+        return getMaxSurveyIndex() - getTotalSurveyAnswersCount();
     }
 
     private int getMaxSurveyIndex() {
