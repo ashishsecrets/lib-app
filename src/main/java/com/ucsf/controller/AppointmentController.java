@@ -1,7 +1,12 @@
 package com.ucsf.controller;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -64,6 +69,7 @@ public class AppointmentController {
 		User user = null;
 		JSONObject responseJson = new JSONObject();
 		Appointment appointment = null;
+		
 		try {
 			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
 					.getPrincipal();
