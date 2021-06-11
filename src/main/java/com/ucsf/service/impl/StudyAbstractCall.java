@@ -82,8 +82,6 @@ public class StudyAbstractCall {
     int quesIncrement = 0;
     int quesSurveyIncrement = 0;
 
-    int maxSurveyIndex = 0;
-
     ScreeningQuestions questionToDisplayToUser;
 
     ScreeningQuestionResponse response = new ScreeningQuestionResponse();
@@ -490,18 +488,21 @@ public class StudyAbstractCall {
     }
 
     public int getSurveySkipCount() {
-
+        //if calculation is incorrect need to set initial value of maxIndex in db to 1 instead of 0
+        //& perhaps add -1 here
         return getMaxSurveyIndex() - getTotalSurveyAnswersCount();
     }
 
     private int getMaxSurveyIndex() {
-        return maxSurveyIndex;
+        return userSurveyStatus.getMaxIndexValue();
     }
 
     void setMaxSurveyIndex(int indexValue) {
+        int maxSurveyIndex = getMaxSurveyIndex();
         if(indexValue > maxSurveyIndex){
         maxSurveyIndex = indexValue;}
         userSurveyStatus.setMaxIndexValue(maxSurveyIndex);
+        userSurveyStatusRepository.save(userSurveyStatus);
     }
 
     private int getMaxSurveyAnswerSaved() {
