@@ -82,8 +82,8 @@ public class AppointmentController {
 						Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 				return new ResponseEntity<Object>(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
 			}
-
-			User patient =  userService.findByEmail(appointmentRequest.getEmail());
+			String email = appointmentRequest.getEmail().substring(0,appointmentRequest.getEmail().indexOf("("));
+			User patient =  userService.findByEmail(email);
 
 			if(patient == null) {
 				loggerService.printErrorLogs(log, "saveAppointment", "User not found.");
