@@ -104,12 +104,27 @@ public class AppointmentServiceImpl implements AppointmentService {
 	public Appointment updateAppointment(AppointmentRequest appointmentRequest, User physician, User patient) {
 		Appointment appointment = null;
 		Optional<Appointment> appment = appointmentRepository.findById(appointmentRequest.getId());
+		Date startTime = new Date();
+		Date endTime = new Date();
+		DateFormat pstFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:S");
+		TimeZone pstTime = TimeZone.getTimeZone("PST");
+		pstFormat.setTimeZone(pstTime);
+		String startDate = pstFormat.format(appointmentRequest.getStartDate());
+		String endDate = pstFormat.format(appointmentRequest.getEndDate());
+		try {
+			startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:S").parse(startDate);
+			endTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:S").parse(endDate);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		if (appment.isPresent()) {
 			appointment = appment.get();
-			appointment.setStartDate(appointmentRequest.getStartDate());
+			appointment.setStartDate(startTime);
 			appointment.setAppointmentDesc(appointmentRequest.getDescription());
 			appointment.setAppointmentTitle(appointmentRequest.getTitle());
-			appointment.setEndDate(appointmentRequest.getEndDate());
+			appointment.setEndDate(endTime);
 			appointment.setUserId(patient.getId());
 			appointment.setPhysicianId(physician.getId());
 			appointmentRepository.save(appointment);
