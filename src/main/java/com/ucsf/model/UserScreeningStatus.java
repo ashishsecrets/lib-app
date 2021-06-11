@@ -49,6 +49,7 @@ public class UserScreeningStatus extends Auditable<String> {
 	@Column(name = "index_value")
 	private int indexValue;
 
+
 	@ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", insertable = false, updatable = false)
 	@JsonIgnore

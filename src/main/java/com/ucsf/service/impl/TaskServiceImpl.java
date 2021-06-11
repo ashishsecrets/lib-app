@@ -59,6 +59,7 @@ public class TaskServiceImpl implements TaskService {
                 userSurveyStatus.setUserId(user.getId());
                 userSurveyStatus.setTaskTrueId(task.getTaskTrueId());
                 userSurveyStatus.setIndexValue(0);
+                userSurveyStatus.setMaxIndexValue(0);
                 userSurveyStatusRepository.save(userSurveyStatus);
 
             }
