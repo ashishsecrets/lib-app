@@ -1,7 +1,11 @@
 package com.ucsf.service.impl;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,18 +39,33 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 	@Autowired
 	private EmailService emailService;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
 	@Override
 	public Appointment saveAppointment(AppointmentRequest appointmentRequest, User physician, User patient) {
 
+		Date startTime = new Date();
+		Date endTime = new Date();
+		DateFormat pstFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:S");
+		TimeZone pstTime = TimeZone.getTimeZone("PST");
+		pstFormat.setTimeZone(pstTime);
+		String startDate = pstFormat.format(appointmentRequest.getStartDate());
+		String endDate = pstFormat.format(appointmentRequest.getEndDate());
+		try {
+			startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:S").parse(startDate);
+			endTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:S").parse(endDate);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		Appointment appointment = new Appointment();
-		appointment.setStartDate(appointmentRequest.getStartDate());
+		appointment.setStartDate(startTime);
 		appointment.setAppointmentDesc(appointmentRequest.getDescription());
 		appointment.setAppointmentTitle(appointmentRequest.getTitle());
-		appointment.setEndDate(appointmentRequest.getEndDate());
+		appointment.setEndDate(endTime);
 		appointment.setUserId(patient.getId());
 		appointment.setPhysicianId(physician.getId());
 		appointmentRepository.save(appointment);
@@ -127,7 +146,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 	}
 
 	@Override
-	public void deleteAppointmentById(Long id,User physician) {
+	public void deleteAppointmentById(Long id, User physician) {
 		Optional<Appointment> appointment = appointmentRepository.findById(id);
 		Appointment existed = appointment.get();
 		User patient = userRepository.findById(existed.getUserId()).get();
@@ -137,8 +156,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 					+ existed.getStartDate());
 			note.setSubject("Appointment Updated");
 			String msgId = pushNotificationService.sendNotification(note, patient.getDevideId());
-			loggerService.printLogs(log, "updateAppointment", "Appointment cancellation push notification sent to user: "
-					+ patient.getEmail() + "At: " + new Date() + "msgId = " + msgId);
+			loggerService.printLogs(log, "updateAppointment",
+					"Appointment cancellation push notification sent to user: " + patient.getEmail() + "At: "
+							+ new Date() + "msgId = " + msgId);
 		} catch (Exception e) {
 			loggerService.printErrorLogs(log, "cancelAppointment",
 					"Error while sending appointment push notification to user: " + patient.getEmail() + " At: "
@@ -154,8 +174,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 					"Appointment cancel email notification sent to user: " + patient.getEmail() + "At: " + new Date());
 		} catch (Exception e) {
 			loggerService.printErrorLogs(log, "updateAppointment",
-					"Error while sending appointment cancellation email notification to user: " + patient.getEmail() + " At: "
-							+ new Date());
+					"Error while sending appointment cancellation email notification to user: " + patient.getEmail()
+							+ " At: " + new Date());
 		}
 		appointmentRepository.deleteById(id);
 	}
