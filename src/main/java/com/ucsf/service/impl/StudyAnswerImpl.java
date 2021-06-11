@@ -427,6 +427,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		response.setSkipCount(studyAbstractCall.getSurveySkipCount());
 
+
 		responseJson.put("data", response);
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);

@@ -315,6 +315,7 @@ public class StudyAbstractCall {
                 surveyResponse.setMessage("Survey complete.");
                 surveyResponse.setIsLastQuestion(true);
                 surveyResponse.setInformation("");
+                surveyResponse.setSkipCount(getSurveySkipCount());
                 surveyresponseJson.put("data", surveyResponse);
                 responseEntity = surveyresponseJson;
                 userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);

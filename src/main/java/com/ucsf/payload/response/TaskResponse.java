@@ -12,5 +12,6 @@ public class TaskResponse {
     Date startDate;
     Date dueDate;
     String taskStatus;
+    String taskType;
     int taskPercentage;
 }
