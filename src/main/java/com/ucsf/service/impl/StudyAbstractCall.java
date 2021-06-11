@@ -489,9 +489,20 @@ public class StudyAbstractCall {
 
     public int getSurveySkipCount() {
 
-        int skipSurveyCount = getTotalSurveyQuestionsCount() - getTotalSurveyAnswersCount();
+        return getMaxSurveyAnswerSaved() - getTotalSurveyAnswersCount();
+    }
 
-        return skipSurveyCount;
+    private int getMaxSurveyAnswerSaved() {
+        List<SurveyAnswer> answerList = surveyAnswerRepository.findByTaskTrueIdAndAnsweredById(surveyTrueId, user.getId());
+        SurveyAnswer answer = answerList.get(answerList.size()-1);
+        for(SurveyAnswer item : answerList){
+            if(item.getIndexValue() > answer.getIndexValue()){
+                answer = item;
+            }
+        }
+        System.out.println(answer.getIndexValue());
+        System.out.println(answerList.size());
+        return answer.getIndexValue();
     }
 
     private int getTotalSurveyAnswersCount() {
