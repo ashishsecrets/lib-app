@@ -43,7 +43,7 @@ public class NotificationServiceImpl implements NotificationsService {
 	
 	@Override
 	public List<Notifications> getListBySentToAndIsRead(String sentTo,Boolean isRead) {
-		List<Notifications> notifications = notificationsRepository.getListBySentTOAndIsRead("studyTeam",isRead);
+		List<Notifications> notifications = notificationsRepository.getListBySentTOAndIsReadOrderByIdDesc("studyTeam",isRead);
 		return notifications;
 	}
 	
