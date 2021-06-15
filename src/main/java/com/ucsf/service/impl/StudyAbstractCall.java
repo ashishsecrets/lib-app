@@ -315,11 +315,13 @@ public class StudyAbstractCall {
                 surveyResponse.setMessage("Survey complete.");
                 surveyResponse.setIsLastQuestion(true);
                 surveyResponse.setInformation("");
+                userSurveyStatus.setIndexValue(getTotalSurveyQuestionsCount()+1);
+                setMaxSurveyIndex(userSurveyStatus.getIndexValue());
                 surveyResponse.setSkipCount(getSurveySkipCount());
                 surveyresponseJson.put("data", surveyResponse);
                 responseEntity = surveyresponseJson;
                 userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
-                userSurveyStatus.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
+
             } else if (userSurveyStatus.getIndexValue() <= 0) {
                 surveyresponseJson.remove("error");
                 surveyResponse = new SurveyQuestionResponse();
