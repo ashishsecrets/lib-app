@@ -132,14 +132,17 @@ public class AppointmentController {
 
 			List<Appointment> appointments = appointmentRepository.getAppointmentByPhysicianId(user.getId());
 			List<AppointmentResponse> list = new ArrayList<AppointmentResponse>();
+			 
 			for(Appointment appointment : appointments) {
 				AppointmentResponse response = new AppointmentResponse();
+				User patient = userRepository.findById(appointment.getUserId()).get();
+				String name = patient.getEmail()+"("+patient.getFirstName()+")";
 				response.setDescription(appointment.getAppointmentDesc());
 				response.setTitle(appointment.getAppointmentTitle());
 				response.setId(appointment.getAppointmentId());
 				response.setStartTime(appointment.getStartDate());
 				response.setEndTime(appointment.getEndDate());
-				response.setPatient(userRepository.findById(appointment.getUserId()).get().getEmail());
+				response.setPatient(name);
 				list.add(response);
 				//response.setPatient(appointment.get);
 			}
