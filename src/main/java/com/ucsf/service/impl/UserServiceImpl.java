@@ -420,7 +420,7 @@ public class UserServiceImpl implements UserService {
 	public List<PatientResponse> getApprovedPatients(Long studyId) {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status IN(3,9) and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
 		String updatedAt = "";
@@ -430,12 +430,10 @@ public class UserServiceImpl implements UserService {
 			if (map.get("user_id") != null) {
 				userId = Long.parseLong(map.get("user_id").toString());
 				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
-				System.out.println(updatedBy);
 				User studyMember = userRepository.findByEmail(updatedBy);
 				if(studyMember != null) {
 					updatedBy = studyMember.getFirstName() + " " + studyMember.getLastName();
 				}
-				System.out.println(updatedBy);
 				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
 				System.out.println(updatedAt);
 				int weeks = 1;
