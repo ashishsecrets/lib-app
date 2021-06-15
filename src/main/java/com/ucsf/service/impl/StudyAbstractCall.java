@@ -318,6 +318,7 @@ public class StudyAbstractCall {
                 userSurveyStatus.setIndexValue(getTotalSurveyQuestionsCount()+1);
                 setMaxSurveyIndex(userSurveyStatus.getIndexValue());
                 surveyResponse.setSkipCount(getSurveySkipCount());
+                userSurveyStatus.setSkipCount(getSurveySkipCount());
                 surveyresponseJson.put("data", surveyResponse);
                 responseEntity = surveyresponseJson;
                 userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
