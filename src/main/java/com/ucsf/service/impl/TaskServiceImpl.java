@@ -60,6 +60,7 @@ public class TaskServiceImpl implements TaskService {
                 userSurveyStatus.setTaskTrueId(task.getTaskTrueId());
                 userSurveyStatus.setIndexValue(0);
                 userSurveyStatus.setMaxIndexValue(0);
+                userSurveyStatus.setSkipCount(0);
                 userSurveyStatusRepository.save(userSurveyStatus);
 
             }
@@ -218,7 +219,7 @@ public class TaskServiceImpl implements TaskService {
 
        percentage = (float) totalAnswers/surveyQuestionList.size()*100;
 
-            if(percentage == (float) (surveyQuestionList.size()-1)/surveyQuestionList.size()*100){
+            if(surveyStatus.getSkipCount() == 1 && percentage == (float) (surveyQuestionList.size()-1)/surveyQuestionList.size()*100){
                 percentage = 100;
             }
 
