@@ -1,24 +1,13 @@
 package com.ucsf.test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.file.Paths;
 import java.util.Base64;
-import java.util.Map;
-import java.util.TreeMap;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-//import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import com.ucsf.UcsfMainApplication;
 import com.ucsf.util.EncryptDecryptUtil;
 
@@ -26,11 +15,11 @@ import com.ucsf.util.EncryptDecryptUtil;
 @SpringBootTest(classes = UcsfMainApplication.class)
 public class EncryptDecryptTest {
 
-    EncryptDecryptUtil encryptDecrypt = new EncryptDecryptUtil();
+	EncryptDecryptUtil encryptDecrypt = new EncryptDecryptUtil();
 
 	@Test
 	public void encrypt() throws Exception {
-		
+
 		JSONObject jsonObject2 = new JSONObject();
 		jsonObject2.put("Email address", "gurpreet.kaur@redblink.net");
 		jsonObject2.put("Zip Code", "160022");
