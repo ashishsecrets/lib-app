@@ -16,11 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ucsf.model.UcsfSurvey;
 import com.ucsf.payload.request.SurveyRequest;
 import com.ucsf.repository.ChoiceRepository;
@@ -166,6 +162,69 @@ public class SurveyController {
 
 
 			} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+	}
+
+
+
+	@ApiOperation(value = "Get list of surveys", notes = "Get list of surveys by user", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all surveys by user", response = SurveyResponse.class) })
+	@RequestMapping(value = "/survey-list", method = RequestMethod.GET)
+	public ResponseEntity<?> getSurveyTasks() {
+
+		SurveyListResponse response = new SurveyListResponse();
+
+		JSONObject responseJson = new JSONObject();
+
+		User user = null;
+
+		Boolean isSuccess = false;
+
+		try {
+			UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+			if (userDetail != null && userDetail.getUsername() != null) {
+				String email = userDetail.getUsername();
+				user = userRepository.findByEmail(email);
+				isSuccess = true;
+
+			} else {
+				loggerService.printLogs(log, "notificationsService", "Invalid User");
+				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
+						Constants.USER_NOT_FOUND.errordesc()));
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
+			}
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+		}
+
+		if(!isSuccess){
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
+		try {
+
+			List<UserTasks> tasks = taskService.getTaskList(user);
+
+			taskService.updateSurveyStatuses(user);
+
+			if(taskService.getTaskList(user) != null && !taskService.getTaskList(user).isEmpty()){
+				response.setList(taskService.getAlteredTaskListSurvey(tasks));
+				responseJson.put("data", response);
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			}
+			else{
+				responseJson.put("error", new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(), Constants.NO_STUDY_FOUND.errordesc()));
+				return new ResponseEntity(responseJson.toMap(), HttpStatus.NO_CONTENT);
+			}
+
+
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 

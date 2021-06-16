@@ -211,4 +211,10 @@ public class StudyServiceImpl implements StudyService {
 		}
 		return disapprovedUsers;
 	}
+
+	@Override
+	public UcsfStudy findById(Long studyId) {
+		UcsfStudy study = studyRepository.findById(studyId).get();
+		return study;
+	}
 }

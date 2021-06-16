@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -40,9 +41,8 @@ public class AmazonClientService {
 	
 	public S3Object awsGetObject(String keyName) {
 		try {
-			List<S3ObjectSummary> obj = s3client.listObjects(bucketName, keyName).getObjectSummaries();
-			System.out.println(obj);
-			S3Object image = s3client.getObject(bucketName, obj.get(0).getKey());
+			
+			S3Object image = s3client.getObject(bucketName, keyName);
 			
 			//IOUtils.copy(image.getObjectContent(), new FileOutputStream(new File("/home/arshdeep/img2.png")));
 			return image;
@@ -52,6 +52,7 @@ public class AmazonClientService {
 		}
 	}
 	
+
 	public Boolean awsCreateFolder(String folderName) {
 		try {
 			folderName = folderName+"/";

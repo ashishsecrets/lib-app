@@ -129,6 +129,7 @@ public class OtpController {
 					loggerService.printLogs(log, "sendOtp",
 							"Otp sent to registered email: " + user.getEmail() + "At: " + new Date());
 				} catch (Exception e) {
+					e.printStackTrace();
 					loggerService.printErrorLogs(log, "sendOtp",
 							"Otp sent to registered email: " + user.getEmail() + "At: " + new Date());
 				}
@@ -259,15 +260,24 @@ public class OtpController {
 					notification.setKindDescription("Register/Login");
 					notification.setType(Notifications.NotificationType.EMAIL);
 					notification.setUserId(user.getId());
+					notification.setSentTO("patient");
 					notificationsRepository.save(notification);
 				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			try {
+				//Inform study team
+				otpService.informStudyTeam(user);
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 
-		responseJson.put("data", new AuthResponse(userDetails, user, message));
+		responseJson.put("data", new AuthResponse(userDetails, user, message,null));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 
 	}

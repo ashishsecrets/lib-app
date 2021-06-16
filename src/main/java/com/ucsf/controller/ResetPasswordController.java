@@ -3,6 +3,7 @@ package com.ucsf.controller;
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
+import com.ucsf.payload.request.ForgetPasswordRequest;
 import com.ucsf.payload.request.ResetPasswordRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
@@ -61,12 +62,12 @@ public class ResetPasswordController {
 	@ApiOperation(value = "Forgot password email", notes = "Send forgot password email", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Email sent successfully", response = SuccessResponse.class) })
 	@RequestMapping(value = "/forget-password", method = RequestMethod.POST)
-	public ResponseEntity<?> forgetPassword(@RequestParam String email) {
+	public ResponseEntity<?> forgetPassword(@RequestBody ForgetPasswordRequest request) {
 		loggerService.printLogs(log, "forgetPassword", "Sending forget password email");
 		JSONObject responseJson = new JSONObject();
 		User user = null;
-		if (email != null && !email.equals("")) {
-			user = userRepository.findByEmail(email);
+		if (request.getEmail() != null && !request.getEmail().equals("")) {
+			user = userRepository.findByEmail(request.getEmail());
 			if (user == null) {
 				responseJson.put("error", new ErrorResponse(ErrorCodes.USER_NOT_FOUND.code(),
 						Constants.USER_NOT_FOUND.errordesc()));

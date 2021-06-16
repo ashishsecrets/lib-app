@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import javax.mail.internet.MimeMessage;
 
@@ -52,6 +53,21 @@ public class EmailService {
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
+	
+	public void informStudyTeam(String from, String[] to, String subject, String name,String email)
+			throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(from);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/informStudyTeamAboutNewPatient.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		body = body.replaceAll("\\{\\{email\\}\\}", email);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
 
 	public void sendStudyApprovalEmail(String from, String to, String subject, String name) throws Exception {
 		MimeMessage msg = javaMailSender.createMimeMessage();
@@ -75,6 +91,23 @@ public class EmailService {
 		File file = ResourceUtils.getFile("classpath:template/studyDisApprovalEmail.html");
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", name);
+		helper.setText(body, true);
+		javaMailSender.send(msg);
+	}
+	
+	
+	public void sendAppointmentEmail(String to, String subject, String patientName,String physicianName,String status ,String time) throws Exception {
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+		helper.setTo(to);
+		helper.setFrom(fromEmail);
+		helper.setSubject(subject);
+		File file = ResourceUtils.getFile("classpath:template/appointmentEmail.html");
+		String body = readFromInputStream(new FileInputStream(file));
+		body = body.replaceAll("\\{\\{patient\\}\\}", patientName);
+		body = body.replaceAll("\\{\\{doctor\\}\\}", physicianName);
+		body = body.replaceAll("\\{\\{status\\}\\}", status);
+		body = body.replaceAll("\\{\\{time\\}\\}", time);
 		helper.setText(body, true);
 		javaMailSender.send(msg);
 	}
@@ -129,11 +162,13 @@ public class EmailService {
 		File file = ResourceUtils.getFile("classpath:template/userConsentEmail.html");
 		String body = readFromInputStream(new FileInputStream(file));
 		body = body.replaceAll("\\{\\{name\\}\\}", user.getFirstName()+" "+user.getLastName());
-		
+		body = body.replaceAll("\\{\\{type\\}\\}", type.toLowerCase());
+
         formContent = formContent.replaceAll("\\{\\{date\\}\\}", userConsent.getDate())
 								 .replaceAll("\\{\\{patientName\\}\\}", userConsent.getPatientName())
 								// .replaceAll("\\{\\{patientSignature\\}\\}", patientSignatureFile.getPath())
 								 .replaceAll("\\{\\{parentName\\}\\}", userConsent.getParentName())
+								// .replaceAll("\\{\\{type\\}\\}", type.toLowerCase())
 								 .replaceAll("\\{\\{age\\}\\}", age);
         if(parentSignatureFile != null) {
         	formContent = formContent.replaceAll("\\{\\{parentSignature\\}\\}", parentSignatureFile.getPath());
@@ -148,7 +183,7 @@ public class EmailService {
         userConsent.setPdfFile(consentService.saveFile(pdfFile, user.getId().toString()));
         
         FileSystemResource attachmentFile = new FileSystemResource(pdfFile);
-        helper.addAttachment(type+"_"+user.getFirstName()+user.getLastName().replace(" ", "")+".pdf", attachmentFile);
+        helper.addAttachment(type.toLowerCase()+"_"+user.getFirstName()+user.getLastName().replace(" ", "")+".pdf", attachmentFile);
         helper.setText(body, true);
      
 		javaMailSender.send(msg);

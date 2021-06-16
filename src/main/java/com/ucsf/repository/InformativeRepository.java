@@ -9,6 +9,8 @@ public interface InformativeRepository extends CrudRepository<StudyInformative, 
 
     StudyInformative findByIndexValueAndStudyId(int indexValue, Long studyId);
 
+    StudyInformative findByIndexValueAndInfoTypeAndTypeId(int indexValue, String infoType, Long surveyId);
+
     //Informative Repo
 
 }

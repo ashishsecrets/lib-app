@@ -27,12 +27,14 @@ import com.ucsf.common.Constants;
 
 import com.ucsf.config.JwtConfig;
 import com.ucsf.config.JwtTokenUtil;
+import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserRepository;
+import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.service.CustomUserDetailsService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
@@ -45,6 +47,7 @@ import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -67,6 +70,9 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	UserScreeningStatusRepository userScreeningStatusRepository;
 
 	@Autowired
 	VerificationService verificationService;
@@ -119,7 +125,8 @@ public class UcsfAuthenticationController {
 		user.setAuthToken(token);
 		user.setDevideId(authenticationRequest.getDeviceId());
 		user = userRepository.save(user);
-
+		UserScreeningStatus userStatus = userScreeningStatusRepository.findByUserId(user.getId());
+		String status = userStatus.getUserScreeningStatus().toString();
 		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 			if (role.getName().toString().equals("ADMIN")) {
 				jwtConfig.setTwoFa(false);
@@ -127,12 +134,12 @@ public class UcsfAuthenticationController {
 		}
 		if (jwtConfig.getTwoFa()) {
 			message = "You have to be verified by 2FA";
-			responseJson.put("data", new AuthResponse(userDetails, user, message));
+			responseJson.put("data", new AuthResponse(userDetails, user, message,status));
 			return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 		} else {
 			message = "User Authenticated Successfully!";
 		}
-		responseJson.put("data", new AuthResponse(userDetails, user, message));
+		responseJson.put("data", new AuthResponse(userDetails, user, message,status));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
@@ -141,7 +148,7 @@ public class UcsfAuthenticationController {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "User registered successfully", response = User.class) })
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public ResponseEntity<?> saveUser(@RequestBody SignUpRequest signUpRequest) throws Exception {
-		loggerService.printLogs(log, "saveUser", "Register User");
+		loggerService.printLogs(log, "saveUser", "Register User" + signUpRequest.toString());
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		String message = "";
 		boolean isEnable = true;
@@ -164,6 +171,10 @@ public class UcsfAuthenticationController {
 		}
 
 		User user = userService.save(signUpRequest);
+		if(user==null) {
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_DOB.code(), Constants.INVALID_DOB.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 
 		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 			if (role.getName().toString().equals("ADMIN")) {
@@ -185,7 +196,9 @@ public class UcsfAuthenticationController {
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		user.setAuthToken(token);
-		responseJson.put("data", new AuthResponse(userDetails, user, message));
+		responseJson.put("data", new AuthResponse(userDetails, user, message,null));
+		loggerService.printLogs(log, "saveUser", "User Registered Successfully");
+
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 

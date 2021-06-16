@@ -9,7 +9,6 @@ import com.ucsf.payload.request.ScreeningAnswerRequest;
 import com.ucsf.payload.request.SurveyAnswerRequest;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.ScreeningQuestionResponse;
-import com.ucsf.payload.response.StudyInfoData;
 import com.ucsf.payload.response.SurveyQuestionResponse;
 import com.ucsf.repository.*;
 import com.ucsf.service.LoggerService;
@@ -18,9 +17,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -67,10 +63,18 @@ public class StudyAbstractCall {
     @Autowired
     InformativeRepository informativeRepository;
 
+    @Autowired
+    UserTasksRepository userTasksRepository;
+
+    @Autowired
+    SurveyRepository surveyRepository;
+
 
     private static Logger log = LoggerFactory.getLogger(ScreeningAnswerController.class);
 
     Boolean isSuccess = false;
+
+    Long surveyTrueId;
 
     JSONObject responseJson = new JSONObject();
     JSONObject surveyresponseJson = new JSONObject();
@@ -154,7 +158,7 @@ public class StudyAbstractCall {
         Optional<ScreeningAnswers> screenAnswerOp = null;
         try {
             if (!answerRequest.getAnswer().isEmpty()) {
-                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId()));
+                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId(), answerRequest.getStudyId()));
                 ScreeningAnswers screenAnswer;
                 if (screenAnswerOp.isPresent()) {
                     screenAnswer = screeningAnswerRepository.findById(screenAnswerOp.get().getId()).get();
@@ -168,13 +172,14 @@ public class StudyAbstractCall {
                                 userScreeningStatus.getIndexValue() - quesIncrement).getId()));
                 screenAnswer.setStudyId(answerRequest.getStudyId());
                 screenAnswer.setAnsweredById(user.getId());
+
                 screenAnswer.setIndexValue(userScreeningStatus.getIndexValue() - quesIncrement);
                 screenAnswerOp = Optional.of(screenAnswer);
                 screeningAnswerRepository.save(screenAnswer);
                 isSuccess = true;
             }
             else{
-                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId()));
+                screenAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue() - quesIncrement).getId()), user.getId(), answerRequest.getStudyId()));
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -187,7 +192,7 @@ public class StudyAbstractCall {
         Optional<SurveyAnswer> surveyAnswerOp = null;
         try {
             if (!surveyAnswerRequest.getAnswer().isEmpty()) {
-                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId())));
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()), user.getId(), surveyTrueId));
                 SurveyAnswer surveyAnswer;
                 if (surveyAnswerOp.isPresent()) {
                     surveyAnswer = surveyAnswerRepository.findById(surveyAnswerOp.get().getId()).get();
@@ -201,12 +206,14 @@ public class StudyAbstractCall {
                                 userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()));
                 surveyAnswer.setSurveyId(surveyAnswerRequest.getSurveyId());
                 surveyAnswer.setAnsweredById(user.getId());
+                surveyAnswer.setTaskTrueId(surveyTrueId);
                 surveyAnswer.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
+                surveyAnswerOp = Optional.of(surveyAnswer);
                 surveyAnswerRepository.save(surveyAnswer);
                 isSuccess = true;
             }
             else{
-                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId())));
+                surveyAnswerOp = Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), userSurveyStatus.getIndexValue() - quesSurveyIncrement).getId()), user.getId(), surveyTrueId));
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -267,7 +274,7 @@ public class StudyAbstractCall {
                     response.setScreeningAnswers(sa);
                     response.setChoices(choices);
                     response.setMessage("Please go forward and answer first question.");
-                    response.setInformation(informativeRepository.findByIndexValueAndStudyId(0, 1l).getInfoDescription());
+                    response.setInformation(informativeRepository.findByIndexValueAndStudyId(0, answerRequest.getStudyId()).getInfoDescription());
                     response.setIsLastQuestion(false);
                     responseJson.put("data", response);
                     responseEntity = responseJson;
@@ -308,9 +315,14 @@ public class StudyAbstractCall {
                 surveyResponse.setMessage("Survey complete.");
                 surveyResponse.setIsLastQuestion(true);
                 surveyResponse.setInformation("");
+                userSurveyStatus.setIndexValue(getTotalSurveyQuestionsCount()+1);
+                setMaxSurveyIndex(userSurveyStatus.getIndexValue());
+                surveyResponse.setSkipCount(getSurveySkipCount());
+                userSurveyStatus.setSkipCount(getSurveySkipCount());
                 surveyresponseJson.put("data", surveyResponse);
                 responseEntity = surveyresponseJson;
                 userSurveyStatus.setUserSurveyStatus(UserSurveyStatus.SurveyStatus.UNDER_REVIEW);
+
             } else if (userSurveyStatus.getIndexValue() <= 0) {
                 surveyresponseJson.remove("error");
                 surveyResponse = new SurveyQuestionResponse();
@@ -321,14 +333,14 @@ public class StudyAbstractCall {
                 surveyResponse.setSurveyAnswer(sa);
                 surveyResponse.setChoices(choices);
                 surveyResponse.setMessage("Please go forward and answer first question.");
-                surveyResponse.setInformation("");
+                surveyResponse.setInformation(informativeRepository.findByIndexValueAndInfoTypeAndTypeId(0, "survey", surveyAnswerRequest.getSurveyId()).getInfoDescription());
                 surveyResponse.setIsLastQuestion(false);
                 surveyresponseJson.put("data", surveyResponse);
                 responseEntity = surveyresponseJson;
-                userSurveyStatus.setIndexValue(-1);
+                userSurveyStatus.setIndexValue(0);
                 userSurveyStatusRepository.save(userSurveyStatus);
             }
-            userSurveyStatus.setIndexValue(userSurveyStatus.getIndexValue() - quesSurveyIncrement);
+
             userSurveyStatusRepository.save(userSurveyStatus);
         }
         //returning responseJson
@@ -338,7 +350,7 @@ public class StudyAbstractCall {
     public ScreeningQuestions getQuestionToDisplayToUser(int index) {
 
         return screeningQuestionRepository.findByStudyIdAndIndexValue(
-                userScreeningStatusRepository.findByUserId(user.getId()).getStudyId(), index);
+                userScreeningStatusRepository.findByUserIdAndStudyId(user.getId(), answerRequest.getStudyId()).getStudyId(), index);
     }
 
     public void setQuestionToDisplayToUser(int index) {
@@ -348,7 +360,7 @@ public class StudyAbstractCall {
     }
 
     public ScreeningAnswers getAnswerToDisplayToUser(Long index) {
-        return screeningAnswerRepository.findByQuestionIdAndAnsweredById(index, user.getId());
+        return screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId(index, user.getId(), answerRequest.getStudyId());
     }
 
     public Boolean getIsLastQuestionBool() {
@@ -379,7 +391,7 @@ public class StudyAbstractCall {
 
     public ScreeningQuestionResponse displayQuesNAns(ScreeningQuestions questionToDisplayToUser, ScreeningAnswers answerToDisplayToUser) {
 
-        List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionId(questionToDisplayToUser.getId());
+        List<ScreeningAnsChoice> choices = choiceRepository.findByQuestionIdAndStudyId(questionToDisplayToUser.getId(), answerRequest.getStudyId());
         response.setScreeningQuestions(questionToDisplayToUser);
         if (answerToDisplayToUser == null) {
             answerToDisplayToUser = new ScreeningAnswers();
@@ -388,8 +400,8 @@ public class StudyAbstractCall {
         response.setChoices(choices);
         response.setIsLastQuestion(getIsLastQuestionBool());
         response.setMessage("");
-        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l) != null){
-            response.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), 1l).getInfoDescription());
+        if(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), answerRequest.getStudyId()) != null){
+            response.setInformation(informativeRepository.findByIndexValueAndStudyId(getIndexValue(), answerRequest.getStudyId()).getInfoDescription());
         }
         else{
             response.setInformation("");
@@ -440,7 +452,78 @@ public class StudyAbstractCall {
 
     public ScreeningAnswers findAnswerByIndex(int i) {
 
-       return Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredById((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), i).getId()), user.getId())).get();
+       return Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), i).getId()), user.getId(), answerRequest.getStudyId())).get();
 
+    }
+
+    public SurveyAnswer findSurveyAnswerByIndex(int i) {
+
+        return Optional.ofNullable(surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId((surveyQuestionRepository.findBySurveyIdAndIndexValue(surveyAnswerRequest.getSurveyId(), i).getId()), user.getId(), surveyTrueId)).get();
+
+    }
+
+    public int getTotalQuestionsCount() {
+        List<ScreeningQuestions> list = screeningQuestionRepository.findByStudyId(answerRequest.getStudyId());
+
+        return list.size();
+    }
+
+    public void correctSurveyId() {
+        Optional<UserTasks> userTaskOp = userTasksRepository.findById(surveyAnswerRequest.getSurveyId());
+        UserTasks userTask = userTaskOp.get();
+        surveyTrueId = surveyAnswerRequest.getSurveyId();
+        surveyAnswerRequest.setSurveyId(userTask.getTaskId());
+    }
+
+    public int getTotalSurveyQuestionsCount() {
+        List<SurveyQuestion> list = surveyQuestionRepository.findBySurveyId(surveyAnswerRequest.getSurveyId());
+
+        return list.size();
+    }
+
+    public Optional<ScreeningAnswers> getCurrentAnswer() {
+        Optional<ScreeningAnswers> currentAnswerOp = Optional.ofNullable(screeningAnswerRepository.findByQuestionIdAndAnsweredByIdAndStudyId((screeningQuestionRepository.findByStudyIdAndIndexValue(answerRequest.getStudyId(), userScreeningStatus.getIndexValue()).getId()), user.getId(), answerRequest.getStudyId()));
+        ScreeningAnswers currentAnswer = new ScreeningAnswers();
+        if(!currentAnswerOp.isPresent()){
+            currentAnswerOp = Optional.of(currentAnswer);
+            currentAnswerOp.get().setAnswerDescription("");
+        }
+        return currentAnswerOp;
+    }
+
+    public int getSurveySkipCount() {
+        //if calculation is incorrect need to set initial value of maxIndex in db to 1 instead of 0
+        //& perhaps add -1 here
+        return getMaxSurveyIndex() - getTotalSurveyAnswersCount() - 1;
+    }
+
+    private int getMaxSurveyIndex() {
+        return userSurveyStatus.getMaxIndexValue();
+    }
+
+    void setMaxSurveyIndex(int indexValue) {
+        int maxSurveyIndex = getMaxSurveyIndex();
+        if(indexValue > maxSurveyIndex){
+        maxSurveyIndex = indexValue;}
+        userSurveyStatus.setMaxIndexValue(maxSurveyIndex);
+        userSurveyStatusRepository.save(userSurveyStatus);
+    }
+
+    private int getMaxSurveyAnswerSaved() {
+        List<SurveyAnswer> answerList = surveyAnswerRepository.findByTaskTrueIdAndAnsweredById(surveyTrueId, user.getId());
+        SurveyAnswer answer = answerList.get(answerList.size()-1);
+        for(SurveyAnswer item : answerList){
+            if(item.getIndexValue() > answer.getIndexValue()){
+                answer = item;
+            }
+        }
+        return answer.getIndexValue();
+    }
+
+    private int getTotalSurveyAnswersCount() {
+        int totalAnswers = 0;
+        List<SurveyAnswer> surveyAnswersList = surveyAnswerRepository.findByTaskTrueIdAndAnsweredById(surveyTrueId, user.getId());
+        if(surveyAnswersList != null){totalAnswers = surveyAnswersList.size();}
+        return totalAnswers;
     }
 }

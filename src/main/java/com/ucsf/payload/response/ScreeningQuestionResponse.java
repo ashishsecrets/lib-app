@@ -19,5 +19,5 @@ public class ScreeningQuestionResponse {
 	String message;
 	String information;
 	Boolean isDisqualified;
-	
+	int totalQuestions;
 }

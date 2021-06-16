@@ -19,8 +19,8 @@ public class UserTasks {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column
-	private Long id;
+	@Column(name = "id")
+	private Long taskTrueId;
 
 	@Column
 	private String title;
@@ -42,6 +42,9 @@ public class UserTasks {
 
 	@Column(name = "end_date")
 	private Date endDate;
+
+	@Column
+	private Integer duration; //duration in weeks
 
 	@Column(name = "user_id")
 	private Long userId;

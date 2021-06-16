@@ -5,13 +5,11 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class TaskResponse {
+public class OverdueTaskResponse {
 
     Long taskId;
     String taskName;
     Date startDate;
     Date dueDate;
     String taskStatus;
-    String taskType;
-    int taskPercentage;
 }

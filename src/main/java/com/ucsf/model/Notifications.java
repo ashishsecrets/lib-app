@@ -35,6 +35,12 @@ public class Notifications {
 
 	@Column(name = "kind_description")
 	private String kindDescription;
+	
+	@Column(name = "sent_to")
+	private String sentTO;
+	
+	@Column(name = "is_read")
+	private Boolean isRead;
 
 	@Column(name = "date")
 	private Date date;

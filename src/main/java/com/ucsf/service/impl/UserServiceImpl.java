@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import com.ucsf.model.StudyImages;
-import com.ucsf.model.UserSurveyStatus;
+
+import com.ucsf.model.*;
 import com.ucsf.repository.*;
 
 import org.joda.time.DateTime;
@@ -28,8 +28,6 @@ import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.auth.model.User;
 import com.ucsf.auth.model.User.UserStatus;
-import com.ucsf.model.UserMetadata;
-import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
 import com.ucsf.model.UserMetadata.StudyStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
@@ -110,27 +108,38 @@ public class UserServiceImpl implements UserService {
 		}
 		newUser.setUserStatus(UserStatus.ACTIVE);
 		newUser.setDevideId(user.getDeviceId());
-		User savedUser = userRepository.save(newUser);
+		User savedUser = null;
 		UserMetadata metadata = new UserMetadata();
 		metadata.setConsentAccepted(false);
 		metadata.setStudyStatus(StudyStatus.NEWLY_ADDED);
-		metadata.setUserId(savedUser.getId());
 		metadata.setNotifiedBy(StudyAcceptanceNotification.NOT_APPROVED);
-		if (user.getDateOfBirth() != null) {
+		if (user.getDateOfBirth() != null && !user.getDateOfBirth().isEmpty()) {
+			if (!AppUtil.validateDOB(user.getDateOfBirth())) {
+				return savedUser;
+			}
 			metadata.setDateOfBith(user.getDateOfBirth());
 			metadata.setAge(AppUtil.getAge(user.getDateOfBirth()));
 		}
+		savedUser = userRepository.save(newUser);
+		metadata.setUserId(savedUser.getId());
 		userMetaDataRepository.save(metadata);
 		// save metadata in metadatarepo
 		// newUser.setMetadata(metadata);
 
-		UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
-		userScreeningStatus.setStudyId(1l);
-		userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
-		userScreeningStatus.setIndexValue(1);
-		userScreeningStatus.setUserId(savedUser.getId());
-		userScreeningStatusRepository.save(userScreeningStatus);
+		List<UcsfStudy> studiesList = studyRepo.findAll();
 
+		if (studiesList != null || !studiesList.isEmpty()) {
+
+			for (UcsfStudy item : studiesList) {
+
+				UserScreeningStatus userScreeningStatus = new UserScreeningStatus();
+				userScreeningStatus.setStudyId(item.getId());
+				userScreeningStatus.setUserScreeningStatus(UserScreenStatus.NEWLY_ADDED);
+				userScreeningStatus.setIndexValue(1);
+				userScreeningStatus.setUserId(savedUser.getId());
+				userScreeningStatusRepository.save(userScreeningStatus);
+			}
+		}
 		/*
 		 * UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
 		 * userSurveyStatus.setSurveyId(1l);
@@ -148,122 +157,130 @@ public class UserServiceImpl implements UserService {
 		 * interest”
 		 */
 		// Making the changes below
-		StudyImages full_body_front = new StudyImages();
-		full_body_front.setName("Full body front");
-		full_body_front.setDescription("");
-		full_body_front.setStudyId(1l);
-		full_body_front.setImageUrl("body_parts/full_body_front" + "/" + savedUser.getId());
-		full_body_front.setUserId(savedUser.getId());
-		full_body_front.setCount(0);
-		imageRepository.save(full_body_front);
 
-		StudyImages full_body_back = new StudyImages();
-		full_body_back.setName("Full body back");
-		full_body_back.setDescription("");
-		full_body_back.setStudyId(1l);
-		full_body_back.setImageUrl("body_parts/full_body_back" + "/" + savedUser.getId());
-		full_body_back.setUserId(savedUser.getId());
-		full_body_back.setCount(0);
-		imageRepository.save(full_body_back);
+		if (studiesList != null || !studiesList.isEmpty()) {
 
-		StudyImages front_trunk = new StudyImages();
-		front_trunk.setName("Front Trunk");
-		front_trunk.setDescription("");
-		front_trunk.setStudyId(1l);
-		front_trunk.setImageUrl("body_parts/front_trunk" + "/" + savedUser.getId());
-		front_trunk.setUserId(savedUser.getId());
-		front_trunk.setCount(0);
-		imageRepository.save(front_trunk);
+			for (UcsfStudy item : studiesList) {
 
-		StudyImages back_trunk = new StudyImages();
-		back_trunk.setName("Back Trunk");
-		back_trunk.setDescription("");
-		back_trunk.setStudyId(1l);
-		back_trunk.setImageUrl("body_parts/back_trunk" + "/" + savedUser.getId());
-		back_trunk.setUserId(savedUser.getId());
-		back_trunk.setCount(0);
-		imageRepository.save(back_trunk);
+				StudyImages full_body_front = new StudyImages();
+				full_body_front.setName("Full body front");
+				full_body_front.setDescription("");
+				full_body_front.setStudyId(item.getId());
+				full_body_front.setImageUrl("body_parts/full_body_front" + "/" + savedUser.getId());
+				full_body_front.setUserId(savedUser.getId());
+				full_body_front.setCount(0);
+				imageRepository.save(full_body_front);
 
-		StudyImages front_of_arms = new StudyImages();
-		front_of_arms.setName("Front of Arms");
-		front_of_arms.setDescription("");
-		front_of_arms.setStudyId(1l);
-		front_of_arms.setImageUrl("body_parts/front_of_arms" + "/" + savedUser.getId());
-		front_of_arms.setUserId(savedUser.getId());
-		front_of_arms.setCount(0);
-		imageRepository.save(front_of_arms);
+				StudyImages full_body_back = new StudyImages();
+				full_body_back.setName("Full body back");
+				full_body_back.setDescription("");
+				full_body_back.setStudyId(item.getId());
+				full_body_back.setImageUrl("body_parts/full_body_back" + "/" + savedUser.getId());
+				full_body_back.setUserId(savedUser.getId());
+				full_body_back.setCount(0);
+				imageRepository.save(full_body_back);
 
-		StudyImages back_of_arms = new StudyImages();
-		back_of_arms.setName("Back of Arms");
-		back_of_arms.setDescription("");
-		back_of_arms.setStudyId(1l);
-		back_of_arms.setImageUrl("body_parts/front_of_arms" + "/" + savedUser.getId());
-		back_of_arms.setUserId(savedUser.getId());
-		back_of_arms.setCount(0);
-		imageRepository.save(back_of_arms);
+				StudyImages front_trunk = new StudyImages();
+				front_trunk.setName("Front Trunk");
+				front_trunk.setDescription("");
+				front_trunk.setStudyId(item.getId());
+				front_trunk.setImageUrl("body_parts/front_trunk" + "/" + savedUser.getId());
+				front_trunk.setUserId(savedUser.getId());
+				front_trunk.setCount(0);
+				imageRepository.save(front_trunk);
 
-		StudyImages front_of_hands = new StudyImages();
-		front_of_hands.setName("Front of Hands");
-		front_of_hands.setDescription("");
-		front_of_hands.setStudyId(1l);
-		front_of_hands.setImageUrl("body_parts/front_of_hands" + "/" + savedUser.getId());
-		front_of_hands.setUserId(savedUser.getId());
-		front_of_hands.setCount(0);
-		imageRepository.save(front_of_hands);
+				StudyImages back_trunk = new StudyImages();
+				back_trunk.setName("Back Trunk");
+				back_trunk.setDescription("");
+				back_trunk.setStudyId(item.getId());
+				back_trunk.setImageUrl("body_parts/back_trunk" + "/" + savedUser.getId());
+				back_trunk.setUserId(savedUser.getId());
+				back_trunk.setCount(0);
+				imageRepository.save(back_trunk);
 
-		StudyImages back_of_hands = new StudyImages();
-		back_of_hands.setName("Back of Hands");
-		back_of_hands.setDescription("");
-		back_of_hands.setStudyId(1l);
-		back_of_hands.setImageUrl("body_parts/back_of_hands" + "/" + savedUser.getId());
-		back_of_hands.setUserId(savedUser.getId());
-		back_of_hands.setCount(0);
-		imageRepository.save(back_of_hands);
+				StudyImages front_of_arms = new StudyImages();
+				front_of_arms.setName("Front of Arms");
+				front_of_arms.setDescription("");
+				front_of_arms.setStudyId(item.getId());
+				front_of_arms.setImageUrl("body_parts/front_of_arms" + "/" + savedUser.getId());
+				front_of_arms.setUserId(savedUser.getId());
+				front_of_arms.setCount(0);
+				imageRepository.save(front_of_arms);
 
-		StudyImages front_of_legs = new StudyImages();
-		front_of_legs.setName("Front of Legs");
-		front_of_legs.setDescription("");
-		front_of_legs.setStudyId(1l);
-		front_of_legs.setImageUrl("body_parts/front_of_legs" + "/" + savedUser.getId());
-		front_of_legs.setUserId(savedUser.getId());
-		front_of_legs.setCount(0);
-		imageRepository.save(front_of_legs);
+				StudyImages back_of_arms = new StudyImages();
+				back_of_arms.setName("Back of Arms");
+				back_of_arms.setDescription("");
+				back_of_arms.setStudyId(item.getId());
+				back_of_arms.setImageUrl("body_parts/front_of_arms" + "/" + savedUser.getId());
+				back_of_arms.setUserId(savedUser.getId());
+				back_of_arms.setCount(0);
+				imageRepository.save(back_of_arms);
 
-		StudyImages back_of_legs = new StudyImages();
-		back_of_legs.setName("Back of Legs");
-		back_of_legs.setDescription("");
-		back_of_legs.setStudyId(1l);
-		back_of_legs.setImageUrl("body_parts/back_of_legs" + "/" + savedUser.getId());
-		back_of_legs.setUserId(savedUser.getId());
-		back_of_legs.setCount(0);
-		imageRepository.save(back_of_legs);
+				StudyImages front_of_hands = new StudyImages();
+				front_of_hands.setName("Front of Hands");
+				front_of_hands.setDescription("");
+				front_of_hands.setStudyId(item.getId());
+				front_of_hands.setImageUrl("body_parts/front_of_hands" + "/" + savedUser.getId());
+				front_of_hands.setUserId(savedUser.getId());
+				front_of_hands.setCount(0);
+				imageRepository.save(front_of_hands);
 
-		StudyImages front_of_feet = new StudyImages();
-		front_of_feet.setName("Front of Feet");
-		front_of_feet.setDescription("");
-		front_of_feet.setStudyId(1l);
-		front_of_feet.setImageUrl("body_parts/front_of_feet" + "/" + savedUser.getId());
-		front_of_feet.setUserId(savedUser.getId());
-		front_of_feet.setCount(0);
-		imageRepository.save(front_of_feet);
+				StudyImages back_of_hands = new StudyImages();
+				back_of_hands.setName("Back of Hands");
+				back_of_hands.setDescription("");
+				back_of_hands.setStudyId(item.getId());
+				back_of_hands.setImageUrl("body_parts/back_of_hands" + "/" + savedUser.getId());
+				back_of_hands.setUserId(savedUser.getId());
+				back_of_hands.setCount(0);
+				imageRepository.save(back_of_hands);
 
-		StudyImages back_of_feet = new StudyImages();
-		back_of_feet.setName("Back of Feet");
-		back_of_feet.setDescription("");
-		back_of_feet.setStudyId(1l);
-		back_of_feet.setImageUrl("body_parts/back_of_feet" + "/" + savedUser.getId());
-		back_of_feet.setUserId(savedUser.getId());
-		back_of_feet.setCount(0);
-		imageRepository.save(back_of_feet);
+				StudyImages front_of_legs = new StudyImages();
+				front_of_legs.setName("Front of Legs");
+				front_of_legs.setDescription("");
+				front_of_legs.setStudyId(item.getId());
+				front_of_legs.setImageUrl("body_parts/front_of_legs" + "/" + savedUser.getId());
+				front_of_legs.setUserId(savedUser.getId());
+				front_of_legs.setCount(0);
+				imageRepository.save(front_of_legs);
 
-		StudyImages special_areas = new StudyImages();
-		special_areas.setName("Special Areas of Interest");
-		special_areas.setDescription("");
-		special_areas.setStudyId(1l);
-		special_areas.setImageUrl("body_parts/special_areas" + "/" + savedUser.getId());
-		special_areas.setUserId(savedUser.getId());
-		special_areas.setCount(0);
-		imageRepository.save(special_areas);
+				StudyImages back_of_legs = new StudyImages();
+				back_of_legs.setName("Back of Legs");
+				back_of_legs.setDescription("");
+				back_of_legs.setStudyId(item.getId());
+				back_of_legs.setImageUrl("body_parts/back_of_legs" + "/" + savedUser.getId());
+				back_of_legs.setUserId(savedUser.getId());
+				back_of_legs.setCount(0);
+				imageRepository.save(back_of_legs);
+
+				StudyImages front_of_feet = new StudyImages();
+				front_of_feet.setName("Front of Feet");
+				front_of_feet.setDescription("");
+				front_of_feet.setStudyId(item.getId());
+				front_of_feet.setImageUrl("body_parts/front_of_feet" + "/" + savedUser.getId());
+				front_of_feet.setUserId(savedUser.getId());
+				front_of_feet.setCount(0);
+				imageRepository.save(front_of_feet);
+
+				StudyImages back_of_feet = new StudyImages();
+				back_of_feet.setName("Back of Feet");
+				back_of_feet.setDescription("");
+				back_of_feet.setStudyId(item.getId());
+				back_of_feet.setImageUrl("body_parts/back_of_feet" + "/" + savedUser.getId());
+				back_of_feet.setUserId(savedUser.getId());
+				back_of_feet.setCount(0);
+				imageRepository.save(back_of_feet);
+
+				StudyImages special_areas = new StudyImages();
+				special_areas.setName("Special Areas of Interest");
+				special_areas.setDescription("");
+				special_areas.setStudyId(item.getId());
+				special_areas.setImageUrl("body_parts/special_areas" + "/" + savedUser.getId());
+				special_areas.setUserId(savedUser.getId());
+				special_areas.setCount(0);
+				imageRepository.save(special_areas);
+
+			}
+		}
 
 		return savedUser;
 	}
@@ -358,9 +375,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<User> getPatients() {
+	public List<User> getPatients(Long studyId) {
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and ur.role_id = 2 ORDER BY ur.user_id DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 2 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY ur.user_id DESC;");
 		List<User> patients = new ArrayList<User>();
 		Long userId = 0l;
 		Optional<User> user = null;
@@ -400,10 +417,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<PatientResponse> getApprovedPatients() {
+	public List<PatientResponse> getApprovedPatients(Long studyId) {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 3 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status IN(3,9) and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
 		String updatedAt = "";
@@ -413,7 +430,10 @@ public class UserServiceImpl implements UserService {
 			if (map.get("user_id") != null) {
 				userId = Long.parseLong(map.get("user_id").toString());
 				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
-				System.out.println(updatedBy);
+				User studyMember = userRepository.findByEmail(updatedBy);
+				if(studyMember != null) {
+					updatedBy = studyMember.getFirstName() + " " + studyMember.getLastName();
+				}
 				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
 				System.out.println(updatedAt);
 				int weeks = 1;
@@ -428,9 +448,9 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(exited.getLastName());
 						patient.setPhoneNumber(exited.getPhoneCode() + exited.getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy+" "+updatedAt);
+						patient.setUpdatedBy(updatedBy);
 						patient.setStudyWeek(weeks + 1);
-						
+
 						if (map.get("status_updated_date") != null) {
 
 							DateTime statusUpdateDate = new DateTime(new SimpleDateFormat("yyyy-MM-dd")
@@ -450,10 +470,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<PatientResponse> getDisapprovedPatients() {
+	public List<PatientResponse> getDisapprovedPatients(Long studyId) {
 
 		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
-				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 8 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
 		List<PatientResponse> patients = new ArrayList<PatientResponse>();
 		Long userId = 0l;
 		String updatedAt = "";
@@ -465,6 +485,10 @@ public class UserServiceImpl implements UserService {
 				userId = Long.parseLong(map.get("user_id").toString());
 				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
 				System.out.println(updatedBy);
+				User studyMember = userRepository.findByEmail(updatedBy);
+				if(studyMember != null) {
+					updatedBy = studyMember.getFirstName() + " " + studyMember.getLastName();
+				}
 				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
 				System.out.println(updatedAt);
 				int weeks = 1;
@@ -478,7 +502,7 @@ public class UserServiceImpl implements UserService {
 						patient.setLastName(user.get().getLastName());
 						patient.setPhoneNumber(user.get().getPhoneCode() + user.get().getPhoneNumber());
 						patient.setUpdatedAt(updatedAt);
-						patient.setUpdatedBy(updatedBy+" "+updatedAt);
+						patient.setUpdatedBy(updatedBy);
 						patient.setStudyWeek(weeks + 1);
 						if (map.get("status_updated_date") != null) {
 
@@ -488,15 +512,71 @@ public class UserServiceImpl implements UserService {
 							weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
 						}
 						patients.add(patient);
-					} 
-					
+					}
+
 					catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-				
+
 			}
-			
+
+		}
+		return patients;
+	}
+	
+	@Override
+	public List<PatientResponse> getDisqualifiedPatients(Long studyId) {
+
+		List<Map<String, Object>> patientList = jdbcTemplate.queryForList(
+				"SELECT * FROM user_roles ur JOIN user_screening_status uss ON ur.user_id = uss.user_id and  uss.user_screening_status = 5 and uss.study_id = "+studyId+" and ur.role_id = 2 ORDER BY uss.last_modified_date DESC;");
+		List<PatientResponse> patients = new ArrayList<PatientResponse>();
+		Long userId = 0l;
+		String updatedAt = "";
+		String updatedBy = "";
+		Optional<User> user = null;
+		User exited = new User();
+		for (Map<String, Object> map : patientList) {
+			if (map.get("user_id") != null) {
+				userId = Long.parseLong(map.get("user_id").toString());
+				updatedBy = map.get("last_modified_by") != null ? map.get("last_modified_by").toString() : "";
+				System.out.println(updatedBy);
+				User studyMember = userRepository.findByEmail(updatedBy);
+				if(studyMember != null) {
+					updatedBy = studyMember.getFirstName() + " " + studyMember.getLastName();
+				}
+				updatedAt = map.get("status_updated_date") != null ? map.get("status_updated_date").toString() : "";
+				System.out.println(updatedAt);
+				int weeks = 1;
+				user = userRepository.findById(userId);
+				if (user.isPresent()) {
+					PatientResponse patient = new PatientResponse();
+					try {
+						patient.setEmail(user.get().getEmail());
+						patient.setId(user.get().getId());
+						patient.setFirstName(user.get().getFirstName());
+						patient.setLastName(user.get().getLastName());
+						patient.setPhoneNumber(user.get().getPhoneCode() + user.get().getPhoneNumber());
+						patient.setUpdatedAt(updatedAt);
+						patient.setUpdatedBy(updatedBy);
+						patient.setStudyWeek(weeks + 1);
+						if (map.get("status_updated_date") != null) {
+
+							DateTime statusUpdateDate = new DateTime(new SimpleDateFormat("yyyy-MM-dd")
+									.parse(map.get("status_updated_date").toString()));
+							DateTime currDate = new DateTime(new Date());
+							weeks = Weeks.weeksBetween(statusUpdateDate, currDate).getWeeks();
+						}
+						patients.add(patient);
+					}
+
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+
 		}
 		return patients;
 	}

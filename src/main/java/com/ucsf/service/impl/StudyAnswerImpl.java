@@ -17,7 +17,6 @@ import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.repository.UserSurveyStatusRepository;
 import com.ucsf.service.AnswerSaveService;
 import com.ucsf.service.LoggerService;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -110,7 +108,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 
      try {
-		 studyAbstractCall.userScreeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+		 studyAbstractCall.userScreeningStatus = userScreeningStatusRepository.findByUserIdAndStudyId(user.getId(), answerRequest.getStudyId());
 	 } catch (NullPointerException e) {
 		 e.printStackTrace();
 	 }
@@ -161,14 +159,14 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 			try {
 				if (lastSavedAnswer != null) {
-					//if block added to fix backward flow @ question 5 when answer 5 is empty
+					//if block added to fix backward flow
 					if(lastSavedAnswer.isEmpty()){
 						ScreeningAnswers x = new ScreeningAnswers();
-						x.setIndexValue(5);
+						x.setIndexValue(previous);
 						x.setAnswerDescription("");
 						lastSavedAnswer = Optional.of(x);
 					}
-					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
+					StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection, answerRequest.getStudyId());
 					if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
 
 						studyAbstractCall.setQuestionToDisplayToUser(current);
@@ -180,7 +178,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 					}
 						if (screenTestData.isFinished == StudyInfoData.StudyInfoSatus.TRUE) {
 
-							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
+							//studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
 							studyAbstractCall.userScreeningStatus.setIndexValue(current);
 							studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.DISQUALIFIED);
 							userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
@@ -224,7 +222,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 		Boolean isLastQuestion = studyAbstractCall.getIsLastQuestionBool();
 
-		if(isLastQuestion){
+		if(isLastQuestion && !response.getIsDisqualified() && !studyAbstractCall.getCurrentAnswer().get().getAnswerDescription().equals("")){
 			studyAbstractCall.userScreeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.UNDER_REVIEW);
 			studyAbstractCall.userScreeningStatus.setIndexValue(studyAbstractCall.userScreeningStatus.getIndexValue());
 			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
@@ -234,21 +232,25 @@ public class StudyAnswerImpl implements AnswerSaveService {
 			userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
 		}
 
+		response.setTotalQuestions(studyAbstractCall.getTotalQuestionsCount());
+
 		responseJson.put("data", response);
 
 		return new ResponseEntity(responseJson.toMap(), HttpStatus.ACCEPTED);
 	}
 
 	@Override
-	public ResponseEntity saveSurveyAnswer(SurveyAnswerRequest answerRequest) {
+	public ResponseEntity saveSurveyAnswer(SurveyAnswerRequest surveyAnswerRequest) {
 		User user = null;
 
 		//Enabling logging;
 
-		loggerService.printLogs(log, "saveScreeningAnswers", "Saving screening Answers");
+		loggerService.printLogs(log, "saveSurveyAnswer", "Saving survey Answers");
 
 		//Calling studyAbstract's member to pass request
-		studyAbstractCall.surveyAnswerRequest = answerRequest;
+		studyAbstractCall.surveyAnswerRequest = surveyAnswerRequest;
+
+		studyAbstractCall.correctSurveyId();
 
 		Boolean isSuccess = false;
 
@@ -273,7 +275,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 				studyAbstractCall.user = user;
 				isSuccess = true;
 			} else {
-				loggerService.printLogs(log, "saveScreeningAnswers", "Invalid JWT signature.");
+				loggerService.printLogs(log, "saveSurveyAnswer", "Invalid JWT signature.");
 				responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
 						Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
 				return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
@@ -290,7 +292,7 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 
 		try {
-			studyAbstractCall.userSurveyStatus = userSurveyStatusRepository.findByUserIdAndSurveyId(user.getId(), answerRequest.getSurveyId());
+			studyAbstractCall.userSurveyStatus = userSurveyStatusRepository.findByUserIdAndSurveyIdAndTaskTrueId(user.getId(), studyAbstractCall.surveyAnswerRequest.getSurveyId(), studyAbstractCall.surveyTrueId);
 			surveyStatusBool = true;
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -329,9 +331,10 @@ public class StudyAnswerImpl implements AnswerSaveService {
 		// It does not matter whether you are going forward or backward questionDirection takes care of that.
 
 		indexValue = studyAbstractCall.getSurveyIndexValue();
+		studyAbstractCall.setMaxSurveyIndex(indexValue);
 
 		// Therefore, here we create two new ints for going next or previous question/answer --
-		// not used currently -> int previous = indexValue - questionDirection;
+		int previous = indexValue - questionDirection;
 		int next = indexValue + questionDirection;
 		int current = indexValue;
 
@@ -348,8 +351,15 @@ public class StudyAnswerImpl implements AnswerSaveService {
 
 			try {
 				if (lastSavedAnswer != null) {
-					//StudyInfoData screenTestData = screeningTest.screenTest(lastSavedAnswer.get(), questionDirection);
-					//if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
+					//if block added to fix backward flow
+					if(lastSavedAnswer.isEmpty()){
+						SurveyAnswer x = new SurveyAnswer();
+						x.setIndexValue(previous);
+						x.setAnswerDescription("");
+						lastSavedAnswer = Optional.of(x);
+					}
+					StudyInfoData surveyTestData = screeningTest.surveyScreenTest(lastSavedAnswer.get(), questionDirection, studyAbstractCall.surveyAnswerRequest.getSurveyId());
+					if(surveyTestData.isFinished == StudyInfoData.StudyInfoSatus.NONE){
 
 						studyAbstractCall.setQuestionToDisplayToUser(current);
 
@@ -373,25 +383,25 @@ public class StudyAnswerImpl implements AnswerSaveService {
 							response.setIsLastQuestion(false);
 						}
 
+					*/
+
+					} else if(surveyTestData.isFinished == StudyInfoData.StudyInfoSatus.FALSE)  {
+
+						if (!studyAbstractCall.findSurveyAnswerByIndex(7).getAnswerDescription().equals("No")) {
 
 
-					} else if(screenTestData.isFinished == StudyInfoData.StudyInfoSatus.FALSE)  {
-
-						if (!studyAbstractCall.findAnswerByIndex(3).getAnswerDescription().equals("Primary care doctor")) {
-
-
-							if((questionDirection == 1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 4) || (questionDirection == -1 && studyAbstractCall.userScreeningStatus.getIndexValue() == 4)) {
+							if((questionDirection == 1 && studyAbstractCall.userSurveyStatus.getIndexValue() == 8) || (questionDirection == -1 && studyAbstractCall.userSurveyStatus.getIndexValue() == 8)) {
 
 								questionToDisplayToUser = studyAbstractCall.getSurveyQuestionToDisplayToUser(next);
 								answerToDisplayToUser = studyAbstractCall.getSurveyAnswerToDisplayToUser(questionToDisplayToUser.getId());
 
 								studyAbstractCall.displaySurveyQuesNAns(questionToDisplayToUser, answerToDisplayToUser);
 
-								studyAbstractCall.userScreeningStatus.setIndexValue(next);
-								userScreeningStatusRepository.save(studyAbstractCall.userScreeningStatus);
+								studyAbstractCall.userSurveyStatus.setIndexValue(next);
+								userSurveyStatusRepository.save(studyAbstractCall.userSurveyStatus);
 							}
 						}
-					}*/
+					}
 
 				}
 			} catch (NoSuchElementException e) {
@@ -412,6 +422,13 @@ public class StudyAnswerImpl implements AnswerSaveService {
 			studyAbstractCall.userSurveyStatus.setIndexValue(studyAbstractCall.userSurveyStatus.getIndexValue());
 			userSurveyStatusRepository.save(studyAbstractCall.userSurveyStatus);
 		}
+
+		response.setTotalQuestions(studyAbstractCall.getTotalSurveyQuestionsCount());
+
+		response.setSkipCount(studyAbstractCall.getSurveySkipCount());
+
+		studyAbstractCall.userSurveyStatus.setSkipCount(studyAbstractCall.getSurveySkipCount());
+		userSurveyStatusRepository.save(studyAbstractCall.userSurveyStatus);
 
 		responseJson.put("data", response);
 

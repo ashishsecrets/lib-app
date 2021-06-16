@@ -82,7 +82,6 @@ public class LoadSurveyQuestions {
 		for(Map.Entry<String, Sheet> sheet : sheetName.entrySet()) {
 			filePath = downloadSheetData(sheet.getValue().id, sheet.getValue().sheetName);
 			try {
-				createUpdateSurveyInDb(sheet.getValue().sheetName);
 				readDownloadedContentCsvData(filePath);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -90,18 +89,7 @@ public class LoadSurveyQuestions {
 		}
 	}
 
-	private void createUpdateSurveyInDb(String sheetName) {
 
-		if(surveyRepository.findByTitle(sheetName.replaceAll("_", " ")) == null){
-			UcsfSurvey survey = new UcsfSurvey();
-			survey.setTitle(sheetName.replaceAll("_", " "));
-			survey.setDescription(sheetName);
-			survey.setEnabled(true);
-			survey.setStudyId(1l);
-			surveyRepository.save(survey);
-		}
-
-	}
 
 	public String downloadSheetData(String id, String sheetName) throws ClientProtocolException, IOException {
 		CloseableHttpClient httpClient = HttpClients.createDefault();

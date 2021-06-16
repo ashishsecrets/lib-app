@@ -33,6 +33,15 @@ public class UserSurveyStatus {
 	@Column(name = "survey_id")
 	private Long surveyId;
 
+	@Column(name = "task_true_id")
+	private Long taskTrueId;
+
+	@Column(name = "max_index_value")
+	private int maxIndexValue;
+
+	@Column(name = "skip_count")
+	private int skipCount;
+
 	@ManyToOne(targetEntity = UcsfSurvey.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "survey_id", insertable = false, updatable = false)
 	@JsonIgnore

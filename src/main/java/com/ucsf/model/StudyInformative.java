@@ -24,8 +24,8 @@ public class StudyInformative extends Auditable<String> implements Serializable 
     @Column(name = "info_description", columnDefinition = "TEXT")
     private String infoDescription;
 
-    /*@Column(name = "question_id")
-    private Long questionId;*/ // question id not required its index clashes with index_value no 0 question id
+    @Column(name = "info_type")
+    private String infoType;
 
     @Column(name = "study_id")
     private Long studyId;
@@ -33,11 +33,12 @@ public class StudyInformative extends Auditable<String> implements Serializable 
     @Column(name = "index_value")
     private int indexValue;
 
-    /*@JsonIgnore
-    @OneToOne(targetEntity = ScreeningQuestions.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
-    @JoinColumn(name = "question_id", insertable = false, updatable = false)
-    private ScreeningQuestions question;
-*/
+    @Column(name = "type_title")
+    private String typeTitle;
+
+    @Column(name = "type_id")
+    private Long typeId;
+
     @JsonIgnore
     @ManyToOne(targetEntity = UcsfStudy.class, fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
     @JoinColumn(name = "study_id", insertable = false, updatable = false)

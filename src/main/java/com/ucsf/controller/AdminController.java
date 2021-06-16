@@ -122,7 +122,7 @@ public class AdminController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		responseJson.put("data", new AuthResponse(userDetails, user, message));
+		responseJson.put("data", new AuthResponse(userDetails, user, message,null));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 	

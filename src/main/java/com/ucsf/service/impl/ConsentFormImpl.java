@@ -31,7 +31,8 @@ public class ConsentFormImpl implements ConsentService{
 	@Autowired private UserConsentRepository userConsentRepository;
 	@Autowired EmailService emailService;
 	@Autowired SurveyRepository surveyRepository;
-	@Autowired TasksRepository tasksRepository;
+	@Autowired UserTasksRepository userTasksRepository;
+	@Autowired UserScreeningStatusRepository userScreeningStatusRepository;
 	
 	@Override
 	public List<ConsentForms> getConsent() {
@@ -93,19 +94,26 @@ public class ConsentFormImpl implements ConsentService{
 
 			userConsentRepository.save(userConsent);
 
-			//To-do - add user tasks
+			UserScreeningStatus screeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+			screeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.TERMS_ACCEPTED);
+			userScreeningStatusRepository.save(screeningStatus);
 
-			List<UserTasks> userTasksList = tasksRepository.findByUserId(user.getId());
+			//To-do - make this section dynamic with values from repositories.
+
+			List<UserTasks> userTasksList = userTasksRepository.findByUserId(user.getId());
 
 			if(userTasksList == null || userTasksList.isEmpty()) {
 
 				Date startDate = new Date();
 
-				int noOfDays = 7; //i.e two weeks
 				Calendar calendar = Calendar.getInstance();
-				calendar.setTime(startDate);
-				calendar.add(Calendar.DAY_OF_YEAR, noOfDays);
+				calendar.add(Calendar.WEEK_OF_MONTH, 1);
 				Date endDate = calendar.getTime();
+
+				Calendar calendar2 = Calendar.getInstance();
+				calendar2.add(Calendar.WEEK_OF_MONTH, 4);
+				Date endDate2 = calendar.getTime();
+				//System.out.println(endDate);
 
 				List<UcsfSurvey> list = new ArrayList<>();
 				list.add(surveyRepository.findByTitle("POEM"));
@@ -121,12 +129,13 @@ public class ConsentFormImpl implements ConsentService{
 					task.setTaskType("survey");
 					task.setStartDate(startDate);
 					task.setEndDate(endDate);
+					task.setDuration(1);
 					task.setProgress(0);
 					task.setUserId(user.getId());
 					task.setStudyId(item.getStudyId());
 					task.setTaskId(item.getId());
 
-					tasksRepository.save(task);
+					userTasksRepository.save(task);
 
 				}
 
@@ -135,12 +144,13 @@ public class ConsentFormImpl implements ConsentService{
 				photographs.setDescription("images");
 				photographs.setTaskType("photos");
 				photographs.setStartDate(startDate);
-				photographs.setEndDate(endDate);
+				photographs.setEndDate(endDate2);
 				photographs.setUserId(user.getId());
+				photographs.setDuration(4);
 				photographs.setStudyId(1l);
 				photographs.setTaskId(user.getId() + 1000);
 				photographs.setProgress(0);
-				tasksRepository.save(photographs);
+				userTasksRepository.save(photographs);
 				/*photographs = tasksRepository.findById(tasksRepository.findByTitle("Photographs").getId()).get();
 				photographs.setTaskId(photographs.getId() + 1000);
 				tasksRepository.save(photographs);*/
@@ -152,10 +162,11 @@ public class ConsentFormImpl implements ConsentService{
 				voice.setStartDate(startDate);
 				voice.setEndDate(endDate);
 				voice.setUserId(user.getId());
+				voice.setDuration(1);
 				voice.setStudyId(1l);
 				voice.setTaskId(user.getId() + 1000 + 1);
 				voice.setProgress(0);
-				tasksRepository.save(voice);
+				userTasksRepository.save(voice);
 
 				UserTasks medicine = new UserTasks();
 				medicine.setTitle("Medication usage");
@@ -164,10 +175,11 @@ public class ConsentFormImpl implements ConsentService{
 				medicine.setStartDate(startDate);
 				medicine.setEndDate(endDate);
 				medicine.setUserId(user.getId());
+				medicine.setDuration(1);
 				medicine.setStudyId(1l);
 				medicine.setTaskId(user.getId() + 1000 + 2);
 				medicine.setProgress(0);
-				tasksRepository.save(medicine);
+				userTasksRepository.save(medicine);
 
 				UserTasks reactions = new UserTasks();
 				reactions.setTitle("Adverse events");
@@ -176,10 +188,11 @@ public class ConsentFormImpl implements ConsentService{
 				reactions.setStartDate(startDate);
 				reactions.setEndDate(endDate);
 				reactions.setUserId(user.getId());
+				reactions.setDuration(1);
 				reactions.setStudyId(1l);
 				reactions.setTaskId(user.getId() + 1000 + 3);
 				reactions.setProgress(0);
-				tasksRepository.save(reactions);
+				userTasksRepository.save(reactions);
 
 			}
 

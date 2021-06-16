@@ -105,7 +105,7 @@ public class StudyController {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@ApiOperation(value = "Get all studies", notes = "Get all studies", code = 200, httpMethod = "GET", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "List of all studies", response = StudyResponse.class) })
-	@PreAuthorize("hasRole('PATIENT')")
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN','PATIENT')")
 	@RequestMapping(value = "/fetchStudies", method = RequestMethod.GET)
 	public ResponseEntity<?> fetchAllStudies() throws Exception {
 		loggerService.printLogs(log, "saveStudy", "Fetch UCSF Studies");
@@ -320,6 +320,44 @@ public class StudyController {
 			loggerService.printErrorLogs(log, "fetchApprovedPatients", "Error while fetching disapproved patients fetched  for Physicain "+user.getEmail());
 			responseJson.put("data", response);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@ApiOperation(value = "Get all studies", notes = "Get Study By Id", code = 200, httpMethod = "GET", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Get Study By Id", response = StudyResponse.class) })
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN','PATIENT')")
+	@RequestMapping(value = "/fetchStudyById/{studyId}", method = RequestMethod.GET)
+	public ResponseEntity<?> fetchStudyById(@PathVariable Long studyId) throws Exception {
+		loggerService.printLogs(log, "fetch study", "Fetch Study By id");
+		User user = null;
+		JSONObject responseJson = new JSONObject();
+
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			String email = userDetail.getUsername();
+			user = userService.findByEmail(email);
+		} else {
+			loggerService.printLogs(log, "fetch study by id", "Invalid JWT signature.");
+			responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(responseJson, HttpStatus.UNAUTHORIZED);
+		}
+		StudyResponse studyResponse = new StudyResponse();
+		UcsfStudy study = new UcsfStudy();
+		List<StudyFetchResponse> listResponse = new ArrayList<>();
+		try {
+			study = studyService.findById(studyId);
+			loggerService.printLogs(log, "fetch study by id ", "Study fetched successfully for user " + user.getEmail());
+			responseJson.put("data", study);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+		}
+		 catch (Exception e) {
+			loggerService.printErrorLogs(log, "fetchAllStudies",
+					"Failed Studies fetch request for user " + user.getEmail());
+			
+			responseJson.put("error", new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(),Constants.NO_STUDY_FOUND.errordesc()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 

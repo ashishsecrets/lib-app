@@ -30,7 +30,7 @@ public class ImageAwsTest {
     @Value("${aws-bucketName}")
     private String bucketName;
 
-    @Test
+    /*@Test
     public void awsPutObject() {
         try {
             String file_path = "/Users/ashishsecrets/IdeaProjects/Backend/src/main/resources/ashish.jpg";
@@ -43,17 +43,17 @@ public class ImageAwsTest {
             System.exit(1);
         }
         System.out.println("Done!");
-    }
+    }*/
 
     @Test
     public void awsGetObject() {
         try {
-            //String file_path = "/home/arshdeep/Pictures/cartwithbanner_2.png";
+            String file_path = "/home/body_parts/special_areas/2";
             String key_name = "ashish.jpg";//Paths.get(file_path).getFileName().toString();
 
-            S3Object obj = s3client.getObject(bucketName, key_name);
+            S3Object obj = s3client.getObject(bucketName, file_path);
 
-            IOUtils.copy(obj.getObjectContent(), new FileOutputStream(new File("/Users/ashishsecrets/IdeaProjects/Backend/src/main/resources/ashish2.jpg")));
+            IOUtils.copy(obj.getObjectContent(), new FileOutputStream(new File("/Users/ashishsecrets/IdeaProjects/Backend/src/main/resources/testNew.jpg")));
 
         } catch (Exception e) {
             System.err.println("error : "+e.getMessage());

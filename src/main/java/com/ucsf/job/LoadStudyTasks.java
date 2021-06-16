@@ -1,11 +1,12 @@
 package com.ucsf.job;
 
 import com.opencsv.CSVReader;
-import com.ucsf.auth.model.User;
+import com.ucsf.model.Tasks;
 import com.ucsf.model.UcsfSurvey;
 import com.ucsf.model.UserTasks;
 import com.ucsf.repository.SurveyRepository;
 import com.ucsf.repository.TasksRepository;
+import com.ucsf.repository.UserTasksRepository;
 import com.ucsf.repository.UserRepository;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -41,8 +42,6 @@ public class LoadStudyTasks {
     @Autowired
     SurveyRepository surveyRepository;
 
-    @Autowired
-    UserRepository userRepository;
 
     @Value("${screening-questions-file}")
     private String filePath;
@@ -51,7 +50,7 @@ public class LoadStudyTasks {
     public void loadSheetContent() throws ClientProtocolException, IOException, GeneralSecurityException {
         // clear all previous data
         jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 0");
-        jdbcTemplate.update("TRUNCATE TABLE user_tasks");
+        jdbcTemplate.update("TRUNCATE TABLE tasks");
         jdbcTemplate.update("SET FOREIGN_KEY_CHECKS = 1");
         String id = "1tf9ftfhTOE0vO8BV4tms2oTAO24l9tNZnM072KDH2TI";
 
@@ -100,16 +99,13 @@ public class LoadStudyTasks {
     public void readDownloadedContentCsvData(String csvFile) {
         CSVReader reader = null;
 
-        DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
         try {
             reader = new CSVReader(new FileReader(csvFile));
             String[] eczemaDataArray;
             String title = null;
             String description = null;
             String taskType = null;
-            String startDate = null;
-            String endDate = null;
-            String userId = null;
+            String duration = null;
             String studyId = null;
 
             int counter = 0;
@@ -122,48 +118,30 @@ public class LoadStudyTasks {
                     description = (description2 == null || description2.equals("")) ? description : description2;
                     String taskType2 = eczemaDataArray[2].replaceAll("\"", "");
                     taskType = (taskType2 == null || taskType2.equals("")) ? taskType : taskType2;
-                    String startDate2 = eczemaDataArray[3].replaceAll("\"", "");
-                    startDate = (startDate2 == null || startDate2.equals("")) ? startDate : startDate2;
-                    String endDate2 = eczemaDataArray[4].replaceAll("\"", "");
-                    endDate = (endDate2 == null || endDate2.equals("")) ? endDate : endDate2;
-                    String userId2 = eczemaDataArray[5].replaceAll("\"", "");
-                    userId = (userId2 == null || userId2.equals("")) ? userId : userId2;
-                    String studyId2 = eczemaDataArray[6].replaceAll("\"", "");
+                    String duration2 = eczemaDataArray[3].replaceAll("\"", "");
+                    duration = (duration2 == null || duration2.equals("")) ? duration : duration2;
+                    String studyId2 = eczemaDataArray[4].replaceAll("\"", "");
                     studyId = (studyId2 == null || studyId2.equals("")) ? studyId : studyId2;
 
-                    if(userId.equals("all")) {
-                        Iterable<User> users = userRepository.findAll();
-                        Long id;
 
-                        for (User user : users) {
-                            id = user.getId();
 
-                            UserTasks task = new UserTasks();
-                            task.setTitle(title);
-                            task.setDescription(description);
-                            task.setTaskType(taskType);
-                            task.setStartDate(formatter.parse(startDate));
-                            task.setEndDate(formatter.parse(endDate));
+                            if(taskType.equals("survey")){
+                                createUpdateSurveyInDb(title, Long.parseLong(studyId), Integer.parseInt(duration), description);
+                            }
+                            else{
+                                if(tasksRepository.findByTitle(title) == null) {
+                                    Tasks task = new Tasks();
+                                    task.setTitle(title);
+                                    task.setDescription(description);
+                                    task.setTaskType(taskType);
+                                    task.setDuration(Integer.parseInt(duration));
+                                    task.setStudyId(Long.parseLong(studyId));
 
-                            //users.forEach(System.out::println);
-                            task.setUserId(id);
-                            assert studyId != null;
-                            task.setStudyId(Long.parseLong(studyId));
+                                    tasksRepository.save(task);
+                                }
 
-                            if (taskType.equals("survey")) {
-
-                                UcsfSurvey survey = surveyRepository.findByTitle(title);
-                                task.setTaskId(survey.getId());
-
-                            } else {
-                                task.setTaskId((long) counter+100);
-                                task.setProgress(0);
                             }
 
-                            tasksRepository.save(task);
-
-                        }
-                    }
 
                     /*if (questionId != null && !questionId.equals("")) {
                         String[] split = questionId.split("//");
@@ -177,8 +155,22 @@ public class LoadStudyTasks {
                 }
                 counter++;
             }
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void createUpdateSurveyInDb(String title, Long studyId, Integer duration, String description) {
+
+        if(surveyRepository.findByTitle(title.replaceAll("_", " ")) == null){
+            UcsfSurvey survey = new UcsfSurvey();
+            survey.setTitle(title.replaceAll("_", " "));
+            survey.setDescription(description);
+            survey.setEnabled(true);
+            survey.setDuration(duration);
+            survey.setStudyId(studyId);
+            surveyRepository.save(survey);
+        }
+
     }
 }
