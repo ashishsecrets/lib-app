@@ -12,7 +12,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 //import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.ucsf.UcsfMainApplication;
 import com.ucsf.util.EncryptDecryptUtil;
 
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
 @SpringBootTest(classes = UcsfMainApplication.class)
 public class EncryptDecryptTest {
 
@@ -32,7 +31,7 @@ public class EncryptDecryptTest {
 	public void encrypt() throws Exception {
 		
 		JSONObject jsonObject2 = new JSONObject();
-		jsonObject2.put("Email address", "gurpreet.kaur@redblink.net");
+		/*jsonObject2.put("Email address", "gurpreet.kaur@redblink.net");
 		jsonObject2.put("Zip Code", "160022");
 		jsonObject2.put("Hi Temp", "90.0");
 		jsonObject2.put("Lo Temp", "78.0");
@@ -43,14 +42,30 @@ public class EncryptDecryptTest {
 		jsonObject2.put("Current Humidity", "80");
 		jsonObject2.put("Data Entry Date", "2019-08-29T00:00:00");
 		jsonObject2.put("Pollen Counts", "");
-		jsonObject2.put("Flareup Intensity", "Medium");
+		jsonObject2.put("Flareup Intensity", "Medium");*/
+		String jsonObject2String = "{\n" +
+				"    \"data\": [\n" +
+				"        {\n" +
+				"            \"userImageCount\": 2,\n" +
+				"            \"study\": {\n" +
+				"                \"default\": false,\n" +
+				"                \"description\": \"This study will track your eczema status and lifestyle measurements for one year. Five in-person research visits and in-app questionnaires and pictures will be required.\",\n" +
+				"                \"id\": 1,\n" +
+				"                \"title\": \"Eczema Tracking Study\",\n" +
+				"                \"enabled\": false,\n" +
+				"                \"studyStatus\": \"5\"\n" +
+				"            }\n" +
+				"        }\n" +
+				"    ]\n" +
+				"}";
+		jsonObject2 = new JSONObject(jsonObject2String);
 		String encryptedFlareupData = encryptDecrypt.encrypt(jsonObject2.toString());
 		System.out.println(encryptedFlareupData);
 	}
 
 	@Test
 	public void decrypt() throws Exception {
-		String encryptedText = "W1KzIVpdt0G2BphYHfZRp0OzdQtB6pHIjrpnFgT+4zAMdbtAFJoKGdSCMNd1AwR17qVmk85zn8wJsu8N8PmNjmpbZPtnhnK6FFg6FUMTcfwI5iq0Bbu9fsJagtFOxe+ymwzvg5bXBT9GT6hh2+YNMnUHWJbpck0jRgxE9Yug79yTyFxRSg7W7NsuQaXFi/3BD8kMluCq/CBhWkY/QnSyLeHx/GXK7AkL+CpZM5f8p7Netw7SPx0oS0HKyQlf5UJIRGdzGwu7KPhg3DtMBMX1LE+zj6OIjfz/u3J7632cBOAvnOZnHhiW9yQ9FlRr+THy+G4O7jk1z/ELYvbtKuxL9RZ8oO+zXPAXkjW9QaU0MRa4+NuFq4Pzxwz8guJFX4udva6PLtzhNHpGdDjrXe5y5Smt2/lNAC/opka3Vzo8pDVJLGvQofycKkBhUp+bN220nVFSwtMXkUkp49yQf2AqgvdDhsxMyPMGyzoEFWbSBUl7DFpH";
+		String encryptedText = "C/fHJf9V0i5t0AwCZUGaYWmPYQYjjesnfHPzVW+pdGWvZEquB7u4FzBgEIx8+ViRiyjSw+J2h/pCg394S5asWbygWuZ1GMIN539NySk/X/uNqyFYkMLS5Z9OvbFfLaxQ1PzfaokWwR257V9VQDrw6MFle9qyEXYT5QjSeBHDBaDOPEOYx7cFAAb6vVlRQr7cgxAwWvntGGw1uYCYwECzHrxl95/i3YaXBW+re3Y712v3lTGaa7PP4XoM6h1bmxKv59YPPMqsyXAWoluRCjcNz9gB3dvCbtsjfoA6QjdMYzE1L7K189Zk39YVNuq0Ux+CAUZysyWXFOgFGQLS+pYCBfZh992YJVJqrQXH/pc8DhU1h9B1O1pynbTRM6e4cfAnr34hEyvdlYDdxiNI8AcYdWkMYLGxcRKPNNyKl9J5dPOAlhRCXTVa7LxkRtzTYVgJcTGHNO9iTHbF+NgfE3SgiYfKVoKz2UOhl9enBuKHIfaa4rQTJ0tIKlWK3KWcTRAntHcT9A==";
 		String decryptedFlareupData = encryptDecrypt.decrypt(encryptedText);
 		System.out.println(decryptedFlareupData);
 	}

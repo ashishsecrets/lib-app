@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import com.ucsf.payload.response.*;
+import com.ucsf.util.EncryptDecryptUtil;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,8 @@ public class StudyController {
 	
 	@Autowired
 	AmazonClientService amazonClientService;
+
+	EncryptDecryptUtil encryptDecryptUtil = new EncryptDecryptUtil();
 
 	private static Logger log = LoggerFactory.getLogger(StudyController.class);
 
@@ -132,7 +135,10 @@ public class StudyController {
 				listResponse.get(i).setStudy(listStudyResponse.get(i));
 				listResponse.get(i).setUserImageCount(studyService.getImageCount(listStudyResponse.get(i).getId(), user.getId()));
 			}
-			responseJson.put("data", listResponse);
+
+			String encryptedData = encryptDecryptUtil.encrypt(listResponse.toString());
+
+			responseJson.put("data", encryptedData);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		}
 		 catch (Exception e) {
@@ -143,7 +149,10 @@ public class StudyController {
 				listResponse.get(i).setStudy(listStudyResponse.get(i));
 				listResponse.get(i).setUserImageCount(studyService.getImageCount(listStudyResponse.get(i).getId(), user.getId()));
 			}
-			responseJson.put("data", listResponse);
+
+			 String encryptedData = encryptDecryptUtil.encrypt(listResponse.toString());
+
+			 responseJson.put("data", encryptedData);
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
