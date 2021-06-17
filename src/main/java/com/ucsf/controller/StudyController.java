@@ -136,10 +136,14 @@ public class StudyController {
 				listResponse.get(i).setUserImageCount(studyService.getImageCount(listStudyResponse.get(i).getId(), user.getId()));
 			}
 
-			String encryptedData = encryptDecryptUtil.encrypt(listResponse.toString());
+			responseJson.put("data", listResponse);
 
-			responseJson.put("data", encryptedData);
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+			String encryptedData = encryptDecryptUtil.encrypt(responseJson.toString());
+
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("encrypted", encryptedData);
+
+			return new ResponseEntity(jsonObject.toMap(), HttpStatus.OK);
 		}
 		 catch (Exception e) {
 			loggerService.printErrorLogs(log, "fetchAllStudies",
@@ -150,10 +154,14 @@ public class StudyController {
 				listResponse.get(i).setUserImageCount(studyService.getImageCount(listStudyResponse.get(i).getId(), user.getId()));
 			}
 
-			 String encryptedData = encryptDecryptUtil.encrypt(listResponse.toString());
+			 responseJson.put("data", listResponse);
 
-			 responseJson.put("data", encryptedData);
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+			 String encryptedData = encryptDecryptUtil.encrypt(responseJson.toString());
+
+			 JSONObject jsonObject = new JSONObject();
+			 jsonObject.put("encrypted", encryptedData);
+
+			 return new ResponseEntity(jsonObject.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
