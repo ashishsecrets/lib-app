@@ -141,6 +141,7 @@ public class StudyController {
 			String encryptedData = encryptDecryptUtil.encrypt(responseJson.toString());
 
 			JSONObject jsonObject = new JSONObject();
+			
 			jsonObject.put("encrypted", encryptedData);
 
 			return new ResponseEntity(jsonObject.toMap(), HttpStatus.OK);
@@ -159,6 +160,7 @@ public class StudyController {
 			 String encryptedData = encryptDecryptUtil.encrypt(responseJson.toString());
 
 			 JSONObject jsonObject = new JSONObject();
+
 			 jsonObject.put("encrypted", encryptedData);
 
 			 return new ResponseEntity(jsonObject.toMap(), HttpStatus.BAD_REQUEST);

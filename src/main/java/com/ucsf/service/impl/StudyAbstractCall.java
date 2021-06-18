@@ -385,7 +385,7 @@ public class StudyAbstractCall {
     }
 
     public SurveyAnswer getSurveyAnswerToDisplayToUser(Long index) {
-        return surveyAnswerRepository.findByQuestionIdAndAnsweredById(index, user.getId());
+        return surveyAnswerRepository.findByQuestionIdAndAnsweredByIdAndTaskTrueId(index, user.getId(), surveyTrueId);
     }
 
 
