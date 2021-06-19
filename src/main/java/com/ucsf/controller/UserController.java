@@ -4,6 +4,7 @@ import com.ucsf.job.*;
 import com.ucsf.job.LoadStudyInformatives;
 import com.ucsf.payload.response.ErrorResponse;
 
+import com.ucsf.service.FirebaseService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,11 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.ucsf.auth.model.User;
 import com.ucsf.common.Constants;
@@ -29,6 +26,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @CrossOrigin
@@ -54,6 +53,14 @@ public class UserController {
 
 	@Autowired
 	LoadStudyTasks loadStudyTasks;
+
+	@Autowired
+	FirebaseService firebaseService;
+
+	@PutMapping("/updateMessage")
+	public String updatePatient(@RequestBody String message ) throws InterruptedException, ExecutionException {
+		return firebaseService.updateMessageDetails(message);
+	}
 
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllUsers() throws Exception {
