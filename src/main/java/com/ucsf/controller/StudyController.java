@@ -138,13 +138,14 @@ public class StudyController {
 
 			responseJson.put("data", listResponse);
 
-			String encryptedData = encryptDecryptUtil.encrypt(responseJson.toString());
+			/*String encryptedData = encryptDecryptUtil.encrypt(responseJson.toString());
 
 			JSONObject jsonObject = new JSONObject();
 			
 			jsonObject.put("encrypted", encryptedData);
 
-			return new ResponseEntity(jsonObject.toMap(), HttpStatus.OK);
+			return new ResponseEntity(jsonObject.toMap(), HttpStatus.OK);*/
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 		}
 		 catch (Exception e) {
 			loggerService.printErrorLogs(log, "fetchAllStudies",
@@ -157,13 +158,14 @@ public class StudyController {
 
 			 responseJson.put("data", listResponse);
 
-			 String encryptedData = encryptDecryptUtil.encrypt(responseJson.toString());
+			 /*String encryptedData = encryptDecryptUtil.encrypt(responseJson.toString());
 
 			 JSONObject jsonObject = new JSONObject();
 
 			 jsonObject.put("encrypted", encryptedData);
 
-			 return new ResponseEntity(jsonObject.toMap(), HttpStatus.BAD_REQUEST);
+			 return new ResponseEntity(jsonObject.toMap(), HttpStatus.BAD_REQUEST);*/
+			 return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
