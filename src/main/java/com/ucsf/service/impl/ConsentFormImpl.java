@@ -130,6 +130,7 @@ public class ConsentFormImpl implements ConsentService{
 					task.setStartDate(startDate);
 					task.setEndDate(endDate);
 					task.setDuration(1);
+					task.setWeekCount(1);
 					task.setProgress(0);
 					task.setUserId(user.getId());
 					task.setStudyId(item.getStudyId());
@@ -147,6 +148,7 @@ public class ConsentFormImpl implements ConsentService{
 				photographs.setEndDate(endDate2);
 				photographs.setUserId(user.getId());
 				photographs.setDuration(4);
+				photographs.setWeekCount(1);
 				photographs.setStudyId(1l);
 				photographs.setTaskId(user.getId() + 1000);
 				photographs.setProgress(0);
@@ -163,6 +165,7 @@ public class ConsentFormImpl implements ConsentService{
 				voice.setEndDate(endDate);
 				voice.setUserId(user.getId());
 				voice.setDuration(1);
+				voice.setWeekCount(1);
 				voice.setStudyId(1l);
 				voice.setTaskId(user.getId() + 1000 + 1);
 				voice.setProgress(0);
@@ -176,6 +179,7 @@ public class ConsentFormImpl implements ConsentService{
 				medicine.setEndDate(endDate);
 				medicine.setUserId(user.getId());
 				medicine.setDuration(1);
+				medicine.setWeekCount(1);
 				medicine.setStudyId(1l);
 				medicine.setTaskId(user.getId() + 1000 + 2);
 				medicine.setProgress(0);
@@ -189,6 +193,7 @@ public class ConsentFormImpl implements ConsentService{
 				reactions.setEndDate(endDate);
 				reactions.setUserId(user.getId());
 				reactions.setDuration(1);
+				reactions.setWeekCount(1);
 				reactions.setStudyId(1l);
 				reactions.setTaskId(user.getId() + 1000 + 3);
 				reactions.setProgress(0);

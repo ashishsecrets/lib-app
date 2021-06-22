@@ -1,5 +1,6 @@
 package com.ucsf.controller;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.ucsf.job.*;
 import com.ucsf.job.LoadStudyInformatives;
 import com.ucsf.payload.response.ErrorResponse;
@@ -58,7 +59,8 @@ public class UserController {
 	FirebaseService firebaseService;
 
 	@PutMapping("/updateMessage")
-	public String updatePatient(@RequestBody String message ) throws InterruptedException, ExecutionException {
+	public String updatePatient(@RequestBody String message ) throws InterruptedException, ExecutionException, FirebaseAuthException {
+		firebaseService.createUser("ashish.vashisht@redblink.net", "vatika04");
 		return firebaseService.updateMessageDetails(message);
 	}
 

@@ -16,7 +16,7 @@ public interface TaskService {
 
     List<UserTasks> getTaskList(User user);
 
-    int getTotalProgress(List<TaskResponse> alteredTaskList);
+    int getTotalProgress(User user);
 
     List<TaskResponse> getAlteredTaskList(List<UserTasks> tasks);
 
@@ -27,4 +27,13 @@ public interface TaskService {
     int getTaskProgress(Long taskId, Long userId, String taskType, Long taskTrueId);
 
     String getTaskStatus(Date startDate, Date endDate, int taskProgress);
+
+    List<TaskResponse> getCurrentTaskList(List<TaskResponse> alteredTaskList);
+
+    List<TaskResponse> getUpcomingTaskList(List<TaskResponse> alteredTaskList);
+
+
+    int getMissingProgress(User user);
+
+    int getUpcomingProgress(User user);
 }

@@ -52,6 +52,9 @@ public class UserTasks {
 	@Column(name = "study_id")
 	private Long studyId;
 
+	@Column(name = "week_count")
+	private Integer weekCount;
+
 	@ManyToOne(targetEntity = UcsfStudy.class, fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "study_id", insertable = false, updatable = false)
 	@JsonIgnore

@@ -81,15 +81,30 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public int getTotalProgress(List<TaskResponse> alteredTaskList) {
-        int totalProgress = 0;
-        // This can be done from repository also as UserTasks table also has stored progress values
-        for(TaskResponse item : alteredTaskList){
-            totalProgress += item.getTaskPercentage();
-        }
-        totalProgress = totalProgress/alteredTaskList.size();
+    public int getTotalProgress(User user) {
+        float totalProgress = 0;
 
-        return totalProgress;
+        List<UserTasks> userTasks = userTasksRepository.findByUserId(user.getId());
+        List<UserTasks> userCompletedTasks = new ArrayList<>();
+        if(userTasks != null || !userTasks.isEmpty()) {
+            for (UserTasks task: userTasks){
+                if(getTaskStatus(task.getStartDate(), task.getEndDate(), task.getProgress()).equals("completed")){
+                    userCompletedTasks.add(task);
+                }
+            }
+
+        }
+
+        // This can be done from repository also as UserTasks table also has stored progress values
+
+        /*for(TaskResponse item : alteredTaskList){
+            totalProgress += item.getTaskPercentage();
+        }*/
+
+        totalProgress = (float) (userCompletedTasks.size()/((24.0*6.0)+(1.0*6.0)))*100;
+        System.out.println(totalProgress);
+
+        return Math.round(totalProgress);
     }
 
     @Override
@@ -281,7 +296,7 @@ public class TaskServiceImpl implements TaskService {
     if (todaysDate.after(startDate) && todaysDate.before(endDate) && taskProgress < 100){
         status = "current";
     }
-    else if(todaysDate.after(startDate) && todaysDate.before(endDate) && taskProgress == 100){
+    else if(/*todaysDate.after(startDate) && todaysDate.before(endDate) && */taskProgress == 100){
         status = "completed";
     }
     else if(todaysDate.after(endDate)){
@@ -292,5 +307,86 @@ public class TaskServiceImpl implements TaskService {
     }
 
         return status;
+    }
+
+    @Override
+    public List<TaskResponse> getCurrentTaskList(List<TaskResponse> alteredTaskList) {
+
+        List<TaskResponse> currentTaskList = new ArrayList<>();
+
+        for(TaskResponse item: alteredTaskList){
+            if(item.getTaskStatus().equals("current")){
+                currentTaskList.add(item);
+            }
+        }
+
+        return currentTaskList;
+    }
+
+    @Override
+    public List<TaskResponse> getUpcomingTaskList(List<TaskResponse> alteredTaskList) {
+        List<TaskResponse> upcomingTaskList = new ArrayList<>();
+
+        for(TaskResponse item: alteredTaskList){
+            if(item.getTaskStatus().equals("upcoming")){
+                upcomingTaskList.add(item);
+            }
+        }
+
+        return upcomingTaskList;
+    }
+
+    @Override
+    public int getMissingProgress(User user) {
+        float missingProgress = 0;
+
+        List<UserTasks> userTasks = userTasksRepository.findByUserId(user.getId());
+        List<UserTasks> userOverDueTasks = new ArrayList<>();
+        if(userTasks != null || !userTasks.isEmpty()) {
+            for (UserTasks task: userTasks){
+                if(getTaskStatus(task.getStartDate(), task.getEndDate(), task.getProgress()).equals("overdue")){
+                    userOverDueTasks.add(task);
+                }
+            }
+
+        }
+
+        // This can be done from repository also as UserTasks table also has stored progress values
+
+        /*for(TaskResponse item : alteredTaskList){
+            totalProgress += item.getTaskPercentage();
+        }*/
+
+        missingProgress = (float) (userOverDueTasks.size()/((24.0*6.0)+(1.0*6.0)))*100;
+        System.out.println(missingProgress);
+
+        return Math.round(missingProgress);
+    }
+
+    @Override
+    public int getUpcomingProgress(User user) {
+        float upcomingProgress = 0;
+
+        List<UserTasks> userTasks = userTasksRepository.findByUserId(user.getId());
+        List<UserTasks> userOverDueTasks = new ArrayList<>();
+        if(userTasks != null || !userTasks.isEmpty()) {
+            for (UserTasks task: userTasks){
+                if(getTaskStatus(task.getStartDate(), task.getEndDate(), task.getProgress()).equals("overdue")){
+                    userOverDueTasks.add(task);
+                }
+            }
+
+        }
+
+        // This can be done from repository also as UserTasks table also has stored progress values
+
+        /*for(TaskResponse item : alteredTaskList){
+            totalProgress += item.getTaskPercentage();
+        }*/
+
+        upcomingProgress = (float) 100 - (getTotalProgress(user) + getMissingProgress(user));
+        System.out.println(upcomingProgress);
+
+        return Math.round(upcomingProgress);
     }
 }
