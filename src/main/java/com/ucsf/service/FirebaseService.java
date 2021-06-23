@@ -11,6 +11,7 @@ import com.ucsf.auth.model.User;
 import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.response.ChatRoom;
+import com.ucsf.payload.response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +41,13 @@ public class FirebaseService {
         two.put(user.getId().toString(), true);
         chatRoom.setUsers(two);
 
+        Message message = new Message();
+        message.setUserId(user.getId().toString());
+        message.setCreatedAt(new Date().toString());
+        message.setText("Hi");
+
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString()).create(chatRoom);
-        dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document("xyz").create(chatRoom);
+        dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document("xyz").create(message);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
