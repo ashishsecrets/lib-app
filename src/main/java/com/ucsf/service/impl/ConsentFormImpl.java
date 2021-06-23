@@ -68,6 +68,9 @@ public class ConsentFormImpl implements ConsentService{
 					userConsent.setConsentType(ConsentType.ASSENT_FORM);
 					userConsent.setType(FormType.ASSENT);
 					consentForm = getConsentFormByConsentType(ConsentType.ASSENT_FORM);
+					UserScreeningStatus screeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+					screeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.TERMS_ACCEPTED);
+					userScreeningStatusRepository.save(screeningStatus);
 				} else {
 					parentSignatureFile = decodeBase64String(consent.getParentSignature(), fileName+".jpeg");
 					userConsent.setParentSignature(saveFile(parentSignatureFile, user.getId().toString()));
@@ -84,6 +87,9 @@ public class ConsentFormImpl implements ConsentService{
 				userConsent.setType(FormType.CONSENT);
 				userMetadata.setConsentAccepted(true);
 				consentForm = getConsentFormByConsentType(ConsentType.CONSENT_FORM_FOR_ABOVE_18);
+				UserScreeningStatus screeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
+				screeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.TERMS_ACCEPTED);
+				userScreeningStatusRepository.save(screeningStatus);
 			}
 							
 			userConsentRepository.save(userConsent);
@@ -94,9 +100,7 @@ public class ConsentFormImpl implements ConsentService{
 
 			userConsentRepository.save(userConsent);
 
-			UserScreeningStatus screeningStatus = userScreeningStatusRepository.findByUserId(user.getId());
-			screeningStatus.setUserScreeningStatus(UserScreeningStatus.UserScreenStatus.TERMS_ACCEPTED);
-			userScreeningStatusRepository.save(screeningStatus);
+		
 
 			//To-do - make this section dynamic with values from repositories.
 
