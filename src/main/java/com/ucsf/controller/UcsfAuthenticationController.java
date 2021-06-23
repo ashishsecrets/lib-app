@@ -217,6 +217,7 @@ public class UcsfAuthenticationController {
 
 		try {
 			firebaseService.createUser(user, signUpRequest);
+			firebaseService.createChatRoom(user);
 		}
 		catch (FirebaseAuthException ex){
 			System.out.println(ex);

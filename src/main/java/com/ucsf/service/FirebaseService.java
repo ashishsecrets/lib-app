@@ -10,18 +10,37 @@ import com.google.firebase.cloud.FirestoreClient;
 import com.ucsf.auth.model.User;
 import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
+import com.ucsf.payload.response.ChatRoom;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Service
 public class FirebaseService {
 
-    public static final String COL_NAME="messages";
+    public static final String COL_NAME="chatrooms";
 
-    public String updateMessageDetails(String message) throws InterruptedException, ExecutionException {
+    public String createChatRoom(User user) throws InterruptedException, ExecutionException {
         Firestore dbFirestore = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document("W8YowaPsCXnZKJ27VnZA\n").update("text", message);
+
+        ChatRoom chatRoom = new ChatRoom();
+
+        chatRoom.setCreatedAt(new Date().toString());
+
+        Map<String, String> one = new HashMap<>();
+        one.put("text", "Hello");
+        one.put("userName", user.getFirstName());
+        chatRoom.setLastMessage(one);
+
+        Map<String, Boolean> two = new HashMap<>();
+        two.put(user.getId().toString(), true);
+        chatRoom.setUsers(two);
+
+        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString()).create(chatRoom);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
