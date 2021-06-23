@@ -47,7 +47,7 @@ public class FirebaseService {
         message.setText("Hi");
 
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString()).create(chatRoom);
-        dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document("xyz").create(message);
+        dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document(user.getId().toString()).create(message);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
