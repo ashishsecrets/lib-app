@@ -1,5 +1,6 @@
 package com.ucsf.controller;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
 import com.ucsf.service.*;
@@ -100,6 +101,7 @@ public class UcsfAuthenticationController {
 		loggerService.printLogs(log, "createAuthenticationToken", "Start user login and create auth token");
 		JSONObject responseJson = new JSONObject();
 		String message = "";
+		String fireBaseSignIn;
 		Boolean isVerified = false;
 		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		User user = userRepository.findByEmail(authenticationRequest.getEmail());
@@ -133,7 +135,15 @@ public class UcsfAuthenticationController {
 			}
 		}
 
-		firebaseService.signInUser(user);
+		try {
+			fireBaseSignIn = firebaseService.signInUser(user);
+		}
+		catch (FirebaseAuthException ex){
+			System.out.println(ex);
+			responseJson.put("error",
+					new ErrorResponse(Integer.parseInt(ex.getErrorCode()), ex.getMessage()));
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 
 		if (jwtConfig.getTwoFa()) {
 			message = "You have to be verified by 2FA";
@@ -204,7 +214,17 @@ public class UcsfAuthenticationController {
 		responseJson.put("data", new AuthResponse(userDetails, user, message,null, ""));
 		loggerService.printLogs(log, "saveUser", "User Registered Successfully");
 
-		firebaseService.createUser(user, signUpRequest);
+
+		try {
+			firebaseService.createUser(user, signUpRequest);
+		}
+		catch (FirebaseAuthException ex){
+			System.out.println(ex);
+			responseJson.put("error",
+					new ErrorResponse(ErrorCodes.INVALID_PHONE.code(), ex.getMessage()));
+			responseJson.remove("data");
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+		}
 
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}

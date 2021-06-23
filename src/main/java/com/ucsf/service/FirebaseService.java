@@ -27,6 +27,12 @@ public class FirebaseService {
 
     public void createUser(User user, SignUpRequest signUpRequest) throws FirebaseAuthException {
 
+        /*String result = "";
+
+        UserRecord userRecord = FirebaseAuth.getInstance().getUserByPhoneNumber(user.getPhoneCode() + user.getPhoneNumber());
+
+        if()*/
+
         boolean emailVerified = false;
 
         if(signUpRequest.getUserRoles() != null){
