@@ -2,6 +2,7 @@ package com.ucsf.controller;
 
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.RoleName;
+import com.ucsf.service.*;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +36,6 @@ import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.repository.StudyRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
-import com.ucsf.service.CustomUserDetailsService;
-import com.ucsf.service.LoggerService;
-import com.ucsf.service.UserService;
-import com.ucsf.service.VerificationService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -82,6 +79,9 @@ public class UcsfAuthenticationController {
 
 	@Autowired
 	StudyRepository studyRepository;
+
+	@Autowired
+	FirebaseService firebaseService;
 
 	@Autowired
 	private LoggerService loggerService;
@@ -132,14 +132,19 @@ public class UcsfAuthenticationController {
 				jwtConfig.setTwoFa(false);
 			}
 		}
+
+		firebaseService.signInUser(user);
+
 		if (jwtConfig.getTwoFa()) {
 			message = "You have to be verified by 2FA";
-			responseJson.put("data", new AuthResponse(userDetails, user, message,status));
+			responseJson.put("data", new AuthResponse(userDetails, user, message,status, firebaseService.signInUser(user)));
 			return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 		} else {
 			message = "User Authenticated Successfully!";
 		}
-		responseJson.put("data", new AuthResponse(userDetails, user, message,status));
+
+
+		responseJson.put("data", new AuthResponse(userDetails, user, message,status, firebaseService.signInUser(user)));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
 
@@ -196,8 +201,10 @@ public class UcsfAuthenticationController {
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		user.setAuthToken(token);
-		responseJson.put("data", new AuthResponse(userDetails, user, message,null));
+		responseJson.put("data", new AuthResponse(userDetails, user, message,null, ""));
 		loggerService.printLogs(log, "saveUser", "User Registered Successfully");
+
+		firebaseService.createUser(user, signUpRequest);
 
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}

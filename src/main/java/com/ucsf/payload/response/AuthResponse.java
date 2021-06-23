@@ -22,8 +22,9 @@ public class AuthResponse implements Serializable {
 	private final String lastName;
 	private final String phoneNumber;
 	private final Set authority;
+	private final String fireBaseToken;
 
-	public AuthResponse(UserDetails userDetail, User user, String message,String status) {
+	public AuthResponse(UserDetails userDetail, User user, String message,String status, String fireBaseToken) {
 		this.authToken = user.getAuthToken();
 		this.message = message;
 		this.authority = (Set) userDetail.getAuthorities();
@@ -32,6 +33,8 @@ public class AuthResponse implements Serializable {
 		this.lastName = user.getLastName();
 		this.phoneNumber = user.getPhoneNumber();
 		this.status = status;
+		this.fireBaseToken = fireBaseToken;
+
 
 	}
 }

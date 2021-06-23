@@ -55,14 +55,14 @@ public class UserController {
 	@Autowired
 	LoadStudyTasks loadStudyTasks;
 
-	@Autowired
+	/*@Autowired
 	FirebaseService firebaseService;
 
 	@PutMapping("/updateMessage")
 	public String updatePatient(@RequestBody String message ) throws InterruptedException, ExecutionException, FirebaseAuthException {
 		firebaseService.createUser("ashish.vashisht@redblink.net", "vatika04");
 		return firebaseService.updateMessageDetails(message);
-	}
+	}*/
 
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllUsers() throws Exception {

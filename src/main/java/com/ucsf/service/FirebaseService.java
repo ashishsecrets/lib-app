@@ -7,6 +7,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
+import com.ucsf.auth.model.User;
+import com.ucsf.payload.request.AuthRequest;
+import com.ucsf.payload.request.SignUpRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
@@ -22,19 +25,38 @@ public class FirebaseService {
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
-    public void createUser(String email, String password) throws FirebaseAuthException {
+    public void createUser(User user, SignUpRequest signUpRequest) throws FirebaseAuthException {
+
+        boolean emailVerified = false;
+
+        if(signUpRequest.getUserRoles() != null){
+        if(signUpRequest.getUserRoles().get(0).equals("ADMIN")){
+            emailVerified = true;
+        }}
 
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setEmail(email)
-                .setEmailVerified(false)
-                .setPassword(password)
-                .setPhoneNumber("+11234567890")
-                .setDisplayName("Ash V")
+                .setUid(user.getId().toString())
+                .setEmail(user.getEmail())
+                .setEmailVerified(emailVerified)
+                .setPassword(signUpRequest.getPassword())
+                .setPhoneNumber(user.getPhoneCode() + user.getPhoneNumber())
+                .setDisplayName(user.getFirstName() + " " + user.getLastName())
                 .setPhotoUrl("http://www.example.com/12345678/photo.png")
                 .setDisabled(false);
 
         UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
-        System.out.println("Successfully created new user: " + userRecord.getUid());
+        // See the UserRecord reference doc for the contents of userRecord.
+        System.out.println("Created and fetched user on firebase" + userRecord.getUid());
     }
+
+    public String signInUser(User user) throws FirebaseAuthException {
+        String uid = user.getId().toString();
+
+        String customToken = FirebaseAuth.getInstance().createCustomToken(uid);
+        // Send token back to client
+        return customToken;
+    }
+
+
 
 }
