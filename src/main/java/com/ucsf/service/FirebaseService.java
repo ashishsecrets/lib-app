@@ -41,6 +41,7 @@ public class FirebaseService {
         chatRoom.setUsers(two);
 
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString()).create(chatRoom);
+        dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document("xyz").create(chatRoom);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
