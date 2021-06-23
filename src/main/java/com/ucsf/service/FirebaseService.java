@@ -33,7 +33,7 @@ public class FirebaseService {
         chatRoom.setCreatedAt(new Date().toString());
 
         Map<String, String> one = new HashMap<>();
-        one.put("text", "Hello");
+        one.put("text", user.getLastName());
         one.put("userName", user.getFirstName());
         chatRoom.setLastMessage(one);
 
@@ -47,7 +47,7 @@ public class FirebaseService {
         message.setText("Hi");
 
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString()).create(chatRoom);
-        dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document(user.getId().toString()).create(message);
+        dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document().create(message);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
