@@ -13,6 +13,7 @@ import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.response.ChatRoom;
 import com.ucsf.payload.response.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -23,7 +24,26 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class FirebaseService {
 
+    @Value("${server.port}")
+    int serverPort;
+
     public static final String COL_NAME="chatrooms";
+
+    String getServerType(){
+        String serverType = "none";
+
+        if(serverPort == 8181){
+            serverType = "test";
+        }
+        else if(serverPort == 8182){
+            serverType = "prod";
+        }
+        else if(serverPort == 8081){
+            serverType = "local";
+        }
+
+        return serverType;
+    }
 
     public String createChatRoom(User user) throws InterruptedException, ExecutionException {
         Firestore dbFirestore = FirestoreClient.getFirestore();
@@ -46,7 +66,7 @@ public class FirebaseService {
         message.setCreatedAt(new Date().toString());
         message.setText("Hi");
 
-        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString()).create(chatRoom);
+        ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).create(chatRoom);
         dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document().create(message);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
@@ -67,11 +87,11 @@ public class FirebaseService {
         }}
 
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setUid(user.getId().toString())
+                .setUid(user.getId().toString() + "_" + getServerType())
                 .setEmail(user.getEmail())
                 .setEmailVerified(emailVerified)
                 .setPassword(signUpRequest.getPassword())
-                .setPhoneNumber(user.getPhoneCode() + user.getPhoneNumber())
+                //.setPhoneNumber(user.getPhoneCode() + user.getPhoneNumber())
                 .setDisplayName(user.getFirstName() + " " + user.getLastName())
                 .setPhotoUrl("http://www.example.com/12345678/photo.png")
                 .setDisabled(false);
