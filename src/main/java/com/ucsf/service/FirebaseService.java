@@ -64,10 +64,10 @@ public class FirebaseService {
         Message message = new Message();
         message.setUserId(user.getId().toString());
         message.setCreatedAt(new Date().toString());
-        message.setText("Hi");
+        message.setText("");
 
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).create(chatRoom);
-        dbFirestore.collection(COL_NAME).document(user.getId().toString()).collection("messages").document().create(message);
+        dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).collection("messages").document().create(message);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
@@ -110,5 +110,10 @@ public class FirebaseService {
     }
 
 
+    public void deleteInitialMsg(User user) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
 
+        dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).collection("messages").document().delete();
+
+    }
 }
