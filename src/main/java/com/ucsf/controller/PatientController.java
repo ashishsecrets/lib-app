@@ -222,7 +222,7 @@ public class PatientController {
 
 			if(taskService.getTaskList(user) != null && !taskService.getTaskList(user).isEmpty()){
 				response.setTasks(taskService.getAlteredTaskList(tasks));
-				response.setOverdueTasks(taskService.getAlteredTaskList(tasks));
+				response.setOverdueTasks(taskService.getOverDueTaskList(taskService.getAlteredTaskList(tasks)));
 				response.setCurrentTasks(taskService.getCurrentTaskList(taskService.getAlteredTaskList(tasks)));
 				response.setUpcomingTasks(taskService.getUpcomingTaskList(taskService.getAlteredTaskList(tasks)));
 				response.setCompletedProgress(taskService.getTotalProgress(user));

@@ -337,6 +337,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<TaskResponse> getOverDueTaskList(List<TaskResponse> alteredTaskList) {
+        List<TaskResponse> overdueTaskList = new ArrayList<>();
+
+        for(TaskResponse item: alteredTaskList){
+            if(item.getTaskStatus().equals("overdue")){
+                overdueTaskList.add(item);
+            }
+        }
+
+        return overdueTaskList;
+    }
+
+    @Override
     public int getMissingProgress(User user) {
         float missingProgress = 0;
 
@@ -389,4 +402,6 @@ public class TaskServiceImpl implements TaskService {
 
         return Math.round(upcomingProgress);
     }
+
+
 }

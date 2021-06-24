@@ -36,4 +36,6 @@ public interface TaskService {
     int getMissingProgress(User user);
 
     int getUpcomingProgress(User user);
+
+    List<TaskResponse> getOverDueTaskList(List<TaskResponse> tasks);
 }
