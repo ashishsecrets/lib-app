@@ -13,5 +13,6 @@ public class TaskResponse {
     Date dueDate;
     String taskStatus;
     String taskType;
+    int weekCount;
     int taskPercentage;
 }

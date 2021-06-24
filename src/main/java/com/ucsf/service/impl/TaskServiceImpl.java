@@ -119,6 +119,8 @@ public class TaskServiceImpl implements TaskService {
             taskResponse.setStartDate(task.getStartDate());
             taskResponse.setDueDate(task.getEndDate());
             taskResponse.setTaskType(task.getTaskType());
+            if(task.getWeekCount()!=null){
+            taskResponse.setWeekCount(task.getWeekCount());}
             int taskProgress = getTaskProgress(task.getTaskId(), task.getUserId(), task.getTaskType(), task.getTaskTrueId());
             taskResponse.setTaskPercentage(taskProgress);
             taskResponse.setTaskStatus(getTaskStatus(task.getStartDate(), task.getEndDate(), taskProgress));
