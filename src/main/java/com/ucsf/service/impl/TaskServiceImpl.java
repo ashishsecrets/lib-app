@@ -351,6 +351,8 @@ public class TaskServiceImpl implements TaskService {
         return overdueTaskList;
     }
 
+
+
     @Override
     public int getMissingProgress(User user) {
         float missingProgress = 0;
@@ -403,6 +405,21 @@ public class TaskServiceImpl implements TaskService {
         System.out.println(upcomingProgress);
 
         return Math.round(upcomingProgress);
+    }
+
+    @Override
+    public int getTotalWeeksIntoStudy(User user) {
+
+        int totalWeekCount = 0;
+
+        List<UserTasks> lastTaskOfUserList = userTasksRepository.findByUserId(user.getId());
+        UserTasks lastTaskOfUser = lastTaskOfUserList.get(lastTaskOfUserList.size()-1);
+
+        if(lastTaskOfUser.getWeekCount() != null)
+        totalWeekCount = lastTaskOfUser.getWeekCount();
+
+        return totalWeekCount;
+
     }
 
 

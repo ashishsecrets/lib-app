@@ -14,5 +14,6 @@ public class CompleteTasksListResponse {
 	int completedProgress;
 	int missingProgress;
 	int upcomingProgress;
+	int totalWeeksIntoStudy;
 
 }

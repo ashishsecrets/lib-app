@@ -228,6 +228,7 @@ public class PatientController {
 				response.setCompletedProgress(taskService.getTotalProgress(user));
 				response.setMissingProgress(taskService.getMissingProgress(user));
 				response.setUpcomingProgress(taskService.getUpcomingProgress(user));
+				response.setTotalWeeksIntoStudy(taskService.getTotalWeeksIntoStudy(user));
 				responseJson.put("data", response);
 				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 			}

@@ -38,4 +38,6 @@ public interface TaskService {
     int getUpcomingProgress(User user);
 
     List<TaskResponse> getOverDueTaskList(List<TaskResponse> tasks);
+
+    int getTotalWeeksIntoStudy(User user);
 }
