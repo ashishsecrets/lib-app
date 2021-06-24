@@ -74,7 +74,7 @@ public class TasksTimeLine {
                 userTask.setProgress(0);
                 userTask.setDescription(item.getDescription());
                 userTask.setTitle(item.getTitle());
-                userTask.setWeekCount(item.getWeekCount()+1);
+                userTask.setWeekCount(item.getWeekCount()+(item.getDuration()));
                 if(item.getDuration() != null){
                 userTask.setDuration(item.getDuration());}
                 else{userTask.setDuration(1);}
