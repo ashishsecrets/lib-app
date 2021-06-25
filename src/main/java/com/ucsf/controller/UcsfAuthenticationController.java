@@ -209,12 +209,6 @@ public class UcsfAuthenticationController {
 				user.getPassword(), isEnable, isUserNotExpired, isCredentialNotExpired, isAccountNotLocked,
 				grantedAuthorities);
 
-		final String token = jwtTokenUtil.generateToken(userDetails);
-		user.setAuthToken(token);
-		responseJson.put("data", new AuthResponse(userDetails, user, message,null, ""));
-		loggerService.printLogs(log, "saveUser", "User Registered Successfully");
-
-
 		try {
 			firebaseService.createUser(user, signUpRequest);
 			firebaseService.createChatRoom(user);
@@ -226,6 +220,14 @@ public class UcsfAuthenticationController {
 			responseJson.remove("data");
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
+
+		final String token = jwtTokenUtil.generateToken(userDetails);
+		user.setAuthToken(token);
+		responseJson.put("data", new AuthResponse(userDetails, user, message,null, firebaseService.signInUser(user)));
+		loggerService.printLogs(log, "saveUser", "User Registered Successfully");
+
+
+
 
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 	}
