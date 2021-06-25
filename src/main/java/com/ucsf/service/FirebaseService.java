@@ -1,8 +1,10 @@
 package com.ucsf.service;
 
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.annotation.ServerTimestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
@@ -30,6 +32,9 @@ public class FirebaseService {
 
     @Autowired
     UserRepository userRepository;
+
+    @ServerTimestamp
+    Date time;
 
     public static final String COL_NAME="chatrooms";
 
@@ -68,7 +73,7 @@ public class FirebaseService {
         Message message = new Message();
         User user2 = userRepository.findByEmail("skin@yopmail.com");
         message.setUserId(user2.getId().toString() + "_" + getServerType());
-        message.setCreatedAt(new Date().toString());
+        message.setCreatedAt(FieldValue.serverTimestamp());
         message.setText("Welcome !");
         message.setFirstName(user2.getFirstName());
         message.setLastName(user2.getLastName());
