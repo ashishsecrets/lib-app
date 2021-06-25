@@ -102,7 +102,7 @@ public class FirebaseService {
     }
 
     public String signInUser(User user) throws FirebaseAuthException {
-        String uid = user.getId().toString();
+        String uid = user.getId().toString() + "_" + getServerType();
 
         String customToken = FirebaseAuth.getInstance().createCustomToken(uid);
         // Send token back to client
