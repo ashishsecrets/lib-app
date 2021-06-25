@@ -10,5 +10,8 @@ public class Message {
     String createdAt;
     String text;
     String userId;
+    String firstName;
+    String lastName;
+    String imgPath;
 
 }
