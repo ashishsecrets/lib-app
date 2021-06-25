@@ -70,8 +70,8 @@ public class FirebaseService {
         message.setUserId(user2.getId().toString() + "_" + getServerType());
         message.setCreatedAt(new Date().toString());
         message.setText("Welcome !");
-        message.setFirstName(user.getFirstName());
-        message.setLastName(user.getLastName());
+        message.setFirstName(user2.getFirstName());
+        message.setLastName(user2.getLastName());
         message.setImgPath("");
 
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).create(chatRoom);
