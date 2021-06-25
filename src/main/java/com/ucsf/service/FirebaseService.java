@@ -12,6 +12,7 @@ import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.response.ChatRoom;
 import com.ucsf.payload.response.Message;
+import com.ucsf.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,9 @@ public class FirebaseService {
 
     @Value("${server.port}")
     int serverPort;
+
+    @Autowired
+    UserRepository userRepository;
 
     public static final String COL_NAME="chatrooms";
 
@@ -62,9 +66,10 @@ public class FirebaseService {
         chatRoom.setUsers(two);
 
         Message message = new Message();
-        message.setUserId(user.getId().toString());
+        User user2 = userRepository.findByEmail("skin@yopmail.com");
+        message.setUserId(user2.getId().toString() + "_" + getServerType());
         message.setCreatedAt(new Date().toString());
-        message.setText("");
+        message.setText("Welcome !");
         message.setFirstName(user.getFirstName());
         message.setLastName(user.getLastName());
         message.setImgPath("");
