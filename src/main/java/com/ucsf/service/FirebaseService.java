@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
 import com.ucsf.auth.model.User;
+import com.ucsf.payload.request.AddUserRequest;
 import com.ucsf.payload.request.AuthRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.response.ChatRoom;
@@ -112,6 +113,24 @@ public class FirebaseService {
         UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
         // See the UserRecord reference doc for the contents of userRecord.
         System.out.println("Created and fetched user on firebase" + userRecord.getUid());
+    }
+    
+    public void createStudyUser(User user, AddUserRequest signUpRequest) throws FirebaseAuthException {
+
+        boolean emailVerified = true;
+        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                .setUid(user.getId().toString() + "_" + getServerType())
+                .setEmail(user.getEmail())
+                .setEmailVerified(emailVerified)
+                .setPassword(user.getPassword())
+                //.setPhoneNumber(user.getPhoneCode() + user.getPhoneNumber())
+                .setDisplayName(user.getFirstName() + " " + user.getLastName())
+                .setPhotoUrl("http://www.example.com/12345678/photo.png")
+                .setDisabled(false);
+
+        UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+        // See the UserRecord reference doc for the contents of userRecord.
+        System.out.println("Created and fetched study team on firebase" + userRecord.getUid());
     }
 
     public String signInUser(User user) throws FirebaseAuthException {

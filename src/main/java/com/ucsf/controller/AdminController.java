@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.ucsf.auditModel.UserHistory;
 import com.ucsf.auth.model.Role;
 import com.ucsf.auth.model.User;
@@ -40,6 +41,7 @@ import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.payload.response.UserDataResponse;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.service.EmailService;
+import com.ucsf.service.FirebaseService;
 import com.ucsf.service.HistoryService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.UserService;
@@ -80,6 +82,9 @@ public class AdminController {
 
 	@Value("${spring.mail.from}")
 	String fromEmail;
+	
+	@Autowired
+	FirebaseService firebaseService;
 
 	private static Logger log = LoggerFactory.getLogger(AdminController.class);
 
@@ -115,6 +120,12 @@ public class AdminController {
 		final String token = jwtTokenUtil.generateToken(userDetails);
 		user.setAuthToken(token);
 		userRepository.save(user);
+		try {
+			firebaseService.createStudyUser(user, signUpRequest);
+		} catch (FirebaseAuthException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			emailService.sendCredsToUsersAddedByAdmin(fromEmail, user.getEmail(), "User Registered",
 					user.getFirstName(), "12345");

@@ -127,8 +127,11 @@ public class UcsfAuthenticationController {
 		user.setAuthToken(token);
 		user.setDevideId(authenticationRequest.getDeviceId());
 		user = userRepository.save(user);
+		String status = "";
 		UserScreeningStatus userStatus = userScreeningStatusRepository.findByUserId(user.getId());
-		String status = userStatus.getUserScreeningStatus().toString();
+		if(userStatus != null && userStatus.getUserScreeningStatus() != null) {
+			 status = userStatus.getUserScreeningStatus().toString();
+		}
 		for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 			if (role.getName().toString().equals("ADMIN")) {
 				jwtConfig.setTwoFa(false);
@@ -141,7 +144,7 @@ public class UcsfAuthenticationController {
 		catch (FirebaseAuthException ex){
 			System.out.println(ex);
 			responseJson.put("error",
-					new ErrorResponse(Integer.parseInt(ex.getErrorCode()), ex.getMessage()));
+					new ErrorResponse(111, ex.getMessage()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
 		}
 
