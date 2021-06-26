@@ -105,9 +105,9 @@ public class ConsentFormImpl implements ConsentService{
 			//To-do - make this section dynamic with values from repositories.
 
 			List<UserTasks> userTasksList = userTasksRepository.findByUserId(user.getId());
-
+           System.out.println("userTasksList "+userTasksList);
 			if(userTasksList == null || userTasksList.isEmpty()) {
-
+				 System.out.println("userTasksList1 "+userTasksList);
 				Date startDate = new Date();
 
 				Calendar calendar = Calendar.getInstance();
@@ -205,8 +205,6 @@ public class ConsentFormImpl implements ConsentService{
 
 			}
 
-
-			
 			if(patientSignatureFile != null)
 				patientSignatureFile.delete();
 			if(parentSignatureFile != null)
