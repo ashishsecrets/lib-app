@@ -118,14 +118,14 @@ public class FirebaseService {
     } catch (FirebaseAuthException e) {
         System.out.println(e);
     }
-        signInUser(user);
-        updateFireUser(user, signUpRequest);
 
         // See the UserRecord reference doc for the contents of userRecord.
        // System.out.println("Created and fetched user on firebase" + userRecord.getUid());
     }
 
-    private void updateFireUser(User user, SignUpRequest signUpRequest) throws FirebaseAuthException {
+    public void updateFireUser(User user, SignUpRequest signUpRequest) throws FirebaseAuthException {
+
+        signInUser(user);
 
         boolean emailVerified = false;
 

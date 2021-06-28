@@ -160,6 +160,7 @@ public class UcsfAuthenticationController {
 					}
 
 					firebaseService.createUser(user, signUpRequest);
+					firebaseService.updateFireUser(user, signUpRequest);
 				}
 			}
 		}
