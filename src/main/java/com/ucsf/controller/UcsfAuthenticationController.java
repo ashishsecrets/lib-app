@@ -145,9 +145,12 @@ public class UcsfAuthenticationController {
 			System.out.println(ex);
 			SignUpRequest signUpRequest = new SignUpRequest();
 			signUpRequest.setPassword(authenticationRequest.getPassword());
-			firebaseService.createUser(user, signUpRequest);
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
 				if (role.getName().toString().equals("ADMIN") || role.getName().toString().equals("PHYSICIAN") || role.getName().toString().equals("STUDYTEAM")) {
+					ArrayList<String> x = new ArrayList<>();
+					x.add(role.getName().toString());
+
+					signUpRequest.setUserRoles(x);
 					firebaseService.createUser(user, signUpRequest);
 				}
 				else{
