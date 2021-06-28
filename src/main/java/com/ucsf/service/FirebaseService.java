@@ -116,7 +116,7 @@ public class FirebaseService {
     FirebaseAuth.getInstance().createUser(request);
 
     } catch (FirebaseAuthException e) {
-        e.printStackTrace();
+        System.out.println(e);
     }
 
         String uid = user.getId().toString() + "_" + getServerType();
@@ -149,9 +149,9 @@ public class FirebaseService {
         String uid = user.getId().toString() + "_" + getServerType();
         String customToken = FirebaseAuth.getInstance().createCustomToken(uid);
 
-        UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
+        /*UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
         System.out.println("Fetched user: " + userRecord.getUid().toString());
-        System.out.println("Fetched displayName: " + userRecord.getDisplayName().toString());
+        System.out.println("Fetched displayName: " + userRecord.getDisplayName().toString());*/
 
         // Send token back to client
         return customToken;
