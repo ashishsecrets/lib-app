@@ -128,7 +128,7 @@ public class AdminController {
 		}
 		try {
 			emailService.sendCredsToUsersAddedByAdmin(fromEmail, user.getEmail(), "User Registered",
-					user.getFirstName(), "12345");
+					user.getFirstName(), "Password@123");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
