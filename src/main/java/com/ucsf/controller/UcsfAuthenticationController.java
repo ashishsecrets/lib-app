@@ -140,10 +140,6 @@ public class UcsfAuthenticationController {
 		}
 
 		try {
-			fireBaseSignIn = firebaseService.signInUser(user);
-		}
-		catch (FirebaseAuthException ex){
-			System.out.println(ex);
 			SignUpRequest signUpRequest = new SignUpRequest();
 			signUpRequest.setPassword(authenticationRequest.getPassword());
 			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
@@ -165,6 +161,9 @@ public class UcsfAuthenticationController {
 					}
 				}
 			}
+		}
+		catch (FirebaseAuthException ex){
+			System.out.println(ex);
 			/*responseJson.put("error",
 					new ErrorResponse(111, ex.getMessage()));
 			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);*/
