@@ -143,9 +143,21 @@ public class UcsfAuthenticationController {
 		}
 		catch (FirebaseAuthException ex){
 			System.out.println(ex);
-			responseJson.put("error",
+			SignUpRequest signUpRequest = new SignUpRequest();
+			signUpRequest.setPassword(authenticationRequest.getPassword());
+			firebaseService.createUser(user, signUpRequest);
+			for (Role role : user != null && user.getRoles() != null ? user.getRoles() : new ArrayList<Role>()) {
+				if (role.getName().toString().equals("ADMIN") || role.getName().toString().equals("PHYSICIAN") || role.getName().toString().equals("STUDYTEAM")) {
+					firebaseService.createUser(user, signUpRequest);
+				}
+				else{
+					firebaseService.createUser(user, signUpRequest);
+					firebaseService.createChatRoom(user);
+				}
+			}
+			/*responseJson.put("error",
 					new ErrorResponse(111, ex.getMessage()));
-			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);*/
 		}
 
 		if (jwtConfig.getTwoFa()) {

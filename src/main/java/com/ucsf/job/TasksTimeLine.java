@@ -76,7 +76,7 @@ public class TasksTimeLine {
                 userTask.setTitle(item.getTitle());
                 int weekCount;
                 if(userTask.getWeekCount() == null){
-                    weekCount = 0;
+                    weekCount = 1;
                 }
                 else{
                     weekCount = userTask.getWeekCount();

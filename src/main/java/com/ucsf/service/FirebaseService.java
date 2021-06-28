@@ -39,7 +39,7 @@ public class FirebaseService {
 
     public static final String COL_NAME="chatrooms";
 
-    String getServerType(){
+    public String getServerType(){
         String serverType = "none";
 
         if(serverPort == 8181){
@@ -96,7 +96,7 @@ public class FirebaseService {
         boolean emailVerified = false;
 
         if(signUpRequest.getUserRoles() != null){
-        if(signUpRequest.getUserRoles().get(0).equals("ADMIN")){
+        if(signUpRequest.getUserRoles().get(0).equals("ADMIN") || signUpRequest.getUserRoles().get(0).equals("STUDYTEAM") || signUpRequest.getUserRoles().get(0).equals("PHYSICIAN")){
             emailVerified = true;
         }}
 
@@ -109,10 +109,13 @@ public class FirebaseService {
                 .setDisplayName(user.getFirstName() + " " + user.getLastName())
                 .setPhotoUrl("http://www.example.com/12345678/photo.png")
                 .setDisabled(false);
-
-        UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+    try {
+    UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+    } catch (FirebaseAuthException e) {
+        e.printStackTrace();
+    }
         // See the UserRecord reference doc for the contents of userRecord.
-        System.out.println("Created and fetched user on firebase" + userRecord.getUid());
+       // System.out.println("Created and fetched user on firebase" + userRecord.getUid());
     }
     
     public void createStudyUser(User user, AddUserRequest signUpRequest) throws FirebaseAuthException {

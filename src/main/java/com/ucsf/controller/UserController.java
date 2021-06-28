@@ -53,16 +53,19 @@ public class UserController {
 
 
 	@Autowired
+	FireStoreUserChatSync fireStoreUserChatSync;
+
+
+	@Autowired
 	LoadStudyTasks loadStudyTasks;
 
-	/*@Autowired
-	FirebaseService firebaseService;
+	@RequestMapping(value = "/sync-users-firestore", method = RequestMethod.GET)
+	public ResponseEntity<?> syncfireusers() throws Exception {
 
-	@PutMapping("/updateMessage")
-	public String updatePatient(@RequestBody String message ) throws InterruptedException, ExecutionException, FirebaseAuthException {
-		firebaseService.createUser("ashish.vashisht@redblink.net", "vatika04");
-		return firebaseService.updateMessageDetails(message);
-	}*/
+		//fireStoreUserChatSync.syncAllUsersToFirebase();
+
+		return ResponseEntity.ok("success");
+	}
 
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllUsers() throws Exception {
