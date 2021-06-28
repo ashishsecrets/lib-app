@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @CrossOrigin
@@ -155,7 +156,13 @@ public class UcsfAuthenticationController {
 				}
 				else{
 					firebaseService.createUser(user, signUpRequest);
-					firebaseService.createChatRoom(user);
+					try {
+						firebaseService.createChatRoom(user);
+					} catch (InterruptedException e) {
+						System.out.println(e);
+					} catch (ExecutionException e) {
+						System.out.println(e);
+					}
 				}
 			}
 			/*responseJson.put("error",

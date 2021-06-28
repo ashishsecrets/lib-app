@@ -109,11 +109,20 @@ public class FirebaseService {
                 .setDisplayName(user.getFirstName() + " " + user.getLastName())
                 .setPhotoUrl("http://www.example.com/12345678/photo.png")
                 .setDisabled(false);
+
+
     try {
-    UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+
+    FirebaseAuth.getInstance().createUser(request);
+
     } catch (FirebaseAuthException e) {
         e.printStackTrace();
     }
+
+        String uid = user.getId().toString() + "_" + getServerType();
+
+
+
         // See the UserRecord reference doc for the contents of userRecord.
        // System.out.println("Created and fetched user on firebase" + userRecord.getUid());
     }
@@ -140,9 +149,10 @@ public class FirebaseService {
         String uid = user.getId().toString() + "_" + getServerType();
         String customToken = FirebaseAuth.getInstance().createCustomToken(uid);
 
-        //UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
-        //System.out.println("Fetched user: " + userRecord.getUid().toString());
-        //System.out.println("Fetched displayName: " + userRecord.getDisplayName().toString());
+        /*UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
+        System.out.println("Fetched user: " + userRecord.getUid().toString());
+        System.out.println("Fetched displayName: " + userRecord.getDisplayName().toString());*/
+
         // Send token back to client
         return customToken;
     }
