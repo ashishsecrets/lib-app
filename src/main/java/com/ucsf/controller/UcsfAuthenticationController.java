@@ -150,7 +150,7 @@ public class UcsfAuthenticationController {
 					signUpRequest.setUserRoles(x);
 					firebaseService.createUser(user, signUpRequest);
 				}
-				else{
+				else if (role.getName().toString().equals("PRE_VERIFICATION_USER") || role.getName().toString().equals("PATIENT")){
 					firebaseService.createUser(user, signUpRequest);
 					try {
 						firebaseService.createChatRoom(user);
