@@ -151,7 +151,6 @@ public class UcsfAuthenticationController {
 					firebaseService.createUser(user, signUpRequest);
 				}
 				else if (role.getName().toString().equals("PRE_VERIFICATION_USER") || role.getName().toString().equals("PATIENT")){
-					firebaseService.createUser(user, signUpRequest);
 					try {
 						firebaseService.createChatRoom(user);
 					} catch (InterruptedException e) {
@@ -159,6 +158,8 @@ public class UcsfAuthenticationController {
 					} catch (ExecutionException e) {
 						System.out.println(e);
 					}
+
+					firebaseService.createUser(user, signUpRequest);
 				}
 			}
 		}

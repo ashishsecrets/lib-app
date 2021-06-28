@@ -118,15 +118,40 @@ public class FirebaseService {
     } catch (FirebaseAuthException e) {
         System.out.println(e);
     }
-
-        String uid = user.getId().toString() + "_" + getServerType();
-
-
+        signInUser(user);
+        updateFireUser(user, signUpRequest);
 
         // See the UserRecord reference doc for the contents of userRecord.
        // System.out.println("Created and fetched user on firebase" + userRecord.getUid());
     }
-    
+
+    private void updateFireUser(User user, SignUpRequest signUpRequest) throws FirebaseAuthException {
+
+        boolean emailVerified = false;
+
+        if(signUpRequest.getUserRoles() != null){
+            if(signUpRequest.getUserRoles().get(0).equals("ADMIN") || signUpRequest.getUserRoles().get(0).equals("STUDYTEAM") || signUpRequest.getUserRoles().get(0).equals("PHYSICIAN")){
+                emailVerified = true;
+            }}
+
+        String uid = user.getId().toString() + "_" + getServerType();
+        UserRecord.UpdateRequest update = new UserRecord.UpdateRequest(uid)
+                .setEmail(user.getEmail())
+                .setEmailVerified(emailVerified)
+                .setPassword(signUpRequest.getPassword())
+                //.setPhoneNumber(user.getPhoneCode() + user.getPhoneNumber())
+                .setDisplayName(user.getFirstName() + " " + user.getLastName())
+                .setPhotoUrl("http://www.example.com/12345678/photo.png")
+                .setDisabled(false);
+    try {
+        FirebaseAuth.getInstance().updateUser(update);
+    } catch (FirebaseAuthException e) {
+        System.out.println(e);
+    }
+
+
+    }
+
     public void createStudyUser(User user, AddUserRequest signUpRequest) throws FirebaseAuthException {
 
         boolean emailVerified = true;
