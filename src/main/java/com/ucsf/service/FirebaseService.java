@@ -71,17 +71,9 @@ public class FirebaseService {
         two.put(user.getId().toString(), true);
         chatRoom.setUsers(two);
 
-        Message message = new Message();
-        User user2 = userRepository.findByEmail("skin@yopmail.com");
-        message.setUserId(user2.getId().toString() + "_" + getServerType());
-        message.setCreatedAt(FieldValue.serverTimestamp());
-        message.setText("Welcome !");
-        message.setFirstName(user2.getFirstName());
-        message.setLastName(user2.getLastName());
-        message.setImgPath("");
+
 
         ApiFuture<WriteResult> collectionsApiFuture = dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).create(chatRoom);
-        dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).collection("messages").document().create(message);
         return collectionsApiFuture.get().getUpdateTime().toString();
     }
 
@@ -187,6 +179,25 @@ public class FirebaseService {
         Firestore dbFirestore = FirestoreClient.getFirestore();
 
         dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).collection("messages").document().delete();
+
+    }
+
+    public void sendInitialMessage(User user) {
+
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+
+
+        Message message = new Message();
+        User user2 = userRepository.findByEmail("skin@yopmail.com");
+        message.setUserId(user2.getId().toString() + "_" + getServerType());
+        message.setCreatedAt(FieldValue.serverTimestamp());
+        message.setText("Welcome !");
+        message.setFirstName(user2.getFirstName());
+        message.setLastName(user2.getLastName());
+        message.setImgPath("");
+
+        dbFirestore.collection(COL_NAME).document(user.getId().toString() + "_" + getServerType()).collection("messages").document().create(message);
+
 
     }
 }

@@ -153,6 +153,7 @@ public class UcsfAuthenticationController {
 				else if (role.getName().toString().equals("PRE_VERIFICATION_USER") || role.getName().toString().equals("PATIENT")){
 					try {
 						firebaseService.createChatRoom(user);
+						firebaseService.sendInitialMessage(user);
 					} catch (InterruptedException e) {
 						System.out.println(e);
 					} catch (ExecutionException e) {
