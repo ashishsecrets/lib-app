@@ -291,7 +291,7 @@ public class UserServiceImpl implements UserService {
 		newUser.setFirstName(user.getFirstName());
 		newUser.setLastName(user.getLastName());
 		newUser.setEmail(user.getEmail());
-		newUser.setPassword(bcryptEncoder.encode("12345"));
+		newUser.setPassword(bcryptEncoder.encode("Password@123"));
 		newUser.setPhoneCode(user.getPhoneCode());
 		newUser.setPhoneNumber(user.getPhone());
 		// Add Role
