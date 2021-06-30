@@ -63,6 +63,9 @@ public class StudyController {
 	@Autowired
 	ImageUrlService imageService;
 
+	@Autowired
+	AmazonClientService amazonClientService;
+
 	EncryptDecryptUtil encryptDecryptUtil = new EncryptDecryptUtil();
 
 	private static Logger log = LoggerFactory.getLogger(StudyController.class);
@@ -233,9 +236,9 @@ public class StudyController {
 	public void getStudyImage(@RequestParam String imagePath, HttpServletResponse response) {
 
 		try {
-			//InputStream inputStream = amazonClientService.awsGetObject(imagePath).getObjectContent();
+			InputStream inputStream = amazonClientService.awsGetObject(imagePath).getObjectContent();
 
-			InputStream inputStream = imageService.getImage(imagePath);
+			//InputStream inputStream = imageService.getImage(imagePath);
 
 			final int BUFFER_SIZE = 4096;			
 			
