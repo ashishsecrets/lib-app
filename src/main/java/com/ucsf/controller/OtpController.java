@@ -267,14 +267,11 @@ public class OtpController {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			try {
-				//Inform study team
-				otpService.informStudyTeam(user);
-				
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
+			/*
+			 * try { //Inform study team otpService.informStudyTeam(user);
+			 * 
+			 * } catch(Exception e) { e.printStackTrace(); }
+			 */
 		}
 
 		responseJson.put("data", new AuthResponse(userDetails, user, message,null, ""));
