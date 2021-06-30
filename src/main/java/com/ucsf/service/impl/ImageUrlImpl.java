@@ -12,10 +12,19 @@ import com.ucsf.service.ImageUrlService;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 
@@ -24,9 +33,6 @@ public class ImageUrlImpl implements ImageUrlService {
 
     @Autowired
     ImageRepository imageRepository;
-
-    @Autowired
-    AmazonClientService amazonClientService;
 
     @Override
     public List<StudyImages> getImageUrls(Long studyId, Long userId) {
@@ -46,8 +52,13 @@ public class ImageUrlImpl implements ImageUrlService {
     public String saveFile(File file, String fileFolder) {
         try {
 
+            String path = "./src/main/resources/images/";
+
+
             String filePath = fileFolder+"/"+file.getName();
-            amazonClientService.awsPutObject(file, filePath);
+            Files.createDirectories(Paths.get(path + fileFolder));
+            file.renameTo(new File(path + filePath));
+            //amazonClientService.awsPutObject(file, filePath);
 
             return filePath;
         } catch (Exception e) {
@@ -84,6 +95,16 @@ public class ImageUrlImpl implements ImageUrlService {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public InputStream getImage(String imagePath) throws IOException {
+
+        String path = "./src/main/resources/images/";
+
+        File file = ResourceUtils.getFile(path + imagePath);
+
+        return file.toURL().openStream();
     }
 
     private File decodeBase64String(String signatureImageUrl, String fileName) {

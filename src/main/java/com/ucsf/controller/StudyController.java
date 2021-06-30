@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 import com.ucsf.payload.response.*;
+import com.ucsf.service.*;
 import com.ucsf.util.EncryptDecryptUtil;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -34,10 +35,6 @@ import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.UcsfStudy;
 import com.ucsf.payload.request.StudyRequest;
 import com.ucsf.payload.request.StudyReviewRequest;
-import com.ucsf.service.AmazonClientService;
-import com.ucsf.service.LoggerService;
-import com.ucsf.service.StudyService;
-import com.ucsf.service.UserService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -62,9 +59,9 @@ public class StudyController {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
-	
+
 	@Autowired
-	AmazonClientService amazonClientService;
+	ImageUrlService imageService;
 
 	EncryptDecryptUtil encryptDecryptUtil = new EncryptDecryptUtil();
 
@@ -236,8 +233,10 @@ public class StudyController {
 	public void getStudyImage(@RequestParam String imagePath, HttpServletResponse response) {
 
 		try {
-			InputStream inputStream = amazonClientService.awsGetObject(imagePath).getObjectContent();
-			
+			//InputStream inputStream = amazonClientService.awsGetObject(imagePath).getObjectContent();
+
+			InputStream inputStream = imageService.getImage(imagePath);
+
 			final int BUFFER_SIZE = 4096;			
 			
 			//response.setContentType("image/png");
