@@ -76,6 +76,7 @@ public class ScreeningAnswers extends Auditable<String> implements Serializable,
 				+ ", getClass()=" + getClass() + "]";
 	}
 
+	//Screening Answers Diffable
 
 	@Override
 	public DiffResult<ScreeningAnswers> diff(ScreeningAnswers obj) {

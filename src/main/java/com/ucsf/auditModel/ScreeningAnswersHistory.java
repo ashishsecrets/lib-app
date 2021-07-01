@@ -10,6 +10,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.util.Date;
 
+//ScreeningAnswersHistory
+
 @Entity
 @Table(name = "screening_answers_history")
 @EntityListeners(AuditingEntityListener.class)
