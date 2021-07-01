@@ -3,13 +3,14 @@ package com.ucsf.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ucsf.auth.model.User;
+import com.ucsf.entityListener.ScreeningAnswersEntityListener;
+import com.ucsf.entityListener.UserEntityListener;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.DiffBuilder;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.apache.commons.lang3.builder.Diffable;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.springframework.context.annotation.Primary;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "screening_answers")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@EntityListeners(ScreeningAnswersEntityListener.class)
 @Getter
 @Setter
 public class ScreeningAnswers extends Auditable<String> implements Serializable, Diffable<ScreeningAnswers> {
