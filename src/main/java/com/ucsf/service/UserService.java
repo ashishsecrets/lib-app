@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import com.ucsf.auth.model.User;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.payload.request.AddUserRequest;
+import com.ucsf.payload.request.PushNotificationRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
 import com.ucsf.payload.response.PatientResponse;
@@ -16,6 +17,7 @@ public interface UserService {
 	User save(SignUpRequest signUpRequest);
 	User findByEmail(String email);
 	User findById(Long id);
+	void sendPush(Long id,PushNotificationRequest request);
 	User addUser(AddUserRequest user);
 	User updateUser(Long userId,UserUpdateRequest updateUser);
 	List<PatientResponse> getApprovedPatients(Long studyId);

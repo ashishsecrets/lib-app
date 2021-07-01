@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ucsf.model.UserTasks;
+import com.ucsf.payload.request.PushNotificationRequest;
 import com.ucsf.payload.response.*;
 import com.ucsf.repository.SurveyRepository;
 import com.ucsf.repository.UserRepository;
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -176,6 +178,38 @@ public class PatientController {
 			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
+	@ApiOperation(value = "Send Chat Push", notes = "Send Chat Push", code = 200, httpMethod = "POST", produces = "application/json")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Send Chat Push", response = SuccessResponse.class) })
+	@RequestMapping(value = "/sendPush/{patientId}", method = RequestMethod.POST)
+	public ResponseEntity<?> sendPush(@PathVariable Long patientId,@RequestBody PushNotificationRequest request ) {
+		JSONObject response = new JSONObject();
+		User user = null;
+		UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userDetail != null && userDetail.getUsername() != null) {
+			user = userService.findByEmail(userDetail.getUsername());
+			loggerService.printLogs(log, "sendPush", "sendPush");
+		} else {
+			loggerService.printLogs(log, "sendPush", "Invalid JWT signature.");
+			response.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+					Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+			return new ResponseEntity(response.toMap(), HttpStatus.UNAUTHORIZED);
+		}
+		try {
+			userService.sendPush(patientId,request);
+			System.out.println(request.toString());
+			response.put("data", new SuccessResponse(true, "push sent."));
+			return new ResponseEntity(response.toMap(), HttpStatus.OK);
+		} catch (Exception e) {
+			response.put("data", new ErrorResponse(111, "Error in push sent."));
+			return new ResponseEntity(response.toMap(), HttpStatus.BAD_REQUEST);
+		}
+	}
+
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'STUDYTEAM','PHYSICIAN')")
