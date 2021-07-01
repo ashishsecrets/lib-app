@@ -1,12 +1,14 @@
 package com.ucsf.entityListener;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ucsf.auditModel.Action;
 import com.ucsf.auditModel.ScreeningAnswersHistory;
 import com.ucsf.auditModel.UserHistory;
 import com.ucsf.auth.model.User;
 import com.ucsf.model.ScreeningAnswers;
 import com.ucsf.util.BeanUtil;
+import com.ucsf.util.HibernateProxyTypeAdapter;
 import org.apache.commons.lang3.builder.Diff;
 import org.apache.commons.lang3.builder.DiffResult;
 import org.json.JSONObject;
@@ -59,12 +61,27 @@ public class ScreeningAnswersEntityListener {
                     	changedContent.put(d.getFieldName(), "FROM " + d.getLeft() + " TO " + d.getRight() + "");
                 	}
                 }
+
                 if(changedContent.keySet().size() > 0) {
-                	entityManager.persist(new ScreeningAnswersHistory(target, action, new Gson().toJson(target), previousContent, changedContent.toString()));
+
+					GsonBuilder x = new GsonBuilder();
+
+					x.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY);
+
+					Gson gson = x.create();
+
+                	entityManager.persist(new ScreeningAnswersHistory(target, action, gson.toJson(target), previousContent, changedContent.toString()));
             	}
                	        	
 	        } else {
-	        	entityManager.persist(new ScreeningAnswersHistory(target, action, new Gson().toJson(target), "", ""));
+
+				GsonBuilder x = new GsonBuilder();
+
+				x.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY);
+
+				Gson gson = x.create();
+
+	        	entityManager.persist(new ScreeningAnswersHistory(target, action, gson.toJson(target), "", ""));
 	        }
             
         }catch (Exception e) {
