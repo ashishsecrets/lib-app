@@ -650,6 +650,8 @@ public class UserServiceImpl implements UserService {
 				note.setContent(request.getText());
 				note.setSubject(request.getFirstName());
 				String msgId = pushNotificationService.sendNotification(note, patient.getDevideId());
+				System.out.println(patient.getDevideId());
+				System.out.println(msgId);
 			} catch (Exception e) {
 				
 			}
