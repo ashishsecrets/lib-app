@@ -32,6 +32,8 @@ import com.ucsf.model.UserMetadata.StudyAcceptanceNotification;
 import com.ucsf.model.UserMetadata.StudyStatus;
 import com.ucsf.model.UserScreeningStatus.UserScreenStatus;
 import com.ucsf.payload.request.AddUserRequest;
+import com.ucsf.payload.request.Note;
+import com.ucsf.payload.request.PushNotificationRequest;
 import com.ucsf.payload.request.SignUpRequest;
 import com.ucsf.payload.request.UserUpdateRequest;
 import com.ucsf.payload.response.PatientResponse;
@@ -42,6 +44,7 @@ import com.ucsf.repository.UserMetaDataRepository;
 import com.ucsf.repository.UserRepository;
 import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.service.EmailService;
+import com.ucsf.service.PushNotificationService;
 import com.ucsf.service.UserService;
 import com.ucsf.util.AppUtil;
 
@@ -74,6 +77,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	ImageRepository imageRepository;
+	
+	@Autowired
+	PushNotificationService pushNotificationService;
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
@@ -631,5 +637,24 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 		return existed;
+	}
+
+	@Override
+	public void sendPush(Long id,PushNotificationRequest request) {
+		Optional<User> user = userRepository.findById(id);
+		if(user.isPresent()) {
+			User patient = user.get();
+			try {
+				Note note = new Note();
+				// Todo Dynamic Study name
+				note.setContent(request.getText());
+				note.setSubject(request.getFirstName());
+				String msgId = pushNotificationService.sendNotification(note, patient.getDevideId());
+			} catch (Exception e) {
+				
+			}
+		}
+		// TODO Auto-generated method stub
+		return;
 	}
 }
