@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
 
@@ -649,6 +650,10 @@ public class UserServiceImpl implements UserService {
 				// Todo Dynamic Study name
 				note.setContent(request.getText());
 				note.setSubject(request.getFirstName());
+				Map<String, String> data = new TreeMap<String, String>();
+				data.put("1", "chat");
+				data.put("2", "value2");
+				note.setData(data);
 				String msgId = pushNotificationService.sendNotification(note, patient.getDevideId());
 				System.out.println(patient.getDevideId());
 				System.out.println(msgId);
