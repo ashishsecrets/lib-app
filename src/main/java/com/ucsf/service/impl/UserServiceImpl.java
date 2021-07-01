@@ -653,7 +653,8 @@ public class UserServiceImpl implements UserService {
 				System.out.println(patient.getDevideId());
 				System.out.println(msgId);
 			} catch (Exception e) {
-				
+				System.out.println(patient.getDevideId());
+				e.printStackTrace();
 			}
 		}
 		// TODO Auto-generated method stub
