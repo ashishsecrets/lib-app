@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.ucsf.model.Notifications;
+import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.repository.NotificationsRepository;
 import com.ucsf.service.*;
 import org.json.JSONObject;
@@ -36,6 +37,7 @@ import com.ucsf.payload.response.AuthResponse;
 import com.ucsf.payload.response.ErrorResponse;
 import com.ucsf.payload.response.SuccessResponse;
 import com.ucsf.repository.UserRepository;
+import com.ucsf.repository.UserScreeningStatusRepository;
 import com.ucsf.service.CustomUserDetailsService;
 import com.ucsf.service.LoggerService;
 import com.ucsf.service.VerificationService;
@@ -77,6 +79,9 @@ public class OtpController {
 
 	@Autowired
 	private LoggerService loggerService;
+	
+	@Autowired
+	UserScreeningStatusRepository userScreeningStatusRepository;
 
 	@Autowired
 	private OtpService otpService;
@@ -273,8 +278,13 @@ public class OtpController {
 			 * } catch(Exception e) { e.printStackTrace(); }
 			 */
 		}
+		String status = "";
+		UserScreeningStatus userStatus = userScreeningStatusRepository.findByUserId(user.getId());
+		if(userStatus != null && userStatus.getUserScreeningStatus() != null) {
+			 status = userStatus.getUserScreeningStatus().toString();
+		}
 
-		responseJson.put("data", new AuthResponse(userDetails, user, message,null, ""));
+		responseJson.put("data", new AuthResponse(userDetails, user, message,status, ""));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 
 	}
