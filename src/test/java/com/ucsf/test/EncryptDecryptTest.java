@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 //import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.junit.runner.RunWith;
+//import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import com.ucsf.UcsfMainApplication;
@@ -20,11 +20,11 @@ public class EncryptDecryptTest {
 
 	EncryptDecryptUtil encryptDecrypt = new EncryptDecryptUtil();
 
-	@Test
+	/*@Test
 	public void encrypt() throws Exception {
 
 		JSONObject jsonObject2 = new JSONObject();
-		/*jsonObject2.put("Email address", "gurpreet.kaur@redblink.net");
+		*//*jsonObject2.put("Email address", "gurpreet.kaur@redblink.net");
 		jsonObject2.put("Zip Code", "160022");
 		jsonObject2.put("Hi Temp", "90.0");
 		jsonObject2.put("Lo Temp", "78.0");
@@ -35,7 +35,7 @@ public class EncryptDecryptTest {
 		jsonObject2.put("Current Humidity", "80");
 		jsonObject2.put("Data Entry Date", "2019-08-29T00:00:00");
 		jsonObject2.put("Pollen Counts", "");
-		jsonObject2.put("Flareup Intensity", "Medium");*/
+		jsonObject2.put("Flareup Intensity", "Medium");*//*
 		String jsonObject2String = "{\n" +
 				"    \"data\": [\n" +
 				"        {\n" +
@@ -55,15 +55,22 @@ public class EncryptDecryptTest {
 		String encryptedFlareupData = encryptDecrypt.encrypt(jsonObject2.toString());
 		System.out.println(encryptedFlareupData);
 	}
-
+*/
 	@Test
 	public void decrypt() throws Exception {
-		String encryptedText = "MuXe6xCYmm62e1A19x1R1z8ZckC/7Jnv7ooy3YLqxvGfOB7hG8Lua/nBF7O4tA5ksXWMN66OGOTFb6WTbK4b8ofCy+0C85PRREAUA0mAU3mwHdtWuzlrQvylvi2kWRwKmFWyGEOs+ayu/Ymm6PU1w2EszVjJaOvUl1YtqnE3KYjVLNaai1qK1e+y1H5YlAFpGDAN5F1iADs8fEEeGT63LblaEIcPtZ2CPTtiqoKJN/tDdVSqxzEUCPAZSXji+wSHDeRccdQmCMp7ERqB4DXWTh+PVTlkg8sU2JS25gcAsC4rrR+K";
-		String decryptedFlareupData = encryptDecrypt.decrypt(encryptedText);
-		System.out.println(decryptedFlareupData);
+		String result = "0e743c71a76887dc65ad896955f27ab10f262c2a4fbda67e336fdb8d2a5d0d4ba670b43d3749eaaaf5cb6f3cfd2ec90ec3d522ac988554a876ad7b74449b220ba153132f9dc6447aMgzo44lzrKsF8Uh65mUmvQ5ece3a078444cf24f9a4ad2e3fcda6f2";
+		String resultdata = encryptDecrypt.decrypt(result);
+		System.out.println(resultdata);
+		//String rest2 = "OTEwY2M0MzU2ODFlZjA3M2FjZWE1M2E5MzYzYjI2YzU5NDU0ZGM0ZGFjMGZkODM3MzkwMTczY2I4MzJjODJkNDQ1NDEwYzIxZDAwMTEyYTBlOWJmNjMzYzg2YjRmZTA4OTcyMWY0YWZVYUdpYzZyRWFsZ2x3VnhQcEd5Z3d3OWQ0Y2VhMmFlMWNlZGRjN2VlYTRlMTNmZGVmODlhMWM=";
+		//String rest2data = encryptDecrypt.decrypt(rest2);
+		//System.out.println(rest2data);
+		//String rest = "ccb7617f18d86e9559f76ff773a18b9bWPE9UBJROVCsTVy7OfTaHgef7d6876f81b6aa75856c2f4f30899c4";
+		//String restdata = encryptDecrypt.decrypt(rest);
+		//System.out.println(restdata);
+
 	}
 
-	@Test
+	/*@Test
 	public void hmacSHA256AndEncrypt() throws Exception {
 
 		String secret = "secret";
@@ -91,5 +98,5 @@ public class EncryptDecryptTest {
 		String encryptedFlareupData = encryptDecrypt.encrypt(jsonObject2.toString());
 		System.out.println("encryptedFlareupData using encrypt :" + encryptedFlareupData);
 
-	}
+	}*/
 }

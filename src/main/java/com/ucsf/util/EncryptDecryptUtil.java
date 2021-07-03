@@ -102,6 +102,7 @@ public class EncryptDecryptUtil {
 
 		cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(secretBytes, 0, AES_KEY_LENGTH, AES),
 				new IvParameterSpec(iv));
+
 		byte[] decrypted = cipher.doFinal(encrypted);
 		return new String(decrypted, "UTF-8");
 	}
