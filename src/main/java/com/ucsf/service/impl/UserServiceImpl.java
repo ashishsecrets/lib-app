@@ -224,7 +224,7 @@ public class UserServiceImpl implements UserService {
 				imageRepository.save(back_of_arms);
 
 				StudyImages front_of_hands = new StudyImages();
-				front_of_hands.setName("Front of Hands");
+				front_of_hands.setName("Palms of Hands");
 				front_of_hands.setDescription("");
 				front_of_hands.setStudyId(item.getId());
 				front_of_hands.setImageUrl("body_parts/front_of_hands" + "/" + savedUser.getId());
@@ -233,7 +233,7 @@ public class UserServiceImpl implements UserService {
 				imageRepository.save(front_of_hands);
 
 				StudyImages back_of_hands = new StudyImages();
-				back_of_hands.setName("Back of Hands");
+				back_of_hands.setName("Top of Hands");
 				back_of_hands.setDescription("");
 				back_of_hands.setStudyId(item.getId());
 				back_of_hands.setImageUrl("body_parts/back_of_hands" + "/" + savedUser.getId());
@@ -260,7 +260,7 @@ public class UserServiceImpl implements UserService {
 				imageRepository.save(back_of_legs);
 
 				StudyImages front_of_feet = new StudyImages();
-				front_of_feet.setName("Front of Feet");
+				front_of_feet.setName("Top of Feet");
 				front_of_feet.setDescription("");
 				front_of_feet.setStudyId(item.getId());
 				front_of_feet.setImageUrl("body_parts/front_of_feet" + "/" + savedUser.getId());
@@ -269,7 +269,7 @@ public class UserServiceImpl implements UserService {
 				imageRepository.save(front_of_feet);
 
 				StudyImages back_of_feet = new StudyImages();
-				back_of_feet.setName("Back of Feet");
+				back_of_feet.setName("Soles of Feet");
 				back_of_feet.setDescription("");
 				back_of_feet.setStudyId(item.getId());
 				back_of_feet.setImageUrl("body_parts/back_of_feet" + "/" + savedUser.getId());
