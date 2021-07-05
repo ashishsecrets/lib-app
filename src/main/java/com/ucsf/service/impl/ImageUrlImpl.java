@@ -56,13 +56,13 @@ public class ImageUrlImpl implements ImageUrlService {
     public String saveFile(File file, String fileFolder) {
         try {
 
-            //String path = "./src/main/resources/images/";
+            String path = "./src/main/resources/images/";
 
 
             String filePath = fileFolder+"/"+file.getName();
-            //Files.createDirectories(Paths.get(path + fileFolder));
-            //file.renameTo(new File(path + filePath));
-            amazonClientService.awsPutObject(file, filePath);
+            Files.createDirectories(Paths.get(path + fileFolder));
+            file.renameTo(new File(path + filePath));
+            //amazonClientService.awsPutObject(file, filePath);
 
             return filePath;
         } catch (Exception e) {

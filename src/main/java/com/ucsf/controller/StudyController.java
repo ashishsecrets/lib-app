@@ -236,9 +236,9 @@ public class StudyController {
 	public void getStudyImage(@RequestParam String imagePath, HttpServletResponse response) {
 
 		try {
-			InputStream inputStream = amazonClientService.awsGetObject(imagePath).getObjectContent();
+			//InputStream inputStream = amazonClientService.awsGetObject(imagePath).getObjectContent();
 
-			//InputStream inputStream = imageService.getImage(imagePath);
+			InputStream inputStream = imageService.getImage(imagePath);
 
 			final int BUFFER_SIZE = 4096;			
 			
