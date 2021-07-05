@@ -47,6 +47,8 @@ public class Appointment extends Auditable<String> implements Diffable<Appointme
 	@Column(name = "end_date")
 	private Date endDate;
 
+	//added comment
+
 	@Override
 	public DiffResult diff(Appointment obj) {
 		return new DiffBuilder(this, obj, ToStringStyle.SHORT_PREFIX_STYLE)
