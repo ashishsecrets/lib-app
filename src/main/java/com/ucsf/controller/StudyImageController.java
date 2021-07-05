@@ -5,6 +5,7 @@ import com.ucsf.common.Constants;
 import com.ucsf.common.ErrorCodes;
 import com.ucsf.model.StudyImages;
 import com.ucsf.model.UserMetadata;
+import com.ucsf.payload.request.AffectedPartRequest;
 import com.ucsf.payload.request.BodyPartRequest;
 import com.ucsf.payload.request.ConsentRequest;
 import com.ucsf.payload.response.ErrorResponse;
@@ -57,10 +58,10 @@ public class StudyImageController {
 
     private static final Logger log = LoggerFactory.getLogger(StudyImageController.class);
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	@ApiOperation(value = "Get parts", notes = "Get body parts", code = 200, httpMethod = "GET", produces = "application/json")
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @ApiOperation(value = "Get parts", notes = "Get body parts", code = 200, httpMethod = "GET", produces = "application/json")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Parts fetched successfully", response = StudyBodyPartsResponse.class) })
+            @ApiResponse(code = 200, message = "Parts fetched successfully", response = StudyBodyPartsResponse.class)})
     @RequestMapping(value = "/get-body-parts/{studyId}", method = RequestMethod.GET)
     public ResponseEntity<?> saveScreeningAnswers(@PathVariable Long studyId) throws Exception {
 
@@ -92,7 +93,7 @@ public class StudyImageController {
             e.printStackTrace();
         }
 
-        if(!isSuccess){
+        if (!isSuccess) {
             responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
                     Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
             return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
@@ -104,38 +105,39 @@ public class StudyImageController {
             List<StudyImages> list = imageUrlService.getImageUrls(studyId, user.getId());
 
 
-        newList = new ArrayList<>();
+            newList = new ArrayList<>();
 
-        if(list != null){
-            for(StudyImages item : list){
-                StudyImageUrlData.BodyPartType type = null;
-                if(item.getName().toLowerCase().contains("front"))
-                    type = StudyImageUrlData.BodyPartType.FRONT;
-                else if(item.getName().toLowerCase().contains("back"))
-                    type = StudyImageUrlData.BodyPartType.BACK;
+            if (list != null) {
+                for (StudyImages item : list) {
 
-                if(item.getName().toLowerCase().contains("special")){
-                    type = StudyImageUrlData.BodyPartType.FRONT;
+                    StudyImageUrlData.BodyPartType type = null;
+                    if (item.getName().toLowerCase().contains("front"))
+                        type = StudyImageUrlData.BodyPartType.FRONT;
+                    else if (item.getName().toLowerCase().contains("back"))
+                        type = StudyImageUrlData.BodyPartType.BACK;
+
+                    if (item.getName().toLowerCase().contains("special")) {
+                        type = StudyImageUrlData.BodyPartType.FRONT;
+                        StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount(), item.getDescription(), type);
+                        newList.add(data);
+                        type = StudyImageUrlData.BodyPartType.BACK;
+                    }
+
                     StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount(), item.getDescription(), type);
-                    newList.add(data);
-                    type = StudyImageUrlData.BodyPartType.BACK;
+                    totalCount += item.getCount();
+                    if (item.getImageType() != StudyImages.StudyImageType.AFFECTEDAREAS)
+                        newList.add(data);
                 }
-
-                StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount(), item.getDescription(), type);
-                totalCount += item.getCount();
-                newList.add(data);
             }
-        }
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
 
-        if(newList != null){
+        if (newList != null) {
             response.setList(newList);
             response.setTotalCount(totalCount);
-        responseJson.put("data", response);
-        }
-        else{
+            responseJson.put("data", response);
+        } else {
             responseJson.put("error", new ErrorResponse(ErrorCodes.NO_STUDY_FOUND.code(), Constants.NO_STUDY_FOUND.errordesc()));
             return new ResponseEntity(responseJson, HttpStatus.NO_CONTENT);
         }
@@ -144,7 +146,7 @@ public class StudyImageController {
 
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @PostMapping(value = "/save-part-image")
     @ResponseBody
     public ResponseEntity<?> savePartImage(@RequestBody BodyPartRequest request) {
@@ -173,6 +175,44 @@ public class StudyImageController {
         } catch (Exception e) {
             e.printStackTrace();
             loggerService.printErrorLogs(log, "savePartImage", "Error while saving user image.");
+            responseJson.put("error", new ErrorResponse(116, e.getMessage()));
+            return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
+    @ApiOperation(value = "save-affected-image", notes = "save-affected-image", code = 200, httpMethod = "POST", produces = "application/json")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Parts fetched successfully", response = SuccessResponse.class) })
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @PostMapping(value = "/save-affected-image")
+    @ResponseBody
+    public ResponseEntity<?> saveAffectedImage(@RequestBody AffectedPartRequest request) {
+        User user = null;
+        JSONObject responseJson = new JSONObject();
+        try {
+
+            UserDetails userDetail = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            if (userDetail != null && userDetail.getUsername() != null) {
+                user = userService.findByEmail(userDetail.getUsername());
+                loggerService.printLogs(log, "saveAffectedImage", "Saving affected area image " + user.getEmail());
+            } else {
+                loggerService.printLogs(log, "saveAffectedImage", "Invalid JWT signature.");
+                responseJson.put("error", new ErrorResponse(ErrorCodes.INVALID_AUTHORIZATION_HEADER.code(),
+                        Constants.INVALID_AUTHORIZATION_HEADER.errordesc()));
+                return new ResponseEntity(responseJson.toMap(), HttpStatus.UNAUTHORIZED);
+            }
+
+
+            imageUrlService.saveAffectedImage(user, request);
+
+            responseJson.put("data", new SuccessResponse(true, "User affected area image saved successfully."));
+            return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            loggerService.printErrorLogs(log, "saveAffectedImage", "Error while saving user image.");
             responseJson.put("error", new ErrorResponse(116, e.getMessage()));
             return new ResponseEntity(responseJson.toMap(), HttpStatus.BAD_REQUEST);
         }

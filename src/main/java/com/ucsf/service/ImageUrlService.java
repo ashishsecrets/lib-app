@@ -2,6 +2,7 @@ package com.ucsf.service;
 
 import com.ucsf.auth.model.User;
 import com.ucsf.model.StudyImages;
+import com.ucsf.payload.request.AffectedPartRequest;
 import com.ucsf.payload.request.BodyPartRequest;
 import com.ucsf.payload.response.StudyBodyPartsResponse;
 
@@ -19,4 +20,6 @@ public interface ImageUrlService {
     void saveImage(User user, BodyPartRequest request);
 
     InputStream getImage(String imagePath) throws IOException;
+
+    void saveAffectedImage(User user, AffectedPartRequest request);
 }

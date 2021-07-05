@@ -9,4 +9,6 @@ public interface ImageRepository extends CrudRepository<StudyImages, Long> {
 
     List<StudyImages> findByStudyIdAndUserId(Long studyId, Long userId);
 
+    List<StudyImages> findByUserIdAndImageType(Long userId, StudyImages.StudyImageType imageType);
+
 }

@@ -4,6 +4,7 @@ import com.ucsf.auth.model.User;
 import com.ucsf.model.ConsentForms;
 import com.ucsf.model.StudyImages;
 import com.ucsf.model.UserConsent;
+import com.ucsf.payload.request.AffectedPartRequest;
 import com.ucsf.payload.request.BodyPartRequest;
 import com.ucsf.payload.response.StudyBodyPartsResponse;
 import com.ucsf.repository.ImageRepository;
@@ -108,6 +109,42 @@ public class ImageUrlImpl implements ImageUrlService {
         File file = ResourceUtils.getFile(path + imagePath);
 
         return file.toURL().openStream();
+    }
+
+    @Override
+    public void saveAffectedImage(User user, AffectedPartRequest request) {
+
+
+        try {
+
+            String fileName = user.getId()+"_"+new Date().getTime();
+            File affectedAreaFile = decodeBase64String(request.getPartImage(), fileName+".jpeg");
+
+            List<StudyImages> studyImagesList = imageRepository.findByUserIdAndImageType(user.getId(), request.getImageType());
+
+            for(StudyImages studyImages : studyImagesList){
+
+            saveFile(affectedAreaFile, studyImages.getImageUrl());
+            int count = studyImages.getCount();
+            studyImages.setCount(count+1);
+            List<String> fileNameList = studyImages.getFilename();
+            fileNameList.add(fileName+".jpeg");
+            studyImages.setFilename(fileNameList);
+            List<String> fileDescriptionList = studyImages.getFileDescription();
+            fileDescriptionList.add(request.getDescription());
+            //Parameter Description is Obslete - comenting out.
+
+            imageRepository.save(studyImages);
+
+            affectedAreaFile.delete();
+
+            }
+
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     private File decodeBase64String(String signatureImageUrl, String fileName) {

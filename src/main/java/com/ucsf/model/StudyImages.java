@@ -11,6 +11,13 @@ import java.util.List;
 @Getter
 @Setter
 public class StudyImages extends Auditable<String> {
+
+
+    public enum StudyImageType{
+        BODYPARTS, AFFECTEDAREAS
+    }
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_id")
@@ -32,6 +39,9 @@ public class StudyImages extends Auditable<String> {
 
     @Column(name = "user_id")
     private Long userId;
+
+    @Column(name = "image_type")
+    private StudyImageType imageType;
 
     @Column(name = "count")
     private int count;
