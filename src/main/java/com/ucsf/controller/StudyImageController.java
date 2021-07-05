@@ -124,9 +124,9 @@ public class StudyImageController {
                     }
 
                     StudyImageUrlData data = new StudyImageUrlData(item.getId(), item.getName(), item.getCount(), item.getDescription(), type);
-                    totalCount += item.getCount();
-                    if (item.getImageType() != StudyImages.StudyImageType.AFFECTEDAREAS)
-                        newList.add(data);
+                    if (item.getImageType() != StudyImages.StudyImageType.AFFECTEDAREAS){
+                        totalCount += item.getCount();
+                        newList.add(data);}
                 }
             }
         } catch (NullPointerException e) {
