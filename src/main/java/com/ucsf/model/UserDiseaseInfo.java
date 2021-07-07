@@ -1,28 +1,26 @@
 package com.ucsf.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.ucsf.auth.model.User;
 
+import com.ucsf.entityListener.TasksEntityListener;
+import com.ucsf.entityListener.UserDiseaseInfoEntityListener;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
 @Table(name = "user_disease_info")
+@EntityListeners(UserDiseaseInfoEntityListener.class)
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserDiseaseInfo extends Auditable<String>{
+public class UserDiseaseInfo extends Auditable<String> implements Diffable<UserDiseaseInfo> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,4 +65,21 @@ public class UserDiseaseInfo extends Auditable<String>{
 	@JoinColumn(name = "user_id",insertable = false,updatable = false)
 	private User user;
 
+	@Override
+	public DiffResult diff(UserDiseaseInfo obj) {
+		return new DiffBuilder(this, obj, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("height", this.height, obj.height)
+				.append("weight", this.weight, obj.weight)
+				.append("hospitals", this.hospitals, obj.hospitals)
+				.append("doctors", this.doctors, obj.doctors)
+				.append("comorbidities", this.comorbidities, obj.comorbidities)
+				.append("worsenFactors", this.worsenFactors, obj.worsenFactors)
+				.append("diagonsis", this.diagonsis, obj.diagonsis)
+				.append("location", this.location, obj.location)
+				.append("familyHistory", this.familyHistory, obj.familyHistory)
+				.append("medicationHistory", this.medicationHistory, obj.medicationHistory)
+				.append("userId", this.userId, obj.userId)
+				.build();
+
+	}
 }
