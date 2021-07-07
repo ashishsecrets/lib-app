@@ -276,9 +276,6 @@ public class OtpController {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
-
-
 			/*
 			 * try { //Inform study team otpService.informStudyTeam(user);
 			 * 

@@ -17,7 +17,7 @@ import java.util.Date;
 public class UserTasksHistory {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private Integer taskId;
 
 	@ManyToOne
 	@JoinColumn(name = "id", foreignKey = @ForeignKey(name = "FK_user_tasks_history_file"))
