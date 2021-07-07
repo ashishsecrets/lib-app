@@ -48,7 +48,7 @@ public class UserSurveyStatusEntityListener {
         	EntityManager entityManager = BeanUtil.getBean(EntityManager.class);
         	JdbcTemplate jdbcTemplate = BeanUtil.getBean(JdbcTemplate.class);
         	
-        	String sql = "Select user_survey_status_content from user_survey_status_history where status_id = "+target.getId()+" order by id desc limit 1";
+        	String sql = "Select user_survey_status_content from user_survey_status_history where survey_status_id = "+target.getId()+" order by id desc limit 1";
         	List<String> list = jdbcTemplate.queryForList(sql, String.class);
         	String previousContent = list.size() > 0 ? list.get(0) : null;
         	
