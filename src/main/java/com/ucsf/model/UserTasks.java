@@ -2,9 +2,15 @@ package com.ucsf.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ucsf.auth.model.User;
+import com.ucsf.entityListener.UserSurveyStatusEntityListener;
+import com.ucsf.entityListener.UserTasksEntityListener;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,9 +19,10 @@ import java.util.List;
 @Entity
 @Table(name = "user_tasks")
 @NoArgsConstructor
+@EntityListeners(UserTasksEntityListener.class)
 @Getter
 @Setter
-public class UserTasks {
+public class UserTasks implements Diffable<UserTasks> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,4 +72,20 @@ public class UserTasks {
 	@JsonIgnore
 	private User users;
 
+	@Override
+	public DiffResult<UserTasks> diff(UserTasks obj) {
+		return new DiffBuilder(this, obj, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("title", this.title, obj.title)
+				.append("description", this.description, obj.description)
+				.append("taskId", this.taskId, obj.taskId)
+				.append("taskType", this.taskType, obj.taskType)
+				.append("progress", this.progress, obj.progress)
+				.append("startDate", this.startDate, obj.startDate)
+				.append("endDate", this.endDate, obj.endDate)
+				.append("duration", this.duration, obj.duration)
+				.append("userId", this.userId, obj.userId)
+				.append("studyId", this.studyId, obj.studyId)
+				.append("weekCount", this.weekCount, obj.weekCount)
+				.build();
+	}
 }

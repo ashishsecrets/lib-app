@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.ucsf.model.Notifications;
 import com.ucsf.model.UserScreeningStatus;
 import com.ucsf.repository.NotificationsRepository;
@@ -85,6 +86,9 @@ public class OtpController {
 
 	@Autowired
 	private OtpService otpService;
+
+	@Autowired
+	FirebaseService firebaseService;
 
 	private static Logger log = LoggerFactory.getLogger(OtpController.class);
 
@@ -175,7 +179,7 @@ public class OtpController {
 	@ApiOperation(value = "Verify otp", notes = "Verify otp", code = 200, httpMethod = "POST", produces = "application/json")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "User verified successfully", response = User.class) })
 	@RequestMapping(value = "/verifyOtp", method = RequestMethod.POST)
-	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
+	public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) throws FirebaseAuthException {
 
 		loggerService.printLogs(log, "verifyOtp", "In verifyy otp request");
 		User user = null;
@@ -283,8 +287,13 @@ public class OtpController {
 		if(userStatus != null && userStatus.getUserScreeningStatus() != null) {
 			 status = userStatus.getUserScreeningStatus().toString();
 		}
+		try {
+			String firebaseAuthToken = firebaseService.signInUser(user);
+			responseJson.put("data", new AuthResponse(userDetails, user, message,status, firebaseAuthToken));
+		} catch (FirebaseAuthException e) {
+			System.out.println(e);
+		}
 
-		responseJson.put("data", new AuthResponse(userDetails, user, message,status, ""));
 		return new ResponseEntity<>(responseJson.toMap(), HttpStatus.OK);
 
 	}

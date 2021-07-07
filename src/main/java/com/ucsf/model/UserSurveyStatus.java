@@ -2,16 +2,24 @@ package com.ucsf.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ucsf.auth.model.User;
+import com.ucsf.entityListener.UserScreeningStatusEntityListener;
+import com.ucsf.entityListener.UserSurveyStatusEntityListener;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.builder.DiffBuilder;
+import org.apache.commons.lang3.builder.DiffResult;
+import org.apache.commons.lang3.builder.Diffable;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "user_survey_status")
+@EntityListeners(UserSurveyStatusEntityListener.class)
 @Data
 @NoArgsConstructor
-public class UserSurveyStatus {
+public class UserSurveyStatus implements Diffable<UserSurveyStatus> {
+
 
 	public enum SurveyStatus {
 		NEWLY_ADDED,INPROGRESS,UNDER_REVIEW, ENROLLED, AVAILABLE, DISQUALIFIED
@@ -59,5 +67,20 @@ public class UserSurveyStatus {
 	@JoinColumn(name = "user_id", insertable = false, updatable = false)
 	@JsonIgnore
 	private User users;
+
+
+	@Override
+	public DiffResult<UserSurveyStatus> diff(UserSurveyStatus obj) {
+		return new DiffBuilder(this, obj, ToStringStyle.SHORT_PREFIX_STYLE)
+				.append("userSurveyStatus", this.userSurveyStatus, obj.userSurveyStatus)
+				.append("studyId", this.surveyId, obj.surveyId)
+				.append("userId", this.userId, obj.userId)
+				.append("indexValue", this.indexValue, obj.indexValue)
+				.append("taskTrueId", this.taskTrueId, obj.taskTrueId)
+				.append("maxIndexValue", this.maxIndexValue, obj.maxIndexValue)
+				.append("skipCount", this.skipCount, obj.skipCount)
+				.build();
+	}
+
 
 }
