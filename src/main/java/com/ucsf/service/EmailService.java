@@ -7,10 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -164,7 +168,7 @@ public class EmailService {
 		body = body.replaceAll("\\{\\{name\\}\\}", user.getFirstName()+" "+user.getLastName());
 		body = body.replaceAll("\\{\\{type\\}\\}", type.toLowerCase());
 
-        formContent = formContent.replaceAll("\\{\\{date\\}\\}", userConsent.getDate())
+     																					   formContent = formContent.replaceAll("\\{\\{date\\}\\}", userConsent.getDate())
 								 .replaceAll("\\{\\{patientName\\}\\}", userConsent.getPatientName())
 								// .replaceAll("\\{\\{patientSignature\\}\\}", patientSignatureFile.getPath())
 								 .replaceAll("\\{\\{parentName\\}\\}", userConsent.getParentName())
@@ -179,7 +183,19 @@ public class EmailService {
         
         File pdfFile = new File(fileName+".pdf");
         HtmlConverter.convertToPdf(formContent, new FileOutputStream(pdfFile));
-        
+
+        //todo
+		try {
+			String path = "src/main/resources/userConsentForms/"+user.getId()+"/";
+			Files.createDirectories(Paths.get(path));
+			Path temp = Files.copy
+					(Paths.get(pdfFile.getAbsolutePath()),
+					(Paths.get("src/main/resources/userConsentForms/"+user.getId()+"/"+pdfFile.getName())));
+
+		}catch(Exception e) {
+			System.out.println("error");
+		}
+
         userConsent.setPdfFile(consentService.saveFile(pdfFile, user.getId().toString()));
         
         FileSystemResource attachmentFile = new FileSystemResource(pdfFile);
