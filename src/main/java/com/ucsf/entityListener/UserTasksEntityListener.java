@@ -23,7 +23,6 @@ import java.util.List;
 
 import static com.ucsf.auditModel.Action.*;
 
-//Screening answers entity listner
 
 public class UserTasksEntityListener {
 	
@@ -48,7 +47,7 @@ public class UserTasksEntityListener {
         	EntityManager entityManager = BeanUtil.getBean(EntityManager.class);
         	JdbcTemplate jdbcTemplate = BeanUtil.getBean(JdbcTemplate.class);
         	
-        	String sql = "Select user_tasks_content from user_tasks_history where taskId = "+target.getTaskTrueId()+" order by id desc limit 1";
+        	String sql = "Select user_tasks_content from user_tasks_history where task_id = "+target.getTaskTrueId()+" order by id desc limit 1";
         	List<String> list = jdbcTemplate.queryForList(sql, String.class);
         	String previousContent = list.size() > 0 ? list.get(0) : null;
         	

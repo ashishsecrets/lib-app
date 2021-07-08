@@ -13,7 +13,6 @@ import javax.persistence.PreUpdate;
 
 import com.google.gson.GsonBuilder;
 import com.ucsf.auditModel.TasksHistory;
-import com.ucsf.auditModel.UserScreeningStatusHistory;
 import com.ucsf.model.Tasks;
 import com.ucsf.util.HibernateProxyTypeAdapter;
 import org.apache.commons.lang3.builder.Diff;
@@ -24,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.ucsf.auditModel.Action;
-import com.ucsf.auditModel.AppointmentHistory;
-import com.ucsf.model.Appointment;
 import com.ucsf.util.BeanUtil;
 
 public class TasksEntityListener {
@@ -55,7 +52,7 @@ public class TasksEntityListener {
             JdbcTemplate jdbcTemplate = BeanUtil.getBean(JdbcTemplate.class);
 
             String sql = "Select tasks_content from tasks_history where tasks_id = "
-                    + target.getId() + " order by id desc limit 1";
+                    + target.getTaskId() + " order by id desc limit 1";
             List<String> list = jdbcTemplate.queryForList(sql, String.class);
             String previousContent = list.size() > 0 ? list.get(0) : null;
 

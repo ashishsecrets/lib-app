@@ -17,7 +17,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "tasks")
-//@EntityListeners(TasksEntityListener.class)
+@EntityListeners(TasksEntityListener.class)
 @NoArgsConstructor
 @Getter
 @Setter
@@ -26,7 +26,7 @@ public class Tasks extends Auditable<String> implements Diffable<Tasks> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tasks_id")
-    private Long id;
+    private Long taskId;
 
     @Column
     private String title;

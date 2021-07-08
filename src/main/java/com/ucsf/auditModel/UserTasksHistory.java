@@ -17,6 +17,7 @@ import java.util.Date;
 public class UserTasksHistory {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "task_id")
 	private Integer taskId;
 
 	@ManyToOne
