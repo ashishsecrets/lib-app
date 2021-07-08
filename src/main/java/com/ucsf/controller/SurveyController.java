@@ -151,6 +151,7 @@ public class SurveyController {
 			if(taskService.getTaskList(user) != null && !taskService.getTaskList(user).isEmpty()){
 				response.setList(taskService.getAlteredTaskList(tasks));
 				response.setTotalProgress(taskService.getTotalProgress(user));
+				response.setCurrentWeek(taskService.getTotalWeeksIntoStudy(user));
 				responseJson.put("data", response);
 				return new ResponseEntity(responseJson.toMap(), HttpStatus.OK);
 			}

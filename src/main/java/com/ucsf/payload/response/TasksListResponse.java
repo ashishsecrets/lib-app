@@ -10,4 +10,5 @@ public class TasksListResponse {
 
 	List<TaskResponse> list;
 	int totalProgress;
+	int currentWeek;
 }
