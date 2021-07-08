@@ -89,7 +89,7 @@ public class StudyAcceptanceNotificationService{
 				// Notify by Email
 				try {
 					emailService.sendStudyApprovalEmail(fromEmail, approvedUser.getEmail(),
-							"Study Approval From UCSF Team",
+							"Study Approval From Skin Tracker Team",
 							approvedUser.getFirstName() + " " + approvedUser.getLastName());
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
 					metaData.setStudyStatus(StudyStatus.ENROLLED);
@@ -161,7 +161,7 @@ public class StudyAcceptanceNotificationService{
 				// Notify by Email
 				try {
 					emailService.sendStudyDisApprovalEmail(fromEmail, disApprovedUser.getEmail(),
-							"Study DisApproval From UCSF Team",
+							"Study DisApproval From Skin Tracker Team",
 							disApprovedUser.getFirstName() + " " + disApprovedUser.getLastName());
 					metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
 					metaData.setStudyStatus(StudyStatus.DISQUALIFIED);

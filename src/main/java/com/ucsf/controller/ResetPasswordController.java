@@ -75,7 +75,7 @@ public class ResetPasswordController {
 			}
 		}
 		try {
-			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your UCSF Skin Tracker account password",
+			emailService.sendResetPasswordEmail(fromEmail, user.getEmail(), "Reset your Skin Tracker account password",
 					user.getFirstName() + " " + user.getLastName(), passResetLinkService.createPasswordResetLink(user), "classpath:template/passwordResetEmail.html");
 		} catch (Exception e) {
 			e.printStackTrace();

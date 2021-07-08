@@ -76,7 +76,7 @@ public class StudyNotificationService {
 		UserScreeningStatus userStatus = userScreeningStatusRepository.findByUserId(userId);
 		if (userStatus != null) {
 			try {
-				emailService.sendStudyApprovalEmail(fromEmail, approvedUser.getEmail(), "Study Approval From UCSF Team",
+				emailService.sendStudyApprovalEmail(fromEmail, approvedUser.getEmail(), "Study Approval From Skin Tracker Team",
 						approvedUser.getFirstName() + " " + approvedUser.getLastName());
 				//metaData.setNotifiedBy(StudyAcceptanceNotification.NOTIFIED_BY_EMAIL);
 				userStatus.setUserScreeningStatus(UserScreenStatus.ENROLLED);
