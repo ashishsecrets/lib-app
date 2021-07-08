@@ -111,9 +111,9 @@ public class StudyImageController {
                 for (StudyImages item : list) {
 
                     StudyImageUrlData.BodyPartType type = null;
-                    if (item.getName().toLowerCase().contains("front") || item.getName().toLowerCase().contains("top of feet") || item.getName().toLowerCase().contains("palms of hands"))
+                    if (item.getName().toLowerCase().contains("front") || item.getName().toLowerCase().contains("tops of feet") || item.getName().toLowerCase().contains("palms of hands"))
                         type = StudyImageUrlData.BodyPartType.FRONT;
-                    else if (item.getName().toLowerCase().contains("back") || item.getName().toLowerCase().contains("top of hands") || item.getName().toLowerCase().contains("soles of feet"))
+                    else if (item.getName().toLowerCase().contains("back") || item.getName().toLowerCase().contains("tops of hands") || item.getName().toLowerCase().contains("soles of feet"))
                         type = StudyImageUrlData.BodyPartType.BACK;
 
                     if (item.getName().toLowerCase().contains("special")) {
