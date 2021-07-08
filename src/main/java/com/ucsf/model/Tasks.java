@@ -17,7 +17,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "tasks")
-@EntityListeners(TasksEntityListener.class)
+//@EntityListeners(TasksEntityListener.class)
 @NoArgsConstructor
 @Getter
 @Setter
