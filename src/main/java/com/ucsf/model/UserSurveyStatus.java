@@ -14,7 +14,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "user_survey_status")
+@Table(name = "user_survey_status", uniqueConstraints=
+@UniqueConstraint(columnNames={"task_true_id"}))
 @EntityListeners(UserSurveyStatusEntityListener.class)
 @Data
 @NoArgsConstructor
@@ -41,7 +42,7 @@ public class UserSurveyStatus implements Diffable<UserSurveyStatus> {
 	@Column(name = "survey_id")
 	private Long surveyId;
 
-	@Column(name = "task_true_id", unique=true)
+	@Column(name = "task_true_id")
 	private Long taskTrueId;
 
 	@Column(name = "max_index_value")

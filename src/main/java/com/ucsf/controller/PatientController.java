@@ -382,7 +382,6 @@ public class PatientController {
 		try {
 
 
-			taskService.updateSurveyStatuses(user);
 
 			if(taskService.getAlteredTaskListStudy() != null && !taskService.getAlteredTaskListStudy().isEmpty()){
 				List<OverDuePatientTasksListResponse> response = taskService.getAlteredTaskListStudy();
