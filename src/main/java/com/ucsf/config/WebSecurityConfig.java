@@ -25,13 +25,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -116,17 +109,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	       source.registerCorsConfiguration("/**", configuration);
 	       return source;
 	   }
-	
-	@Bean
-	AmazonS3 initializeAmazon() {
-		AWSCredentials credentials = new BasicAWSCredentials( accessKey, secretKey);
-		AmazonS3 s3client = AmazonS3ClientBuilder
-				.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(credentials))
-				.withRegion(Regions.US_EAST_2)
-				.build();
-		return s3client;
-    }
 	
 	@Bean
 	FirebaseMessaging firebaseMessaging() throws IOException {
