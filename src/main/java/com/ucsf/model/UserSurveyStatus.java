@@ -42,7 +42,7 @@ public class UserSurveyStatus implements Diffable<UserSurveyStatus> {
 	@Column(name = "survey_id")
 	private Long surveyId;
 
-	@Column(name = "task_true_id")
+	@Column(name = "task_true_id", unique = true)
 	private Long taskTrueId;
 
 	@Column(name = "max_index_value")

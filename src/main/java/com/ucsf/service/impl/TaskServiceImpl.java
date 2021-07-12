@@ -51,7 +51,9 @@ public class TaskServiceImpl implements TaskService {
         assert surveyTasklist != null;
         for(UserTasks task: surveyTasklist){
 
-            if(userSurveyStatusRepository.findByUserIdAndSurveyIdAndTaskTrueId(user.getId(), task.getTaskId(), task.getTaskTrueId()) == null){
+            Optional<UserSurveyStatus> x = Optional.ofNullable(userSurveyStatusRepository.findByUserIdAndSurveyIdAndTaskTrueId(user.getId(), task.getTaskId(), task.getTaskTrueId()));
+
+            if(x.isEmpty()){
 
                 UserSurveyStatus userSurveyStatus = new UserSurveyStatus();
                 userSurveyStatus.setSurveyId(task.getTaskId());
