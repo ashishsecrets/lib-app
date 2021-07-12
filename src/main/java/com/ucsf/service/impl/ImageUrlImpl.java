@@ -1,29 +1,20 @@
 package com.ucsf.service.impl;
 
 import com.ucsf.auth.model.User;
-import com.ucsf.model.ConsentForms;
 import com.ucsf.model.StudyImages;
-import com.ucsf.model.UserConsent;
 import com.ucsf.payload.request.AffectedPartRequest;
 import com.ucsf.payload.request.BodyPartRequest;
-import com.ucsf.payload.response.StudyBodyPartsResponse;
 import com.ucsf.repository.ImageRepository;
-import com.ucsf.service.AmazonClientService;
 import com.ucsf.service.ImageUrlService;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;

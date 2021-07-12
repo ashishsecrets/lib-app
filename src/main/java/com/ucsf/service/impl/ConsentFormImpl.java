@@ -21,7 +21,6 @@ import com.ucsf.auth.model.User;
 import com.ucsf.model.ConsentForms.ConsentType;
 import com.ucsf.model.UserConsent.FormType;
 import com.ucsf.payload.request.ConsentRequest;
-import com.ucsf.service.AmazonClientService;
 import com.ucsf.service.ConsentService;
 import com.ucsf.service.EmailService;
 
