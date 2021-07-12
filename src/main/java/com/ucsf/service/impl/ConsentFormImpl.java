@@ -2,6 +2,9 @@ package com.ucsf.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,7 +29,6 @@ import com.ucsf.service.EmailService;
 public class ConsentFormImpl implements ConsentService{
 
 	@Autowired ConsentFormRepository consentFormRepository;
-	@Autowired AmazonClientService amazonClientService;
 	@Autowired private UserMetaDataRepository userMetaDataRepository;
 	@Autowired private UserConsentRepository userConsentRepository;
 	@Autowired EmailService emailService;
@@ -219,10 +221,18 @@ public class ConsentFormImpl implements ConsentService{
 	public String saveFile(File file, String fileFolder) {
 		try {
 					
-			String filePath = fileFolder+"/"+file.getName();
-			amazonClientService.awsCreateFolder(fileFolder);
-			amazonClientService.awsPutObject(file, filePath);
-			
+			String filePath = "src/main/resources/userConsentForms/"+fileFolder+"/"+file.getName();
+			try {
+				String path = "src/main/resources/userConsentForms/"+fileFolder+"/";
+				Files.createDirectories(Paths.get(path));
+				Path temp = Files.copy
+						(Paths.get(file.getAbsolutePath()),
+								(Paths.get("src/main/resources/userConsentForms/"+fileFolder+"/"+file.getName())));
+
+			}catch(Exception e) {
+				System.out.println("error");
+			}
+
 			return filePath;
 		} catch (Exception e) {
 			e.printStackTrace();

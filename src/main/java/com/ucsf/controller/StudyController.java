@@ -63,9 +63,6 @@ public class StudyController {
 	@Autowired
 	ImageUrlService imageService;
 
-	@Autowired
-	AmazonClientService amazonClientService;
-
 	EncryptDecryptUtil encryptDecryptUtil = new EncryptDecryptUtil();
 
 	private static Logger log = LoggerFactory.getLogger(StudyController.class);

@@ -35,9 +35,6 @@ public class ImageUrlImpl implements ImageUrlService {
     @Autowired
     ImageRepository imageRepository;
 
-    @Autowired
-    AmazonClientService amazonClientService;
-
     @Override
     public List<StudyImages> getImageUrls(Long studyId, Long userId) {
 

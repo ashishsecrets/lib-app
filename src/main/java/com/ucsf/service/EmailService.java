@@ -184,18 +184,6 @@ public class EmailService {
         File pdfFile = new File(fileName+".pdf");
         HtmlConverter.convertToPdf(formContent, new FileOutputStream(pdfFile));
 
-        //todo
-		try {
-			String path = "src/main/resources/userConsentForms/"+user.getId()+"/";
-			Files.createDirectories(Paths.get(path));
-			Path temp = Files.copy
-					(Paths.get(pdfFile.getAbsolutePath()),
-					(Paths.get("src/main/resources/userConsentForms/"+user.getId()+"/"+pdfFile.getName())));
-
-		}catch(Exception e) {
-			System.out.println("error");
-		}
-
         userConsent.setPdfFile(consentService.saveFile(pdfFile, user.getId().toString()));
         
         FileSystemResource attachmentFile = new FileSystemResource(pdfFile);
